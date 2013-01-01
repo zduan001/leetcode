@@ -140,7 +140,6 @@ bool isMatch(const char *s, const char *p) {
     {
         return false;
     }
-    
 }
 
 void swap(vector<int>& num, int i , int j)
@@ -6494,6 +6493,104 @@ int findMin(vector<int>& num)
     return num[left-1];
 }
 
+// serialize and deserialize tree
+vector<int> res;
+void serializeTree(TreeNode* root)
+{
+    if(!root)
+    {
+        res.push_back(-1);
+        return;
+    }
+    res.push_back(root->val);
+    serializeTree(root->left);
+    serializeTree(root->right);
+}
+
+int i;
+TreeNode* deserialize()
+{
+    if(i >= res.size()) return NULL;
+    if(res[i] < 0)
+    {
+        i++;
+        return NULL;
+    }
+    TreeNode* root = new TreeNode(res[i++]);
+    root->left = deserialize();
+    root->right = deserialize();
+    return root;
+        
+}
+
+// serialize and deserialize n-ary tree
+struct NaryNode{
+    char val;
+    vector<NaryNode*> child;
+    NaryNode(int v): val(v){};
+};
+
+// this method use a global variable res to take the out put.
+void serializeNary(NaryNode* root)
+{
+    if(!root) { return;}
+    res.push_back(root->val);
+    for(auto item: root->child)
+    {
+        serializeNary(item);
+    }
+    res.push_back(-1);
+}
+
+NaryNode* deserializeNary()
+{
+    while(i<(int)res.size())
+    {
+        if(res[i] <0) {i++; return NULL;}
+        NaryNode* tmp = new NaryNode(res[i]);
+        i++;
+        NaryNode* child = deserializeNary();
+        while(child)
+        {
+            tmp->child.push_back(child);
+            child = deserializeNary();
+        }
+        return tmp;
+    }
+    return NULL;
+}
+
+// print all factors
+void findfactor(int target,int start, vector<vector<int> > &result, vector<int> &group)
+{
+    if(target == 1)
+    {
+        if(group.size()==1)
+        {
+            group.insert(group.begin(),1);
+        }
+        result.push_back(group);
+        return;
+    }
+    for(int i= start;i<=target;i++)
+    {
+        if(target%i==0)
+        {
+            group.push_back(i);
+            findfactor(target/i, i, result, group);
+            group.pop_back();
+        }
+    }
+}
+
+vector<vector<int>> printAllFactor(int n)
+{
+    vector<vector<int>> res;
+    vector<int> tracker;
+    findfactor(n,2, res, tracker);
+    return res;
+}
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -6890,7 +6987,23 @@ int main(int argc, const char * argv[])
     //int res = findMin(input);
     //cout<<res<<endl;
     
-    vector<vector<int>> res = combine(3,2);
+    //vector<vector<int>> res = combine(3,2);
+    /*
+    TreeNode* r1 = new TreeNode(1);
+    TreeNode* r2 = new TreeNode(2);
+    TreeNode* r3 = new TreeNode(3);
+    TreeNode* r4 = new TreeNode(4);
+    r1->left = r2;
+    r1->right = r3;
+    r2->right = r4;
+    
+    res.clear();
+    serializeTree(r1);
+    i = 0;
+    TreeNode* res = deserialize();
+    cout<<res->val<<endl;
+    */
+    vector<vector<int>> res = printAllFactor(8);
     
     // insert code here...
     //std::cout << "Hello, World!\n";
