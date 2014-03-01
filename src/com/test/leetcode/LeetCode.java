@@ -180,25 +180,20 @@ public class LeetCode {
 		while (left < right) {
 			tmp = Math.min(height[left], height[right]) * (right - left);
 			max = max > tmp ? max : tmp;
-			if(height[left] >= height[right])
-			{
-				right --;
-			}
-			else
-			{
-				left ++;
+			if (height[left] >= height[right]) {
+				right--;
+			} else {
+				left++;
 			}
 		}
 		return max;
 	}
-	
+
 	/**
-	 * http://oj.leetcode.com/problems/trapping-rain-water/
-	 *  Given n non-negative integers representing an elevation map where the width of each bar is 1, 
-	 *  compute how much water it is able to trap after raining.
-	 *  For example,
-	 *  Given [0,1,0,2,1,0,1,3,2,1,2,1], return 6. 
-	 *  {6,8,5,0,0,6,5} return 13
+	 * http://oj.leetcode.com/problems/trapping-rain-water/ Given n non-negative
+	 * integers representing an elevation map where the width of each bar is 1,
+	 * compute how much water it is able to trap after raining. For example,
+	 * Given [0,1,0,2,1,0,1,3,2,1,2,1], return 6. {6,8,5,0,0,6,5} return 13
 	 */
 	public int _005_rainWater(int[] A) {
 		if (A == null || A.length < 3) {
@@ -207,108 +202,107 @@ public class LeetCode {
 		int max = 0;
 		int left = 0, right = A.length - 1;
 		int leftMax = A[left], rightMax = A[right];
-		
-		while(left < right){
-			if(A[left] <= A[right]){
-				if(leftMax > A[left+1]){
-					max += leftMax - A[left+1];
-				} else{
+
+		while (left < right) {
+			if (A[left] <= A[right]) {
+				if (leftMax > A[left + 1]) {
+					max += leftMax - A[left + 1];
+				} else {
 					leftMax = A[left + 1];
 				}
-				left ++;
-			}
-			else{
-				if(rightMax > A[right-1]){
-					max += rightMax - A[right-1];
+				left++;
+			} else {
+				if (rightMax > A[right - 1]) {
+					max += rightMax - A[right - 1];
 				} else {
-					rightMax = A[right-1];
+					rightMax = A[right - 1];
 				}
-				right --;
+				right--;
 			}
 		}
 		return max;
 	}
-	
+
 	/**
-	 * http://oj.leetcode.com/problems/search-in-rotated-sorted-array/
-	 * Suppose a sorted array is rotated at some pivot unknown to you beforehand.
-	 * (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
-	 * You are given a target value to search. If found in the array return its index, otherwise return -1.
-	 * You may assume no duplicate exists in the array.
+	 * http://oj.leetcode.com/problems/search-in-rotated-sorted-array/ Suppose a
+	 * sorted array is rotated at some pivot unknown to you beforehand. (i.e., 0
+	 * 1 2 4 5 6 7 might become 4 5 6 7 0 1 2). You are given a target value to
+	 * search. If found in the array return its index, otherwise return -1. You
+	 * may assume no duplicate exists in the array.
+	 * 
 	 * @param A
 	 * @param target
 	 * @return
 	 */
 	public int _006_search(int[] A, int target) {
-		if(A == null || A.length == 0){
+		if (A == null || A.length == 0) {
 			return -1;
 		}
-		return _006_searchRotateArray(A,  target, 0, A.length-1);
+		return _006_searchRotateArray(A, target, 0, A.length - 1);
 	}
-	
-	private int _006_searchRotateArray(int[] A, int target, int left, int right)
-	{
-		if(left > right){
+
+	private int _006_searchRotateArray(int[] A, int target, int left, int right) {
+		if (left > right) {
 			return -1;
 		}
-		
-		if(A[left] == target){
+
+		if (A[left] == target) {
 			return left;
-		}else if(A[right] == target){
+		} else if (A[right] == target) {
 			return right;
 		}
-		
+
 		int mid = left + (right - left) / 2;
-		if(A[mid] == target){
+		if (A[mid] == target) {
 			return mid;
 		}
-		
-		if(A[0] < A[mid]){
-			if(A[0] <= target && target < A[mid]){
-				return _006_searchRotateArray(A, target, left, mid-1);
-			}else {
+
+		if (A[0] < A[mid]) {
+			if (A[0] <= target && target < A[mid]) {
+				return _006_searchRotateArray(A, target, left, mid - 1);
+			} else {
 				return _006_searchRotateArray(A, target, mid + 1, right);
 			}
 		} else {
-			if(A[mid] < target && target <= A[right]){
-				return _006_searchRotateArray(A, target, mid +1, right);
+			if (A[mid] < target && target <= A[right]) {
+				return _006_searchRotateArray(A, target, mid + 1, right);
 			} else {
-				return _006_searchRotateArray(A, target, left, mid -1);
+				return _006_searchRotateArray(A, target, left, mid - 1);
 			}
 		}
 	}
 
 	/**
-	 *  Evaluate the value of an arithmetic expression in Reverse Polish Notation.
-	 *  Valid operators are +, -, *, /. Each operand may be an integer or another expression.
-	 *  Some examples:
-	 *  ["2", "1", "+", "3", "*"] -> ((2 + 1) * 3) -> 9
-	 *  ["4", "13", "5", "/", "+"] -> (4 + (13 / 5)) -> 6
+	 * Evaluate the value of an arithmetic expression in Reverse Polish
+	 * Notation. Valid operators are +, -, *, /. Each operand may be an integer
+	 * or another expression. Some examples: ["2", "1", "+", "3", "*"] -> ((2 +
+	 * 1) * 3) -> 9 ["4", "13", "5", "/", "+"] -> (4 + (13 / 5)) -> 6
+	 * 
 	 * @param tokens
 	 * @return
 	 */
-	public int _007_evalPRN(String[] tokens){
-		if(tokens == null || tokens.length == 0){
+	public int _007_evalPRN(String[] tokens) {
+		if (tokens == null || tokens.length == 0) {
 			return 0;
 		}
-			
+
 		Integer first, second;
 		Stack<Integer> numbers = new Stack<Integer>();
-		for(int i = 0;i< tokens.length;i ++){
-			
-			if(tokens[i].equals("+")){
+		for (int i = 0; i < tokens.length; i++) {
+
+			if (tokens[i].equals("+")) {
 				second = numbers.pop();
 				first = numbers.pop();
 				numbers.push(first + second);
-			}else if(tokens[i].equals("-")){
+			} else if (tokens[i].equals("-")) {
 				second = numbers.pop();
 				first = numbers.pop();
 				numbers.push(first - second);
-			}else if(tokens[i].equals("*")){
+			} else if (tokens[i].equals("*")) {
 				second = numbers.pop();
 				first = numbers.pop();
 				numbers.push(first * second);
-			}else if(tokens[i].equals("/")){
+			} else if (tokens[i].equals("/")) {
 				second = numbers.pop();
 				first = numbers.pop();
 				numbers.push(first / second);
@@ -318,25 +312,26 @@ public class LeetCode {
 		}
 		return numbers.pop();
 	}
-	
+
 	/**
-	 * http://oj.leetcode.com/problems/sort-list/
-	 * Sort a linked list in O(n log n) time using constant space complexity.
+	 * http://oj.leetcode.com/problems/sort-list/ Sort a linked list in O(n log
+	 * n) time using constant space complexity.
+	 * 
 	 * @param head
 	 * @return
 	 */
-	public ListNode _008_sortList(ListNode head){
-		return _008_sortList_worker( head);
+	public ListNode _008_sortList(ListNode head) {
+		return _008_sortList_worker(head);
 	}
-	
-	private ListNode _008_sortList_worker(ListNode head){
-		if(head == null || head.next == null) {
+
+	private ListNode _008_sortList_worker(ListNode head) {
+		if (head == null || head.next == null) {
 			return head;
 		}
-		
-		if(head.next.next == null){
+
+		if (head.next.next == null) {
 			ListNode tail = null;
-			if(head.val > head.next.val){
+			if (head.val > head.next.val) {
 				tail = head;
 				head = head.next;
 				tail.next = null;
@@ -344,132 +339,133 @@ public class LeetCode {
 			}
 			return head;
 		}
-		
+
 		ListNode fast = head, slow = head;
-		while(fast != null){
-			if(fast.next == null){
+		while (fast != null) {
+			if (fast.next == null) {
 				fast = null;
 				break;
-			}else{
+			} else {
 				fast = fast.next.next;
 			}
 			slow = slow.next;
 		}
-		
+
 		ListNode secondHead = slow.next;
 		slow.next = null;
 		head = _008_sortList_worker(head);
 		secondHead = _008_sortList_worker(secondHead);
 		return _008_mergeTwoList(head, secondHead);
 	}
-	
-	private ListNode _008_mergeTwoList(ListNode head1, ListNode head2){
+
+	private ListNode _008_mergeTwoList(ListNode head1, ListNode head2) {
 		ListNode dummyHead = new ListNode(-1);
 		ListNode tmp;
 		ListNode tail = dummyHead;
-		
-		while(head1 != null || head2 != null){
-			if(head1 == null){
+
+		while (head1 != null || head2 != null) {
+			if (head1 == null) {
 				tail.next = head2;
 				break;
 			}
-			if(head2 == null){
+			if (head2 == null) {
 				tail.next = head1;
 				break;
 			}
-			
-			if(head1.val <= head2.val){
+
+			if (head1.val <= head2.val) {
 				tmp = head1;
 				head1 = head1.next;
 			} else {
 				tmp = head2;
 				head2 = head2.next;
 			}
-			
+
 			tail.next = tmp;
 			tail = tail.next;
 		}
-		
+
 		return dummyHead.next;
-		
+
 	}
-	
+
 	/**
-	 *  Given a singly linked list L: L0→L1→…→Ln-1→Ln,
-	 *  reorder it to: L0→Ln→L1→Ln-1→L2→Ln-2→…
-	 *  
-	 *  You must do this in-place without altering the nodes' values.
-	 *  
-	 *  For example,
-	 *  Given {1,2,3,4}, reorder it to {1,4,2,3}. 
+	 * Given a singly linked list L: L0→L1→…→Ln-1→Ln, reorder it to:
+	 * L0→Ln→L1→Ln-1→L2→Ln-2→…
+	 * 
+	 * You must do this in-place without altering the nodes' values.
+	 * 
+	 * For example, Given {1,2,3,4}, reorder it to {1,4,2,3}.
+	 * 
 	 * @param head
 	 * @return
 	 */
-	public ListNode _009_reorderList(ListNode head){
-		if(head == null || head.next == null || head.next.next == null){
+	public ListNode _009_reorderList(ListNode head) {
+		if (head == null || head.next == null || head.next.next == null) {
 			return head;
 		}
-		
+
 		ListNode fast = head.next, slow = head;
-		while(fast != null){
-			if(fast.next == null){
+		while (fast != null) {
+			if (fast.next == null) {
 				fast = null;
 				break;
-			}else{
+			} else {
 				fast = fast.next.next;
 			}
 			slow = slow.next;
 		}
-		
+
 		ListNode secondHead = slow.next;
 		slow.next = null;
-		
+
 		ListNode reversedHead = null;
 		ListNode tmp = secondHead;
-		
-		while(secondHead != null){
+
+		while (secondHead != null) {
 			tmp = secondHead;
 			secondHead = secondHead.next;
 			tmp.next = reversedHead;
 			reversedHead = tmp;
 		}
-		
+
 		tmp = head;
 		ListNode nextHead;
-		while(reversedHead != null && tmp != null){
+		while (reversedHead != null && tmp != null) {
 			nextHead = tmp.next;
 			tmp.next = reversedHead;
 			reversedHead = reversedHead.next;
 			tmp.next.next = nextHead;
 			tmp = nextHead;
 		}
-		
+
 		return head;
 	}
 
 	/**
-	 * http://oj.leetcode.com/problems/insertion-sort-list/
-	 * Sort a linked list using insertion sort.
+	 * http://oj.leetcode.com/problems/insertion-sort-list/ Sort a linked list
+	 * using insertion sort.
+	 * 
 	 * @param head
 	 * @return
 	 */
-	public ListNode _010_insertionSortList(ListNode head){
-		if(head == null || head.next == null){
+	public ListNode _010_insertionSortList(ListNode head) {
+		if (head == null || head.next == null) {
 			return head;
 		}
-		
+
 		ListNode dummyHead = new ListNode(-1);
 		ListNode dHead1 = new ListNode(-1);
 		dHead1.next = head;
-		
+
 		ListNode tmp;
 		ListNode count = dummyHead;
-		
-		while(dHead1.next != null){
+
+		while (dHead1.next != null) {
 			tmp = dHead1.next;
 			dHead1.next = tmp.next;
 			count = dummyHead;
-			while(count.next != null && count.next.val <= tmp.val){
+			while (count.next != null && count.next.val <= tmp.val) {
 				count = count.next;
 			}
 			tmp.next = count.next;
@@ -478,34 +474,31 @@ public class LeetCode {
 		return dummyHead.next;
 	}
 
-    public ArrayList<Integer> _011_postorderTraversal(TreeNode root) {
-        ArrayList<Integer> res= new ArrayList<Integer>();
-        
-        Stack<TreeNode> tracker = new Stack<TreeNode>();
-        TreeNode previous = null;
-        
-        tracker.push(root);
-        TreeNode tmp;
-        while(!tracker.empty()){
-        	tmp = tracker.peek();
-        	if(tmp.left != null && ( previous == null || previous != tmp.right)){
-        		tracker.push(tmp.left);
-        		previous = null;
-        		continue;
-        	}
-        	
-        	if(tmp.right != null && previous ==null){
-        		tracker.push(tmp.right);
-        		continue;
-        	}
-        	
-        	if(tmp.right == null || tmp.right == previous){
-        		res.add(tmp.val);
-        		tracker.pop();
-        		previous = tmp;
-        	}
-        }
-        
-        return res;
-    }
+	public ArrayList<Integer> _011_postorderTraversal(TreeNode root) {
+		ArrayList<Integer> res = new ArrayList<Integer>();
+		if (root == null) {
+			return res;
+		}
+		Stack<TreeNode> tracker = new Stack<TreeNode>();
+		TreeNode previous = null;
+
+		tracker.push(root);
+		TreeNode tmp;
+		while (!tracker.empty()) {
+			tmp = tracker.peek();
+			if (tmp.left != null && tmp.left != previous
+					&& (previous == null || previous != tmp.right)) {
+				tracker.push(tmp.left);
+				previous = null;
+			}else if (tmp.right != null && tmp.right != previous) {
+				tracker.push(tmp.right);
+				previous = null;
+			} else {
+				res.add(tmp.val);
+				tracker.pop();
+				previous = tmp;
+			}
+		}
+		return res;
+	}
 }

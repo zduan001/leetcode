@@ -2,12 +2,15 @@ package com.test.leetcode.tst;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+
 import org.junit.Test;
 
 import com.test.leetcode.LeetCode;
 import com.test.leetcode.util.LinkedListNode;
 import com.test.leetcode.util.ListNode;
 import com.test.leetcode.util.Point;
+import com.test.leetcode.util.TreeNode;
 
 public class leetCodeTst {
 
@@ -179,5 +182,20 @@ public class leetCodeTst {
 		ListNode res;
 		res = code._010_insertionSortList(n1);
 	}
+	
+	@Test
+	public void test_011_postorderTreeTravel(){
+		LeetCode code = new LeetCode();
+		TreeNode t1 = new TreeNode(1);
+		TreeNode t2 = new TreeNode(2);
+		TreeNode t3 = new TreeNode(3);
+		t1.right = t2;
+		t2.left = t3;
+		
+		ArrayList<Integer> res = code._011_postorderTraversal(t1);
+		assertEquals(new Integer(3), res.get(0));
+		
+	}
+	
 
 }
