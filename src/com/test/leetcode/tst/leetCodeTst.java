@@ -6,6 +6,8 @@ import org.junit.Test;
 
 import com.test.leetcode.LeetCode;
 import com.test.leetcode.util.LinkedListNode;
+import com.test.leetcode.util.ListNode;
+import com.test.leetcode.util.Point;
 
 public class leetCodeTst {
 
@@ -57,6 +59,125 @@ public class leetCodeTst {
 		assertEquals(1,res.value);
 		assertNull(res.next);
 		assertSame(res, input);
+	}
+	
+	@Test
+	public void test_002_CanbeRepeat(){
+		LeetCode code = new LeetCode();
+		assertTrue(code._002_CanbeRepeat("abcabcabc"));
+		assertFalse(code._002_CanbeRepeat("bcdbcdbcde"));
+		assertTrue(code._002_CanbeRepeat("abcdabcd"));
+		assertFalse(code._002_CanbeRepeat("aaaaaaaaaa"));
+		assertFalse(code._002_CanbeRepeat("xyz"));
+		//assertTrue(code._002_CanbeRepeat("abaaaabaaa"));
+	}
+
+	@Test
+	public void test_003_maxPoints(){
+		LeetCode code = new LeetCode();
+		
+		Point[] points = new Point[]{new Point(0,0), new Point(0,0)};
+		
+		int res;
+		res = code._003_maxPoints(points);
+		assertEquals(2, res);
+		
+		points = new Point[]{new Point(0,0), new Point(0,0), new Point(0,1)};
+		res = code._003_maxPoints(points);
+		assertEquals(3, res);
+		
+		points = new Point[]{new Point(0,0), new Point(1,1), new Point(1,-1)};
+		res = code._003_maxPoints(points);
+		assertEquals(2, res);
+		
+		points = new Point[]{new Point(4,0), new Point(4,-1), new Point(4,5)};
+		res = code._003_maxPoints(points);
+		assertEquals(3, res);
+	}
+	
+	@Test
+	public void test_004_maxArea()
+	{
+		LeetCode code = new LeetCode();
+		
+		int heights[] = {10,9,8,7,6,5,4,3,2,1};
+		
+		int res;
+		res = code._004_maxArea(heights);
+		
+		assertEquals(25, res);
+	}
+	
+	@Test
+	public void test_005_rainWater()
+	{
+		LeetCode code = new LeetCode();
+		int[] A = {0,1,0,2,1,0,1,3,2,1,2,1};
+		
+		int res;
+		res = code._005_rainWater(A);
+		
+		assertEquals(6, res);
+		
+		A = new int[]{6,8,5,0,0,6,5};
+		res = code._005_rainWater(A);
+		assertEquals(13,res);
+	}
+	
+	@Test
+	public void test_006_searchRotateArray()
+	{
+		LeetCode code = new LeetCode();
+		int A[] = {4, 5, 6, 7, 0, 1, 2};
+		
+		int res;
+		res = code._006_search(A, 1);
+		assertEquals(5, res);
+		
+		res = code._006_search(A, 6);
+		assertEquals(2, res);
+		
+		A = new int[] {1,3};
+		res = code._006_search(A, 3);
+		assertEquals(1, res);
+		
+		A = new int[] {3, 1};
+		res = code._006_search(A, 1);
+		assertEquals(1, res);
+	}
+	
+	@Test
+	public void test_009_reOrderList()
+	{
+		LeetCode code = new LeetCode();
+		ListNode n1 = new ListNode(1);
+		ListNode n2 = new ListNode(2);
+		ListNode n3 = new ListNode(3);
+		ListNode n4 = new ListNode(4);
+		n1.next = n2;
+		n2.next = n3;
+		n3.next = n4;
+		
+		ListNode res;
+		res = code._009_reorderList(n1);
+		
+		assertEquals(1, n1.val);
+		assertEquals(4, n1.next.val);
+		assertEquals(2, n1.next.next.val);
+		assertEquals(3, n1.next.next.next.val);
+		
+	}
+	
+	@Test
+	public void test_010_insertionSortList()
+	{
+		LeetCode code = new LeetCode();
+		ListNode n1 = new ListNode(1);
+		ListNode n2 = new ListNode(1);
+		n1.next = n2;
+		
+		ListNode res;
+		res = code._010_insertionSortList(n1);
 	}
 
 }
