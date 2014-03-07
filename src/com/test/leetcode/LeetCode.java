@@ -490,7 +490,7 @@ public class LeetCode {
 					&& (previous == null || previous != tmp.right)) {
 				tracker.push(tmp.left);
 				previous = null;
-			}else if (tmp.right != null && tmp.right != previous) {
+			} else if (tmp.right != null && tmp.right != previous) {
 				tracker.push(tmp.right);
 				previous = null;
 			} else {
@@ -501,4 +501,279 @@ public class LeetCode {
 		}
 		return res;
 	}
+
+	/**
+	 * http://oj.leetcode.com/problems/binary-tree-preorder-traversal/ Given a
+	 * binary tree, return the preorder traversal of its nodes' values.
+	 * 
+	 * @param root
+	 * @return
+	 */
+	public ArrayList<Integer> _012_preOrderTreeTravel(TreeNode root) {
+		ArrayList<Integer> res = new ArrayList<Integer>();
+		if (root == null) {
+			return res;
+		}
+		Stack<TreeNode> tracker = new Stack<TreeNode>();
+		TreeNode previous = null;
+
+		tracker.push(root);
+		TreeNode tmp;
+		while (!tracker.isEmpty()) {
+			tmp = tracker.pop();
+			res.add(tmp.val);
+			if (tmp.right != null) {
+				tracker.push(tmp.right);
+			}
+			if (tmp.left != null) {
+				tracker.push(tmp.left);
+			}
+		}
+		return res;
+	}
+
+	/**
+	 * Design and implement a data structure for Least Recently Used (LRU)
+	 * cache. It should support the following operations: get and set.
+	 * 
+	 * 
+	 * get(key) - Get the value (will always be positive) of the key if the key
+	 * exists in the cache, otherwise return -1. set(key, value) - Set or insert
+	 * the value if the key is not already present. When the cache reached its
+	 * capacity, it should invalidate the least recently used item before
+	 * inserting a new item.
+	 * 
+	 */
+	public class LRUCache {
+		HashMap<Integer, DoubleLinkListNode> tracker;
+		DoubleLinkListNode head;
+		DoubleLinkListNode tail;
+		int capacity;
+		int count;
+
+		public LRUCache(int capacity) {
+			tracker = new HashMap<Integer, DoubleLinkListNode>();
+			this.capacity = capacity;
+			this.count = 0;
+			head = new DoubleLinkListNode(-1, -1);
+			tail = new DoubleLinkListNode(-1, -1);
+			head.next = tail;
+			tail.previous = head;
+		}
+
+		public int get(int key) {
+			if (tracker.containsKey(key)) {
+				DoubleLinkListNode tmp = tracker.get(key);
+				// take it out
+				tmp.previous.next = tmp.next;
+				tmp.next.previous = tmp.previous;
+				
+				// add it at front.
+				tmp.next = head.next;
+				head.next.previous = tmp;
+				head.next = tmp;
+				tmp.previous = head;
+	
+				return tmp.val;
+			}
+			return -1;
+		}
+
+		public void set(int key, int value) {
+			if (capacity == 0) {
+				return;
+			}
+
+			if (tracker.containsKey(key)) {
+				DoubleLinkListNode tmp = tracker.get(key);
+				tmp.previous.next = tmp.next;
+				tmp.next.previous = tmp.previous;
+				
+				tmp.next = head.next;
+				head.next.previous = tmp;
+				tmp.previous = head;
+				head.next = tmp;
+				
+				tmp.val = value;
+			} else {
+				if (count == capacity) {
+					tracker.remove(tail.previous.key);
+					tail.previous = tail.previous.previous;
+					tail.previous.next = tail;
+					count--;
+				}
+				
+				DoubleLinkListNode tmp = new DoubleLinkListNode(key, value);
+				tmp.next = head.next;
+				head.next.previous = tmp;
+				tmp.previous = head;
+				head.next = tmp;
+				tracker.put(key, tmp);
+				count++;
+			}
+
+		}
+		public class DoubleLinkListNode {
+			public int key;
+			public int val;
+			public DoubleLinkListNode next;
+			public DoubleLinkListNode previous;
+
+			public DoubleLinkListNode(int x, int value) {
+				key = x;
+				val = value;
+				previous = null;
+				next = null;
+			}
+
+		}
+		
+	}
+	
+    public boolean hasCycle(ListNode head) {
+    	ListNode fast = head;
+    	ListNode slow = head;
+    	
+    	while(fast != null && fast.next != null){
+
+    		fast = fast.next.next;
+    		slow = slow.next;
+    		if(fast == slow){
+    			return true;
+    		}
+    	}
+    	
+    	return false;
+    }
+    
+    /**
+     * 
+     *  Given a linked list, return the node where the cycle begins. If there is no cycle, return null.
+     *  Follow up:
+     *  Can you solve it without using extra space? 
+     * @param head
+     * @return
+     */
+    public ListNode detectCycle(ListNode head) {
+    	ListNode fast = head;
+    	ListNode slow = head;
+    	
+    	while(fast!= null && fast.next != null){
+    		fast = fast.next.next;
+    		slow = slow.next;
+    		if(fast == slow){
+    			break;
+    		}
+    	}
+    	if(fast == null || fast.next == null) {return null;}
+    	
+    	fast = head;
+    	while(fast != null){
+    		if(fast == slow){break;}
+    		fast = fast.next;
+    		slow = slow.next;
+    	}
+    	return slow;
+    }
+    
+    /**
+     * http://oj.leetcode.com/problems/single-number/
+     * Given an array of integers, every element appears twice except for one. Find that single one.
+     * Note :
+     * Your algorithm should have a linear runtime complexity. Could you implement it without using extra memory? 
+     * @param A
+     * @return
+     */
+    public int singleNumber(int[] A){
+    	if(A == null || A.length == 0){
+    		return 0;
+    	}
+    	int tmp = 0;
+    	for(int i = 0;i< A.length;i++){
+    		tmp = tmp^A[i];
+    	}
+    	return tmp;
+    }
+    
+    /**
+     * http://oj.leetcode.com/problems/remove-duplicates-from-sorted-list/
+     * @param head
+     * @return
+     */
+    public ListNode dedupLinkedList(ListNode head){
+    	if(head == null || head.next == null){
+    		return head;
+    	}
+    	
+    	ListNode cur = head;
+    	ListNode tmp = head.next;
+    	while(tmp!= null){
+    		if(cur.val != tmp.val){
+    			cur.next = tmp;
+    			cur = tmp;
+    			tmp = cur.next;
+    		}else{
+    			tmp = tmp.next;
+    		}
+    	}
+    	cur.next = tmp;
+    	return head;
+    }
+    
+    /**
+     * http://oj.leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
+     */
+    public ListNode desupLinkedListII(ListNode head){
+    	if(head == null || head.next == null){
+    		return head;
+    	}
+    	
+    	ListNode dummyHead = new ListNode(-1);
+    	dummyHead.next = head;
+    	ListNode cur = dummyHead;
+    	ListNode tmp = head.next;
+    	boolean isdup = false;
+    	while(tmp != null){
+    		if(cur.next.val != tmp.val){
+    			if(isdup){
+    				cur.next = tmp;
+    				//cur = tmp;
+    				if(cur.next == null) {
+    					break;
+    				}
+    				tmp = cur.next.next;
+    			} else {
+    				cur = cur.next;
+    				tmp = tmp.next;
+    			}
+    			isdup = false;
+    		} else {
+    			isdup = true;
+    			tmp = tmp.next;
+    		}
+    	}
+    	if(isdup){
+    		cur.next = null;
+    	}
+    	return dummyHead.next;
+    }
+    
+    /**
+     * http://oj.leetcode.com/problems/single-number-ii/
+     * @param A
+     * @return
+     */
+    public int singleNumberII(int[] A) {
+     int res = 0;
+     
+     for(int i =0;i< 32;i++){
+    	 int sum = 0;
+    	 for(int j = 0;j< A.length;j++){
+    		 sum += A[j]>>i & 1;
+    	 }
+    	 res |= (sum %3) << i;
+     }
+     return res;
+    }
+
 }

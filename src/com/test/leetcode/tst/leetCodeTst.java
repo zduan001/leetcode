@@ -197,5 +197,77 @@ public class leetCodeTst {
 		
 	}
 	
+	@Test
+	public void test_012_preorderTreeTravel(){
+		LeetCode code = new LeetCode();
+		TreeNode t1 = new TreeNode(1);
+		TreeNode t2 = new TreeNode(2);
+		TreeNode t3 = new TreeNode(3);
+		t1.right = t2;
+		t2.left = t3;
+		
+		ArrayList<Integer> res = code._012_preOrderTreeTravel(t1);
+		assertEquals(new Integer(1), res.get(0));
+	}
+	
+	@Test
+	public void test_LRU()
+	{
+		LeetCode code = new LeetCode();
+		LeetCode.LRUCache lru =  code.new LRUCache(10);
+		lru.set(2, 1);
+		assertEquals(-1, lru.get(1));
+		assertEquals(1, lru.get(2));
+		
+		lru.set(1,1);
+		lru.get(2);
+		lru.set(4,1);
+		lru.get(1);
+		lru.get(2);
+		
+	}
+	
+	@Test
+	public void test_LRU_2()
+	{
+		LeetCode code = new LeetCode();
+		LeetCode.LRUCache lru =  code.new LRUCache(10);
+		lru.set(2, 1);
+		assertEquals(1,lru.get(2));
+		lru.set(3,2);
+		assertEquals(1,lru.get(2));
+		assertEquals(2,lru.get(3));
+		
+	}
+	
+	//set(2,1),get(2),set(3,2),get(2),get(3)
+	//set(2,1),set(1,1),set(2,3),set(4,1),get(1),get(2)
+	//set(2,1),set(1,1),get(2),set(4,1),get(1),get(2)
 
+	@Test
+	public void test_LRU_3()
+	{
+		LeetCode code = new LeetCode();
+		LeetCode.LRUCache lru =  code.new LRUCache(10);
+		lru.set(2, 1);
+		lru.set(1, 1);
+		lru.set(2, 3);
+		lru.set(4, 1);
+		lru.get(1);
+		lru.get(2);
+	}
+	
+	@Test
+	public void test_LRU_4()
+	{
+		LeetCode code = new LeetCode();
+		LeetCode.LRUCache lru =  code.new LRUCache(2);
+		lru.set(2, 1);
+		lru.set(1, 1);
+		assertEquals(1,lru.get(2));
+		lru.set(4, 1);
+		assertEquals(-1,lru.get(1));
+		assertEquals(1, lru.get(2));
+	}
+	
 }
