@@ -571,6 +571,95 @@ int sumNumbers(TreeNode *root) {
     
     return res;
 }
+/*
+ http://oj.leetcode.com/problems/path-sum/
+ */
+bool hasPathSum(TreeNode *root, int sum) {
+    int tmp = 0;
+    
+    if(!root) {return false;}
+    
+    stack<TreeNode*> tracker;
+    TreeNode *cur;
+    TreeNode *prev = NULL;
+    tracker.push(root);
+    tmp = root->val;
+    while(!tracker.empty()){
+        cur = tracker.top();
+        if(cur->left && cur->left != prev &&
+           (!prev || prev != cur->right)){
+            tracker.push(cur->left);
+            tmp += cur->left->val;
+            prev = NULL;
+        } else if(cur->right != NULL && cur->right != prev){
+            tracker.push(cur->right);
+            tmp += cur->right->val;
+        } else {
+            tracker.pop();
+            prev = cur;
+            
+            if(!(cur->left) && !(cur->right)){
+                if(sum == tmp){
+                    return true;
+                }
+            }
+            tmp -= cur->val;
+        }
+    }
+    
+    return false;
+}
+
+/*
+ http://oj.leetcode.com/problems/path-sum-ii/
+ */
+vector<int> worker(stack<TreeNode*> s){
+    vector<int> res;
+    while(!s.empty()){
+        
+        res.push_back(s.top()->val);
+        s.pop();
+    }
+    reverse(res.begin(), res.end());
+    return res;
+}
+
+vector<vector<int> > pathSum(TreeNode *root, int sum) {
+    vector<vector<int>> res;
+    int tmp = 0;
+    
+    if(!root) {return res;}
+    
+    stack<TreeNode*> tracker;
+    TreeNode *cur;
+    TreeNode *prev = NULL;
+    tracker.push(root);
+    tmp = root->val;
+    while(!tracker.empty()){
+        cur = tracker.top();
+        if(cur->left && cur->left != prev &&
+           (!prev || prev != cur->right)){
+            tracker.push(cur->left);
+            tmp += cur->left->val;
+            prev = NULL;
+        } else if(cur->right != NULL && cur->right != prev){
+            tracker.push(cur->right);
+            tmp += cur->right->val;
+        } else {
+            tracker.pop();
+            prev = cur;
+            
+            if(!(cur->left) && !(cur->right)){
+                if(sum == tmp){
+                    res.push_back(worker(tracker));
+                }
+            }
+            tmp -= cur->val;
+        }
+    }
+    
+    return res;
+}
 
 /*
  http://oj.leetcode.com/problems/longest-consecutive-sequence/
@@ -931,6 +1020,524 @@ int maxProfitII(vector<int> &prices) {
     return max;
 }
 
+/*
+ http://oj.leetcode.com/problems/minimum-depth-of-binary-tree/
+ */
+int minDepth(TreeNode *root) {
+    if(!root) return 0;
+    if(!root->left && !root->right) return 1;
+
+    int res = 0;
+    if(root->left && root->right){
+        int left = minDepth(root->left);
+        int right = minDepth(root->right);
+        res = min(left, right);
+    } else if(root->left){
+        res =minDepth(root->left);
+    } else {
+        res = minDepth(root->right);
+    }
+    
+    return 1 + res;
+}
+/*
+http://oj.leetcode.com/problems/sqrtx/
+ */
+int sqrt(int x) {
+    if(x == 0) return 0;
+    if(x == 1) return 1;
+    double right = x;
+    double left = 0;
+    double mid;
+    while(abs(right-left) > 0.00000001){
+        mid = left + (right-left) / 2;
+        if(mid * mid > x){
+            right = mid;
+        } else if(mid * mid < x){
+            left = mid;
+        } else {
+            return mid;
+        }
+    }
+
+    return right;
+}
+
+bool IsSpace(char c)
+{
+    if (c == ' ' || c == '\t' || c == '\r' || c == '\n') { return true; } else { return false;}
+}
+
+bool IsDigit(char c)
+{
+    if (c - '0' <= 9) { return true; } else { return false;}
+}
+
+
+int atoi(const char *str) {
+    long res = 0; int sign = 1; int c = 0;
+    
+    int i = 0;
+    
+    while (str[i] != '\0' && IsSpace(str[i]))
+    {
+        i++;
+    }
+    
+    if (str[i] == '+' || str[i] == '-')
+    {
+        
+        if (str[i] == '-')
+        {
+            sign = -1;
+        }
+        i++;
+    }
+    
+    while (str[i] != '\0')
+    {
+        if (IsDigit(str[i]))
+        {
+            //throw new FormatException(str + "is not a valid number"); }
+            c = str[i] - '0';
+            if (sign > 0 && (res >LONG_MAX / 10 || (res == LONG_MAX / 10 && c > LONG_MAX % 10)))
+            {
+                //throw new OverflowException(input + "is larger than maximum long");
+            }else if (sign < 0 && (res > LONG_MAX / 10 || (res == LONG_MAX / 10 && c > LONG_MAX % 10 + 1)))
+            {
+                //throw new OverflowException(input + "is less than minmum long.");
+            }
+            res = (res * 10) + c;
+            i++;
+        }
+        else{
+            break;
+        }
+
+
+    }
+    res = sign > 0 ? res : -res;
+    if(res > (long)INT_MAX) res = INT_MAX;
+    if(res < (long)INT_MIN) res = INT_MIN;
+    return (int)res;
+}
+
+/*
+ http://oj.leetcode.com/problems/palindrome-number/
+ */
+bool isPalindrome(int x) {
+    long origin = x;
+    long tmp = 0;
+    int sign = 1;
+    if(origin <0){
+        sign = -1;
+        origin = -origin;
+    }
+    while(origin >0){
+        int i = origin %10;
+        origin = origin/10;
+        tmp = tmp * 10 + i;
+    }
+    return (int)tmp == x;
+}
+
+/*
+ http://oj.leetcode.com/problems/regular-expression-matching/
+ */
+bool isMatch(const char *s, const char *p) {
+    if( *s == '\0'){
+        if(*p == '\0')
+        {
+            return true;
+        }else if(*(p+1) == '*')
+        {
+            return isMatch(s, p+2);
+        }
+        return false;
+    }else if(*p == '\0')
+    {
+        return false;
+    }
+    
+    if((*p == '.' && *(p+1) != '*') || (*s == *p && *(p+1) != '*')){
+        return isMatch(s+1, p+1);
+    }
+    
+    if( *(p+1) == '*') {
+        if( *p == *s || *p == '.'){
+            return isMatch(s+1, p) || isMatch(s, p+2);
+        }else{
+            return isMatch(s, p+2);
+        }
+    }
+    
+    return false;
+}
+
+/*
+ http://oj.leetcode.com/problems/integer-to-roman/
+ */
+string intToRoman(int num) {
+    struct romandata_t { int value; char const* numeral; };
+    static romandata_t const romandata[] =
+    { 1000, "M",
+        900, "CM",
+        500, "D",
+        400, "CD",
+        100, "C",
+        90, "XC",
+        50, "L",
+        40, "XL",
+        10, "X",
+        9, "IX",
+        5, "V",
+        4, "IV",
+        1, "I",
+        0, NULL }; // end marker
+
+    std::string result;
+    for (romandata_t const* current = romandata; current->value > 0; ++current)
+    {
+        while (num >= current->value)
+        {
+            result += current->numeral;
+            num  -= current->value;
+        }
+    }
+    return result;
+}
+
+/*
+ http://oj.leetcode.com/problems/roman-to-integer/
+ */
+int romanToInt(string s) {
+    struct romandata_t { char const* numeral;int value;  };
+    unordered_map<string, int> tracker;
+    tracker.insert(make_pair("M",1000));
+    tracker.insert(make_pair("CM",900));
+    tracker.insert(make_pair("D",500));
+    tracker.insert(make_pair("CD",400));
+    tracker.insert(make_pair("C",100));
+    tracker.insert(make_pair("XC",90));
+    tracker.insert(make_pair("L",50));
+    tracker.insert(make_pair("XL",40));
+    tracker.insert(make_pair("X",10));
+    tracker.insert(make_pair("IX",9));
+    tracker.insert(make_pair("V",5));
+    tracker.insert(make_pair("IV",4));
+    tracker.insert(make_pair("I",1));
+    tracker.insert(make_pair("\0",0));
+    
+    int res = 0;
+    int i = 0;
+    while(i<s.length()-1){
+        if(tracker.find(s.substr(i, 2)) != tracker.end()){
+            res += tracker.find(s.substr(i,2))->second;
+            i +=2;
+        }else if(tracker.find(s.substr(i, 1)) != tracker.end()){
+            res += tracker.find(s.substr(i, 1))->second;
+            i++;
+        }
+    }
+    if(i == s.length() -1){
+        if(tracker.find(s.substr(s.length()-1,1)) != tracker.end()){
+            res +=tracker.find(s.substr(s.length()-1,1))->second;
+        }
+    }
+    return res;
+
+}
+
+
+
+
+/*
+ http://oj.leetcode.com/problems/longest-common-prefix/
+ */
+
+struct TrieNode{
+    TrieNode *val[256]; bool isEnd[256];
+};
+
+
+string longestCommonPrefix(vector<string> &strs) {
+    if(strs.size() == 1){return strs[0];}
+    if(strs.size() == 0){return "";}
+    TrieNode *root = new TrieNode();
+    TrieNode *tmp = root;
+    string res;
+    int index = 0;
+    int maxlength = -1;
+    for(vector<string>::iterator it = strs.begin();it!= strs.end(); it++){
+        index = 0;
+        tmp = root;
+        while(index != (*it).length()){
+            if(tmp->val[(*it)[index]]){
+                if(index > maxlength){
+                    maxlength = index;
+                    res = (*it).substr(0, index+1);
+                }
+            }else{
+                tmp->val[(*it)[index]] = new TrieNode();
+            }
+            tmp = tmp->val[(*it)[index]];
+            index++;
+        }
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/3sum/
+ */
+vector<vector<int> > threeSum(vector<int> &num) {
+    vector<vector<int>> tracker;
+    vector<vector<int>> res;
+    sort(num.begin(), num.end(), [](int a, int b){return a<b;});
+    
+    for(int i= 0;i< num.size();i++){
+        int left = 0;
+        int right = (int)(num.size()) -1;
+        while(left< right){
+            if(left == i){
+                left ++;
+                continue;
+            }
+            if(right == i){
+                right--;
+                continue;
+            }
+            if(num[i] + num[left] + num[right] == 0){
+                vector<int> x = {i, left, right};
+                sort(x.begin(), x.end(), [](int a, int b)->bool {return a<b;});
+                bool contain = false;
+                for(vector<vector<int>>::iterator it = tracker.begin(); it != tracker.end(); it++){
+                    if((*it)[0] == x[0] && (*it)[1] == x[1] && (*it)[2] == x[2]){
+                        contain = true;
+                        break;
+                    }
+                }
+                if(!contain){
+                    tracker.push_back(x);
+                }
+                left++;
+                right--;
+                
+            }else if(num[i] + num[left] + num[right] > 0){
+                right--;
+            }else {
+                left ++;
+            }
+        }
+    }
+    
+    for(vector<vector<int>>::iterator it = tracker.begin(); it != tracker.end(); it++){
+        vector<int> tmp = {num[(*it)[0]], num[(*it)[1]], num[(*it)[2]]};
+        res.push_back(tmp);
+    }
+    
+    return res;
+
+}
+
+/*
+ http://oj.leetcode.com/problems/remove-nth-node-from-end-of-list/
+ */
+
+ListNode *removeNthFromEnd(ListNode *head, int n) {
+    ListNode* front = head;
+    ListNode *behind = head;
+    for(int i = 0;i<n;i++){
+        front = front->next;
+    }
+    if(!front) return head->next;
+    while(front->next){
+        front = front->next;
+        behind = behind ->next;
+    }
+    behind ->next= behind->next->next;
+    return head;
+}
+
+/*
+ http://oj.leetcode.com/problems/letter-combinations-of-a-phone-number/
+ */
+void worker(unordered_map<char, string> tracker, vector<string>& res,const string digits, int level, string tmp){
+    if(level == digits.length()){
+        res.push_back(tmp);
+        return;
+    }
+    
+    string letters = tracker.find(digits[level])->second;
+    for(int j = 0; j < letters.length(); j++){
+        tmp = tmp + letters[j];
+        worker(tracker, res, digits, level+1, tmp);
+        tmp = tmp.substr(0, tmp.length()-1);
+    }
+
+}
+vector<string> letterCombinations(string digits) {
+    unordered_map<char, string> numbermap;
+    numbermap.insert(make_pair('1', ""));
+    numbermap.insert(make_pair('2', "abc"));
+    numbermap.insert(make_pair('3', "def"));
+    numbermap.insert(make_pair('4', "ghi"));
+    numbermap.insert(make_pair('5', "jkl"));
+    numbermap.insert(make_pair('6', "mno"));
+    numbermap.insert(make_pair('7', "pqrs"));
+    numbermap.insert(make_pair('8', "tuv"));
+    numbermap.insert(make_pair('9', "wxyz"));
+    numbermap.insert(make_pair('0', " "));
+    
+    vector<string> res;
+    worker(numbermap, res, digits, 0, "");
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/valid-parentheses/
+ */
+bool isValid(string s) {
+    unordered_map<char, char> mapper;
+    mapper.insert(make_pair('}', '{'));
+    mapper.insert(make_pair(')', '('));
+    mapper.insert(make_pair(']', '['));
+    
+    stack<char> tracker;
+    
+    for(int i = 0;i<s.length();i++){
+        if(s[i] == '{' || s[i] == '(' || s[i] == '['){
+            tracker.push(s[i]);
+        }else {
+            if(!tracker.empty()){
+                char tmp = tracker.top();
+                if(tmp == mapper.find(s[i])->second){
+                    tracker.pop();
+                }else{
+                    return false;
+                }
+            }else{
+                return false;
+            }
+        }
+    }
+    if(tracker.empty()){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+/*
+ http://oj.leetcode.com/problems/generate-parentheses/
+ */
+void worker(vector<string>& res, int n , int left, int right, string tmp){
+    if(left == n && right == n){
+        res.push_back(tmp);
+        return;
+    }
+    
+    if(left <n){
+        worker(res,n, left+1,right,tmp+'(');
+    }
+    if(right < left){
+        worker(res, n, left, right+1, tmp+')');
+    }
+    
+}
+vector<string> generateParenthesis(int n) {
+    vector<string> res;
+    worker(res, n, 0,0,"");
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/merge-k-sorted-lists/
+ */
+ListNode* getSmallest(vector<ListNode*>& lists){
+    int min = INT_MAX;
+    int index = -1;
+    for(int i = 0;i< lists.size(); i++){
+        if(lists[i] != NULL && min > lists[i]->val){
+            min = lists[i]->val;
+            index = i;
+        }
+    }
+    ListNode* tmp = NULL;
+    if(index != -1){
+        tmp = lists[index];
+        lists[index] = lists[index] -> next;
+    }
+    return tmp;
+}
+
+ListNode *mergeKLists(vector<ListNode *> &lists) {
+    ListNode* dummyHead = new ListNode(0);
+    ListNode* tmp = dummyHead;
+    ListNode* smallest = getSmallest(lists);
+    
+    while(smallest){
+        tmp->next = smallest;
+        tmp = tmp->next;
+        smallest = getSmallest(lists);
+    }
+    return dummyHead->next;
+}
+
+/*
+ http://oj.leetcode.com/problems/swap-nodes-in-pairs/
+ */
+ListNode *swapPairs(ListNode *head) {
+    ListNode* dummyHead = new ListNode(0);
+    dummyHead->next = head;
+    
+    ListNode* firstNode = dummyHead;
+    ListNode* lastNode = NULL;
+    ListNode* nextHead = NULL;
+    
+    while(firstNode->next){
+        if(firstNode->next){
+            lastNode = firstNode->next->next;
+        }
+        if(lastNode){
+            nextHead = lastNode->next;
+        }
+        
+        if(!lastNode){
+            break;
+        }
+        
+        lastNode->next = firstNode->next;
+        firstNode->next= lastNode;
+        lastNode->next->next = nextHead;
+        firstNode = firstNode->next->next;
+        lastNode = NULL;
+        nextHead = NULL;
+    }
+    return dummyHead->next;
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/remove-duplicates-from-sorted-array/
+ */
+int removeDuplicates(int A[], int n) {
+    if(A==NULL || n == 0) return NULL;
+    if(n == 1) return 1;
+    int index = 0;
+    int runner = 1;
+    while(runner < n){
+        if(A[index] != A[runner]){
+            A[index+1] = A[runner];
+            index ++;
+            runner++;
+        }else{
+            runner++;
+        }
+    }
+    return index+1;
+}
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -1070,8 +1677,54 @@ int main(int argc, const char * argv[])
     cout << res->val <<endl;
     cout << res->next->val<<endl;
     */
+    /*
     vector<int> input = {1,2,4};
     int res = maxProfitII(input);
     cout<< res <<endl;
+     */
+    /*int input = 2;
+    int res = sqrt(input);
+    cout<< res<<endl;
+     */
+    //int res = atoi("2147483648");
+    //cout<<res;
+    /*bool res = isMatch("aa", ".*c");
+    cout <<res<<endl;
+    res = isMatch("aab", "c*a*b");
+    cout <<res<<endl;
+    res = isMatch("aaa", "a*a");
+    cout <<res<<endl;
+    res = isMatch("a", ".*a*a");
+    cout <<res<<endl;
+    res = isMatch("", "c*c*");
+    cout <<res<<endl;
+    */
+    //std::cout << intToRoman(123) << std::endl;
+    
+    //for (int i = 1; i <= 4000; ++i)
+    //{
+    //    std::cout << intToRoman(i) << std::endl;
+    //}
+    /*
+     vector<string> input = {"aa", "aa"};
+    string res = longestCommonPrefix(input);
+    cout << res <<endl;
+     */
+    
+    /*vector<int> input = {0,0,0};
+    vector<vector<int>> res = threeSum(input);
+     */
+    /*vector<string> res = letterCombinations("22");
+    for(vector<string>::iterator it = res.begin(); it != res.end(); it++){
+        cout<< (*it)<<endl;
+    }
+     */
+    /*ListNode* t1 = new ListNode(1);
+    ListNode* t2 = new ListNode(2);
+    t1->next = t2;
+    ListNode* res = swapPairs(t1);
+     */
+    TreeNode* root = new TreeNode(1);
+    vector<vector<int>> res = pathSum(root, 1);
     return 0;
 }
