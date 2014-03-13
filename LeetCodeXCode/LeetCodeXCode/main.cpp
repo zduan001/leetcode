@@ -1248,41 +1248,54 @@ int romanToInt(string s) {
 
 }
 
-
-
-
 /*
  http://oj.leetcode.com/problems/longest-common-prefix/
  */
-
 struct TrieNode{
     TrieNode *val[256]; bool isEnd[256];
 };
-
 
 string longestCommonPrefix(vector<string> &strs) {
     if(strs.size() == 1){return strs[0];}
     if(strs.size() == 0){return "";}
     TrieNode *root = new TrieNode();
     TrieNode *tmp = root;
-    string res;
+    int maxlength = INT_MAX;
     int index = 0;
-    int maxlength = -1;
-    for(vector<string>::iterator it = strs.begin();it!= strs.end(); it++){
+    for(int i = 0;i< strs.size(); i++){
         index = 0;
         tmp = root;
-        while(index != (*it).length()){
-            if(tmp->val[(*it)[index]]){
-                if(index > maxlength){
-                    maxlength = index;
-                    res = (*it).substr(0, index+1);
-                }
-            }else{
-                tmp->val[(*it)[index]] = new TrieNode();
+        string s = strs[i];
+        maxlength = maxlength < s.length()? maxlength : s.length();
+        if(s.length() == 0) {return s;}
+        while(index != strs[i].length()){
+            if(!tmp->val[strs[i][index]]){
+                tmp->val[strs[i][index]] = new TrieNode();
             }
-            tmp = tmp->val[(*it)[index]];
+            tmp = tmp->val[strs[i][index]];
             index++;
         }
+    }
+    
+    tmp = root;
+    string res;
+    while(tmp){
+        int count = 0;
+        int index = -1;
+        for(int i = 0;i < 256; i++)
+        {
+            if(tmp->val[i]){
+                count++;
+                index = i;
+            }
+        }
+        if(count==1 && res.length() < maxlength){
+            res += (char)index;
+            tmp = tmp->val[index];
+        }else{
+            break;
+        }
+        
     }
     return res;
 }
@@ -1538,6 +1551,21 @@ int removeDuplicates(int A[], int n) {
     return index+1;
 }
 
+/*
+ http://oj.leetcode.com/problems/remove-element/
+ */
+int removeElement(int A[], int n, int elem) {
+    if(A==NULL || n == 0) return NULL;
+    int index = -1;
+    for(int i = 0;i< n;i++){
+        if(A[i] != elem){
+            A[index+1] = A[i];
+            index++;
+        }
+    }
+    return index+1;
+}
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -1705,11 +1733,11 @@ int main(int argc, const char * argv[])
     //{
     //    std::cout << intToRoman(i) << std::endl;
     //}
-    /*
-     vector<string> input = {"aa", "aa"};
+    
+    vector<string> input = {"", ""};
     string res = longestCommonPrefix(input);
     cout << res <<endl;
-     */
+    
     
     /*vector<int> input = {0,0,0};
     vector<vector<int>> res = threeSum(input);
@@ -1724,7 +1752,9 @@ int main(int argc, const char * argv[])
     t1->next = t2;
     ListNode* res = swapPairs(t1);
      */
+    /*
     TreeNode* root = new TreeNode(1);
     vector<vector<int>> res = pathSum(root, 1);
+     */
     return 0;
 }
