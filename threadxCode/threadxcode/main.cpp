@@ -29,6 +29,23 @@ public:
     }
 };
 
+class LogFile{
+    mutex _mu;
+    ofstream _f;
+public:
+    LogFile(){
+        _f.open("log.txt");
+    }
+    ~LogFile(){
+        _f.close();
+    }
+    void shared_print(string id, int value){
+        _mu.lock();
+        _f<< "From: "<< id << ": " << value <<endl;
+    }
+    
+};
+
 int main(int argc, const char * argv[])
 {
     //A a;

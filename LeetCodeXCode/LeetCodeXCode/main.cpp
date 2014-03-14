@@ -1266,7 +1266,7 @@ string longestCommonPrefix(vector<string> &strs) {
         index = 0;
         tmp = root;
         string s = strs[i];
-        maxlength = maxlength < s.length()? maxlength : s.length();
+        maxlength = maxlength < (int)s.length()? maxlength : (int)s.length();
         if(s.length() == 0) {return s;}
         while(index != strs[i].length()){
             if(!tmp->val[strs[i][index]]){
@@ -1566,6 +1566,391 @@ int removeElement(int A[], int n, int elem) {
     return index+1;
 }
 
+/*
+ http://oj.leetcode.com/problems/divide-two-integers/
+ */
+int divide(int dividend, int divisor) {
+    long a = abs(dividend);
+    long b = abs(divisor);
+    
+    long c = b;
+    int res = 0;
+    while(a>=b){
+        c = b;
+        for(int i = 0;a>=c;i++, c<<=1){
+            res += 1<<i;
+            a -= c;
+        }
+    }
+    
+    return((dividend^divisor)>>31)? (-res): res;
+}
+
+/*
+ http://oj.leetcode.com/problems/next-permutation/
+ */
+void nextPermutation(vector<int> &num) {
+    int lastindex = (int)num.size()-1;
+    int firstindex = -1;
+    while(lastindex >0 &&  num[lastindex-1] >= num[lastindex]){
+        lastindex --;
+    }
+    
+    if(lastindex == 0){
+        reverse(num.begin(), num.end());
+        return;
+    }
+    
+    firstindex = lastindex -1;
+    while(lastindex < num.size() && num[firstindex]<num[lastindex] ){
+        lastindex++;
+    }
+    lastindex--;
+    
+    int tmp = num[lastindex];
+    num[lastindex] = num[firstindex];
+    num[firstindex] = tmp;
+    
+    int left = lastindex + 1;
+    int right = (int)num.size()-1;
+    while(left < right){
+        int tmp = num[left];
+        num[left] = num[right];
+        num[right] = tmp;
+        left++;
+        right--;
+    }
+}
+
+/*
+ http://oj.leetcode.com/problems/triangle/
+ */
+int minimumTotal(vector<vector<int> > &triangle) {
+    if(triangle.size() == 0) return 0;
+    vector<vector<int>>::iterator it = triangle.end() -1;
+    //vector<int> tracker(*it);
+    vector<int> tracker;
+    for(int i = 0;i< (*it).size();i++){
+        tracker.push_back((*it)[i]);
+    }
+    it --;
+    while(it != triangle.begin()-1){
+
+        for(int i = 0;i< (*it).size(); i++)
+        {
+            tracker[i] = tracker[i] < tracker[i+1]? (*it)[i] + tracker[i] : (*it)[i] + tracker[i+1];
+        }
+        it --;
+    }
+    return tracker[0];
+}
+
+/*
+ http://oj.leetcode.com/problems/pascals-triangle/
+ */
+vector<vector<int> > generate(int numRows) {
+    vector<vector<int>> res;
+    for(int i = 0;i< numRows;i++){
+        if(i == 0){
+            vector<int> tmp = {1};
+            res.push_back(tmp);
+        }else if(i == 1){
+            vector<int>tmp = {1,1};
+            res.push_back(tmp);
+        }else{
+            vector<int>tmp = {1};
+            vector<int> last = res[i-1];
+            for(int j = 0;j<i-1;j++){
+                tmp.push_back(last[j] + last[j+1]);
+            }
+            tmp.push_back(1);
+            res.push_back(tmp);
+        }
+
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/pascals-triangle-ii/
+ */
+vector<int> getRow(int rowIndex) {
+    
+    vector<vector<int>> res;
+    for(int i = 0;i< rowIndex;i++){
+        if(i == 0){
+            vector<int> tmp = {1};
+            res.push_back(tmp);
+        }else if(i == 1){
+            vector<int>tmp = {1,1};
+            res.push_back(tmp);
+        }else{
+            vector<int>tmp = {1};
+            vector<int> last = res[i-1];
+            for(int j = 0;j<i-1;j++){
+                tmp.push_back(last[j] + last[j+1]);
+            }
+            tmp.push_back(1);
+            res.push_back(tmp);
+        }
+        
+    }
+    return res[rowIndex-1];
+}
+
+/*
+ http://oj.leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/
+ */
+struct TreeLinkNode {
+    int val;
+    TreeLinkNode *left, *right, *next;
+    TreeLinkNode(int x) : val(x), left(NULL), right(NULL), next(NULL) {}
+};
+
+void worker(TreeLinkNode *root, TreeLinkNode *parent){
+    if(!root) return;
+    if(parent){
+        if(root == parent->left && parent->right){
+            root->next = parent->right;
+        }else{
+            if(parent->next){
+                if(parent->next->left){
+                    root->next = parent->next->left;
+                }else{
+                    root->next = parent->next->right;
+                }
+            }
+        }
+    }
+    worker(root->right, root);
+    worker(root->left, root);
+}
+
+void connect(TreeLinkNode *root) {
+    worker(root, NULL);
+}
+
+/*
+ http://oj.leetcode.com/problems/balanced-binary-tree/
+ */
+bool depth(TreeNode *root, int& maxdepth){
+    if(!root){
+        maxdepth = 0;
+        return true;
+    }
+    int left = 0;
+    int right = 0;
+    bool lefttrue = depth(root->left, left);
+    bool righttrue = depth(root->right, right);
+    maxdepth = left>right? left+1: right+1;
+    return abs(left-right)<=1 && lefttrue && righttrue;
+}
+
+bool isBalanced(TreeNode *root) {
+    int maxdepth = 0;
+    return depth(root, maxdepth);
+}
+
+/*
+ http://oj.leetcode.com/problems/convert-sorted-list-to-binary-search-tree/
+ */
+TreeNode *sortedListToBST(ListNode *head) {
+    if(!head) return NULL;
+    ListNode* slow = head;
+    ListNode* fast = head->next;
+    if(!fast) {return new TreeNode(head->val);}
+    fast = fast->next;
+    while(fast && fast->next){
+        fast = fast->next->next;
+        slow = slow->next;
+    }
+    
+    ListNode* newHead = slow->next->next;
+    ListNode* treeHeadNote = slow->next;
+    slow->next = NULL;
+    TreeNode *root = new TreeNode(treeHeadNote->val);
+    root->left = sortedListToBST(head);
+    root->right = sortedListToBST(newHead);
+    return root;
+    
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/convert-sorted-array-to-binary-search-tree/
+ */
+TreeNode* worker(vector<int>& num, int left, int right){
+    //if(left == right) return new TreeNode(num[left]);
+    if(left > right) return NULL;
+    
+    int mid = left + (right-left) / 2;
+    
+    TreeNode *root = new TreeNode(num[mid]);
+    root->left = worker(num, left, mid-1);
+    root->right = worker(num, mid+1, right);
+    return root;
+    
+}
+
+TreeNode *sortedArrayToBST(vector<int> &num) {
+    return worker(num, 0, (int)num.size()-1);
+}
+
+/*
+ http://oj.leetcode.com/problems/binary-tree-level-order-traversal-ii/
+ */
+vector<vector<int> > levelOrderBottom(TreeNode *root) {
+    vector<vector<int>> res;
+    if(!root) return res;
+    queue<TreeNode*> q;
+    stack<vector<int>*> s;
+    q.push(root);
+    q.push(NULL);
+    vector<int> *tmp = new vector<int>();
+    TreeNode* topNode;
+    while(!q.empty()){
+        topNode = q.front();
+        if(!topNode){
+            s.push(tmp);
+            q.pop();
+            if(!q.empty()){
+                tmp = new vector<int>();
+                q.push(NULL);
+            }else{
+                break;
+            }
+        }else{
+            tmp->push_back(topNode->val);
+            q.pop();
+            if(topNode->left) q.push(topNode->left);
+            if(topNode->right) q.push(topNode->right);
+        }
+    }
+
+    while(!s.empty()){
+        res.push_back(*(s.top()));
+        s.pop();
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/maximum-depth-of-binary-tree/
+ */
+int maxDepth(TreeNode *root) {
+    if(!root) return 0;
+    int left = maxDepth(root->left);
+    int right = maxDepth(root->right);
+    return left> right? left+1: right+1;
+}
+
+/*
+ http://oj.leetcode.com/problems/binary-tree-zigzag-level-order-traversal/
+ */
+vector<vector<int> > zigzagLevelOrder(TreeNode *root) {
+    vector<vector<int>> res;
+    if(!root) return res;
+    stack<TreeNode*> s1;
+    stack<TreeNode*> s2;
+    bool leftToRight = true;
+    s1.push(root);
+    vector<int>* container = new vector<int>();
+    while(!s1.empty()){
+        TreeNode* tmp = s1.top();
+        container->push_back(tmp->val);
+        if(leftToRight){
+            if(tmp->left) s2.push(tmp->left);
+            if(tmp->right) s2.push(tmp->right);
+        }else{
+            if(tmp->right) s2.push(tmp->right);
+            if(tmp->left) s2.push(tmp->left);
+        }
+        s1.pop();
+        
+        if(s1.empty()){
+            leftToRight = !leftToRight;
+            swap(s1,s2);
+            res.push_back(*container);
+            container = new vector<int>();
+        }
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/binary-tree-level-order-traversal/
+ */
+vector<vector<int> > levelOrder(TreeNode *root) {
+    vector<vector<int>> res;
+    if(!root) return res;
+    queue<TreeNode*> tracker;
+    TreeNode *tmp;
+    tracker.push(root);
+    tracker.push(NULL);
+    vector<int>* container = new vector<int>();
+    while(!tracker.empty()){
+        tmp = tracker.front();
+        if(!tmp){
+            res.push_back(*container);
+            tracker.pop();
+            if(!tracker.empty()){
+                tracker.push(NULL);
+                container = new vector<int>();
+            }else{
+                break;
+            }
+        }else{
+            container->push_back(tmp->val);
+            if(tmp->left) tracker.push(tmp->left);
+            if(tmp->right) tracker.push(tmp->right);
+            tracker.pop();
+        }
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/symmetric-tree/
+ */
+bool isSymmetric(TreeNode* left, TreeNode* right){
+    if(!left && !right) return true;
+    if(!left || !right) return false;
+    if(left->val != right->val) return false;
+    
+    return isSymmetric(left->left, right->right) && isSymmetric(left->right, right->left);
+    
+}
+
+bool isSymmetric(TreeNode *root) {
+    if(!root) return true;
+    return isSymmetric(root->left, root->right);
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/same-tree/
+ */
+bool isSameTree(TreeNode *p, TreeNode *q) {
+    if(!p && !q) return true;
+    if(!p || !q) return false;
+    if(p->val != q->val) return false;
+    
+    return isSameTree(p->left, q->left) && isSameTree(q->right, q->right);
+}
+
+/*
+ http://oj.leetcode.com/problems/validate-binary-search-tree/
+ */
+bool isValidBST(TreeNode *root, int min, int max){
+    if(!root) return true;
+    if(root->val <= min || root->val >= max) return false;
+    return isValidBST(root->left, min, root->val) && isValidBST(root->right, root->val, max);
+}
+
+bool isValidBST(TreeNode *root) {
+    return isValidBST(root, INT_MIN, INT_MAX);
+}
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -1733,11 +2118,11 @@ int main(int argc, const char * argv[])
     //{
     //    std::cout << intToRoman(i) << std::endl;
     //}
-    
+    /*
     vector<string> input = {"", ""};
     string res = longestCommonPrefix(input);
     cout << res <<endl;
-    
+    */
     
     /*vector<int> input = {0,0,0};
     vector<vector<int>> res = threeSum(input);
@@ -1756,5 +2141,47 @@ int main(int argc, const char * argv[])
     TreeNode* root = new TreeNode(1);
     vector<vector<int>> res = pathSum(root, 1);
      */
+    
+    /*
+    int res = divide(2147483647, 1);
+    cout<< res <<endl;
+    
+    res = divide(16, 4);
+    cout<< res <<endl;
+    
+    res = divide(16, 3);
+    cout<< res <<endl;
+    
+    res = divide(2147483647, 3);
+    cout<< res <<endl;
+    */
+    /*
+    vector<int> input = {1,2};
+    nextPermutation(input);
+     */
+    /*vector<int> t1 = {1};
+    vector<int> t2 = {2,3};
+    vector<vector<int>> input = {t1,t2};
+    int res = minimumTotal(input);
+    cout<<res<<endl;
+     */
+    //vector<vector<int>> res = generate(3);
+    /*
+    TreeNode *t1 = new TreeNode(1);
+    TreeNode *t2 = new TreeNode(2);
+    TreeNode *t3 = new TreeNode(3);
+    t1->right = t2;
+    t2->right = t3;
+    
+    bool res = isBalanced(t1);
+    cout<<res<<endl;
+    
+    t1->left = t2;
+    t2->right = NULL;
+    t1->right = t3;
+    res = isBalanced(t1);
+    cout<<res<<endl;
+    */
+    
     return 0;
 }

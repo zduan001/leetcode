@@ -17,13 +17,13 @@
          contextName = "isPalindrome(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;):main.cpp">
          <PersistentStrings>
             <PersistentString
+               value = "tolower(s[left]) == &apos;a&apos;">
+            </PersistentString>
+            <PersistentString
                value = "tolower(s[right]) == &apos;a&apos;">
             </PersistentString>
             <PersistentString
                value = "tolower(s[left]) == tolower(s[right])">
-            </PersistentString>
-            <PersistentString
-               value = "tolower(s[left]) == &apos;a&apos;">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
