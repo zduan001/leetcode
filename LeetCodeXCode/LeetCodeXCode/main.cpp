@@ -15,6 +15,7 @@
 #include <set>
 #include <stack>
 #include <queue>
+#include <assert.h>
 
 using namespace std;
 
@@ -1951,6 +1952,441 @@ bool isValidBST(TreeNode *root) {
     return isValidBST(root, INT_MIN, INT_MAX);
 }
 
+/*
+ http://oj.leetcode.com/problems/jump-game/
+ */
+bool canJump(int A[], int n) {
+    queue<int> tracker;
+    unordered_set<int> visited;
+    tracker.push(n-1);
+    int tmp;
+    while(!tracker.empty()){
+        tmp = tracker.front();
+        for(int i = 0; i<tmp; i++){
+            if(A[i] >= tmp-i && visited.find(i) == visited.end()){
+                if(i == 0) return true;
+                tracker.push(i);
+                visited.insert(i);
+            }
+        }
+        tracker.pop();
+    }
+    return false;
+}
+
+/*
+ http://oj.leetcode.com/problems/anagrams/
+ */
+vector<string> anagrams(vector<string> &strs) {
+    unordered_map<string, vector<string>> tracker;
+    for(vector<string>::iterator it = strs.begin(); it != strs.end(); it++){
+        string tmp = *it;
+        sort(tmp.begin(), tmp.end());
+        if(tracker.find(tmp) == tracker.end()){
+            vector<string> vec = {*it};
+            tracker.insert(make_pair(tmp, vec));
+        }else{
+            tracker.find(tmp)->second.push_back(*it);
+        }
+    }
+    
+    vector<string> res;
+    for(unordered_map<string, vector<string>>::iterator it = tracker.begin(); it!= tracker.end(); it++){
+        if(it->second.size() > 1){
+            res.insert(res.end(), it->second.begin(), it->second.end());
+        }
+    }
+    
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/interleaving-string/
+ */
+
+
+bool isInterleave(string s1, string s2, string s3) {
+    if(s3.length() != s1.length() + s2.length()) return false;
+    if(s1 == "") return s2 == s3;
+    if(s2 == "") return s1 == s3;
+    bool tracker[s1.length()+1][s2.length()+1];
+    for(int i = 0; i< s1.length()+1;i++){
+        for(int j = 0;j<s2.length()+1; j++){
+            tracker[i][j] =false;
+        }
+    }
+    tracker[0][0] = true;
+    for(int i = 1;i< s1.length() +1; i++)
+    {
+        tracker[i][0] = s1.substr(s1.length() -i, i) == s3.substr(s3.length()-i, i);
+        cout<<i<<", "<<0<<": "<<tracker[i][0]<<endl;
+    }
+    for(int j = 1; j< s2.length()+1; j++)
+    {
+        tracker[0][j] = s2.substr(s2.length() - j, j) == s3.substr(s3.length()-j, j);
+        cout<<0<<", "<<j<<": "<<tracker[0][j]<<endl;
+    }
+    
+    for(int i = 1;i< (int)s1.length()+1; i++){
+        for(int j= 1;j< (int)s2.length()+1; j++){
+            if(s1[s1.length() -i] != s3[s3.length() - i-j] && s2[s2.length()-j] != s3[s3.length()-i-j] ){
+                tracker[i][j] = false;
+            }else
+            {
+                if(s1[s1.length() -i] == s3[s3.length() - i-j])
+                {
+                    tracker[i][j] = tracker[i][j] || tracker[i-1][j];
+                }
+                if(s2[s2.length()-j] == s3[s3.length()-i-j])
+                {
+                    tracker[i][j] = tracker[i][j] || tracker[i][j-1];
+                }
+            }
+            cout<<i<<", "<<j<<": "<<tracker[i][j]<<endl;
+        }
+    }
+    return tracker[s1.length()][s2.length()];
+}
+
+/*
+ http://oj.leetcode.com/problems/unique-binary-search-trees/
+ */
+int numTrees(int left, int right){
+    if(left > right) return 1;
+    int leftCount, rightCount;
+    int total = 0;
+    for(int i = left; i <= right; i++){
+        leftCount = numTrees(left,i-1);
+        rightCount = numTrees(i+1, right);
+        total += (leftCount*rightCount);
+    }
+    return total;
+}
+int numTrees(int n) {
+    return numTrees(1,n);
+}
+
+/*
+ http://oj.leetcode.com/problems/binary-tree-inorder-traversal/
+ */
+vector<int> inorderTraversal(TreeNode *root) {
+    vector<int> res;
+    if(!root) return res;
+    stack<TreeNode*> s;
+    TreeNode* prev = NULL;
+    TreeNode* tmp;
+    s.push(root);
+    while(!s.empty()){
+        tmp = s.top();
+        if(tmp->left && !prev){
+            s.push(tmp->left);
+            prev = NULL;
+        }
+        res.push_back(tmp->val);
+        prev = tmp;
+        s.pop();
+        if(tmp->right){
+            s.push(tmp->right);
+            prev = NULL;
+        }
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/reverse-linked-list-ii/
+ */
+ListNode *reverseBetween(ListNode *head, int m, int n) {
+    ListNode* dummyHead = new ListNode(0);
+    dummyHead->next = head;
+    ListNode* fast = dummyHead;
+    for(int i = 0;i< n;i++){
+        fast= fast->next;
+    }
+    ListNode* slow = dummyHead;
+    for(int i = 0;i<m-1 ;i++){
+        slow = slow->next;
+    }
+    
+    ListNode* nextHead = fast->next;
+    fast->next = NULL;
+    ListNode* middleHead = slow->next;
+    
+    ListNode* newHead = NULL;
+    ListNode* tmp;
+    while(middleHead){
+        tmp = middleHead;
+        middleHead = middleHead->next;
+        tmp->next = newHead;
+        newHead = tmp;
+    }
+    
+    slow->next = newHead;
+    while(slow->next){
+        slow = slow->next;
+    }
+    slow->next = nextHead;
+    return dummyHead->next;
+}
+
+/*
+ http://oj.leetcode.com/problems/restore-ip-addresses/
+ */
+vector<string> restoreIpAddresses(string s) {
+    vector<string> res;
+    if(s.length() <4) return res;
+    string p;
+    for(int i = 0;i< s.length()-1;i++){
+        p = s.substr(0, i+1);
+        if(atoi(s.substr(0, i+1).c_str()) > 255||
+           (s[0] == '0' && i >0)){
+            break;
+        }
+        for(int j = i+1;j<s.length()-1; j++){
+            if(atoi(s.substr(i+1,j-i).c_str()) > 255 ||
+               (s[i+1] == '0' && j-i >1)){
+                break;
+            }
+            for(int k = j+1 ;k<s.length()-1;k++){
+                if(atoi(s.substr(j+1, k-j).c_str())>255 ||
+                   //atoi(s.substr(j+1, k-j).c_str())<0 ||
+                   atoi(s.substr(k+1, s.length()-k-1).c_str())>255 ||
+                   //atoi(s.substr(k+1, s.length()-k-1).c_str())<0 ||
+                   (s[j+1] == '0' && k-j >1) ||
+                   (s[k+1] =='0' && s.length()-1-k >1)){
+                    continue;
+                }else{
+                    string tmp = s;
+                    tmp.insert(i+1,".");
+                    tmp.insert(j+2, ".");
+                    tmp.insert(k+3, ".");
+                    res.push_back(tmp);
+                }
+            }
+        }
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/subsets-ii/
+ */
+void worker(vector<vector<int>>& res, vector<int>&tmp, vector<int>& s, int level){
+    if(level == (int)s.size()){
+        vector<int> x(tmp);
+        res.push_back(x);
+        return;
+    }
+    
+//    for(int i = level; i< s.size();i++){
+//        if(i>0 && s[i] == s[i-1] ){
+//            i++;
+//        }
+        worker(res, tmp, s, level+1);
+        tmp.push_back(s[level]);
+        worker(res,tmp, s, level+1);
+        tmp.erase(tmp.end()-1);
+//    }
+}
+vector<vector<int> > subsetsWithDup(vector<int> &S) {
+    vector<vector<int>> res;
+    vector<int> tmp;
+    sort(S.begin(), S.end());
+    worker(res,tmp, S, 0);
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/partition-list/
+ */
+ListNode *partition(ListNode *head, int x) {
+    if(!head) return NULL;
+    ListNode *smallHead = new ListNode(0);
+    ListNode *bigHead = new ListNode(0);
+    ListNode* smallEnd = smallHead;
+    ListNode* bigEnd = bigHead;
+    ListNode* tmp;
+    while(head){
+        tmp = head;
+        head = head->next;
+        if(tmp->val < x){
+            smallEnd->next = tmp;
+            smallEnd = tmp;
+            smallEnd->next = NULL;
+        }else{
+            bigEnd->next = tmp;
+            bigEnd = tmp;
+            bigEnd->next = NULL;
+        }
+    }
+    smallEnd->next = bigHead->next;
+    return smallHead->next;
+}
+
+/*
+ http://oj.leetcode.com/problems/search-a-2d-matrix/
+ */
+bool searchMatrix(vector<vector<int> > &matrix, int target) {
+    if(matrix.size() == 0) return false;
+    int m = (int)matrix.size();
+    int n = (int)matrix[0].size();
+    int i = 0;
+    int j = n-1;
+    while(i<m && j > 0){
+        if(matrix[i][j] == target){
+            return true;
+        }else if(matrix[i][j] < target){
+            i++;
+        }else{
+            j--;
+        }
+    }
+    return false;
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/longest-valid-parentheses/
+ */
+int longestValidParentheses(string s) {
+    int maxLen = 0, last = -1;
+    stack<int> lefts;
+    for (int i=0; i<s.length(); ++i) {
+        if (s[i]=='(') {
+            lefts.push(i);
+        } else {
+            if (lefts.empty()) {
+                // no matching left
+                last = i;
+            } else {
+                // find a matching pair
+                lefts.pop();
+                if (lefts.empty()) {
+                    maxLen = max(maxLen, i-last);
+                } else {
+                    maxLen = max(maxLen, i-lefts.top());
+                }
+            }
+        }
+    }
+    return maxLen;
+}
+
+/*
+ http://oj.leetcode.com/problems/merge-sorted-array/
+ */
+void merge(int A[], int m, int B[], int n) {
+    int i = m-1;
+    int j = n-1;
+    while(i>=0 && j>=0){
+        if(A[i] > B[j]){
+            A[i+j+1] = A[i];
+            i--;
+        }else{
+            A[i+j+1] = B[j];
+            j--;
+        }
+    }
+    if(i <0){
+        for(int k = 0;k<=j;k++){
+            A[k] = B[k];
+        }
+    }
+}
+
+/*
+ http://oj.leetcode.com/problems/merge-two-sorted-lists/
+ */
+ListNode *mergeTwoLists(ListNode *l1, ListNode *l2) {
+    ListNode* dummyHead = new ListNode(0);
+    ListNode* tail = dummyHead;
+    ListNode* tmp;
+    while(l1 && l2){
+        if(l1->val < l2->val){
+            tmp = l1;
+            l1 = l1->next;
+        }else{
+            tmp = l2;
+            l2 = l2->next;
+        }
+        tail->next = tmp;
+        tail = tail->next;
+    }
+    if(l1){
+        tail->next = l1;
+    }else{
+        tail->next = l2;
+    }
+    return dummyHead->next;
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/median-of-two-sorted-arrays/
+ */
+double findkThinSortedArrays(int A[], int m, int B[], int n, int k){
+    assert(A && B);
+    if(m<=0) return B[k-1];
+    if(n<=0) return A[k-1];
+    
+    if(k<=0) return min (A[0], B[0]);
+    
+    if(m/2 + n/2 + 1 >=k){
+        if(A[m/2] > B[n/2]){
+            return findkThinSortedArrays(A, m/2, B, n, k);
+        }else
+        {
+            return findkThinSortedArrays(A, m, B, n/2, k);
+        }
+    }else{
+        if(A[m/2] > B[n/2]){
+            return findkThinSortedArrays(A, m, B+n/2+1, n - n/2 -1, k - n/2 -1);
+        }else{
+            return findkThinSortedArrays(A+m/2+1, m - m/2 -1, B, n, k-m/2-1);
+        }
+    }
+}
+
+double findMedianSortedArrays(int A[], int m, int B[], int n) {
+    //return (findkThinSortedArrays(A, m, B, n, (n+m)/2+1));
+    if((n+m)%2 == 0){
+        return (findkThinSortedArrays(A, m, B, n, (n+m)/2) +
+                findkThinSortedArrays(A, m, B, n, (n+m)/2 +1)) /2.0;
+    }else{
+        return (findkThinSortedArrays(A, m, B, n, (n+m)/2+1));
+    }
+}
+
+// make $3.00 with 5c, 10c and 25 cent
+void worker(int& res, int target, int sum, int coins[], int type, int level)
+{
+    if(target == sum){
+        res++;
+        return;
+    }else if(target < sum){
+        return;
+    }else{
+        for(int i = level;i< type;i++){
+            sum = sum + coins[i];
+            if(sum <= target)
+            {
+                worker(res, target, sum, coins, type, i);
+            }
+            sum = sum - coins[i];
+        }
+    }
+}
+
+
+int make3dollar()
+{
+    int res = 0;
+    int coins[] = {5,10,25};
+    worker(res, 300, 0, coins, 3,0);
+    return res;
+    
+}
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -2182,6 +2618,36 @@ int main(int argc, const char * argv[])
     res = isBalanced(t1);
     cout<<res<<endl;
     */
+    /*
+    string s1 = "ab";
+    string s2 = "bc";
+    string s3 = "bbac";
+    bool res = isInterleave(s1,s2,s3);
+    cout<<res<<endl;
+     */
+    //    int res = numTrees(1);
+    //cout<<res<<endl;
+    /*
+    vector<string> res= restoreIpAddresses("25525511135");
+    cout<<(*res.begin())<<endl;
+    cout<<(*(++res.begin()))<<endl;
+    
+    res = restoreIpAddresses("0000");
+    cout<<(*res.begin())<<endl;
+    */
+    
+    /*vector<int> input = {1,2};
+    vector<vector<int>> res = subsetsWithDup(input);
+     */
+    //ListNode* input = new ListNode(1);
+    //ListNode* res = partition(input, 0);
+    //int A[] = {1};
+    //int B[] = {1};
+    //double res = findMedianSortedArrays(A, 1, B, 1);
+    
+    int res = make3dollar();
+    cout<<res<<endl;
+    
     
     return 0;
 }
