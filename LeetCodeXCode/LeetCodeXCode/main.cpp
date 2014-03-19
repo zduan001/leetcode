@@ -2387,6 +2387,173 @@ int make3dollar()
     
 }
 
+/*
+ http://oj.leetcode.com/problems/reverse-nodes-in-k-group/
+ */
+ListNode* reverseHead(ListNode* head){
+    ListNode* newHead = NULL;
+    ListNode* tmp;
+    while(head){
+        tmp = head;
+        head = head->next;
+        tmp->next = newHead;
+        newHead = tmp;
+    }
+    return newHead;
+}
+
+ListNode *reverseKGroup(ListNode *head, int k) {
+    if(k<=1) return head;
+    ListNode* dummyHead = new ListNode(0);
+    dummyHead->next = head;
+    ListNode* fast = dummyHead;
+    ListNode* slow = dummyHead;
+    while(fast){
+        for(int i = 0;i< k;i++){
+            if(fast){
+                fast = fast->next;
+            }else{
+                break;
+            }
+        }
+        if(fast){
+            ListNode *nextHead = fast->next;
+            fast->next = NULL;
+            ListNode* newSlow = slow->next;
+            slow->next = reverseHead(slow->next);
+            slow = newSlow;
+            fast = newSlow;
+            newSlow->next = nextHead;
+        }
+        else{
+            //slow->next = reverseHead(slow->next);
+        }
+        
+    }
+    return dummyHead->next;
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/substring-with-concatenation-of-all-words/
+ */
+vector<int> findSubstring(string S, vector<string> &L) {
+    vector<int> res;
+    if(S.length() == 0 || L.size() == 0) return res;
+    unordered_map<string, pair<int,int>> tracker;
+    for(vector<string>::iterator it = L.begin(); it!= L.end(); it ++){
+        if(tracker.find(*it) == tracker.end()){
+            tracker.insert(make_pair(*it, make_pair(1,0)));
+        }else{
+            (tracker.find(*it)->second).first = (tracker.find(*it)->second).first +1;
+        }
+    }
+    int wordLength = (int)L[0].length();
+    int front = 0, back = 0;
+    int count = 0;
+    while(front<(int)S.length()){
+        auto it = tracker.find(S.substr(front, wordLength));
+        if(it != tracker.end()){
+            if((it->second).first > (it->second).second){
+                (it->second).second += 1;
+                front += wordLength;
+                count ++;
+            }else{
+                while(S.substr(back, wordLength) != S.substr(front, wordLength)){
+                    back += wordLength;
+                    count--;
+                }
+                back += wordLength;
+                front += wordLength;
+            }
+        }else{
+            if(count!= 0){
+                count = 0;
+                for(unordered_map<string, pair<int,int>>::iterator it = tracker.begin(); it!= tracker.end(); it ++){
+                    (it->second).second = 0;
+                }
+            }
+            
+            front ++;
+            back = front;
+        }
+        if(count == L.size()){
+            res.push_back(back);
+            auto it = tracker.find(S.substr(back, wordLength));
+            (it->second).second -= 1;
+            back += wordLength;
+            count --;
+        }
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/search-for-a-range/
+ */
+int searchForEdge(int A[], int left,int right, int target, bool isleft){
+    int mid;
+    if(isleft){
+
+        while(left<=right){
+            mid = left + (right-left)/2;
+            if(A[mid] == target){
+                if(mid == left || A[mid-1] < target){
+                    return mid;
+                }else{
+                    right = mid-1;
+                }
+            }else if (A[mid]< target){
+                left = mid+1;
+                
+            }
+        }
+    }else{
+
+        while(left<=right){
+            mid = left + (right-left)/2;
+            if(A[mid] == target){
+                if(mid == right || A[mid+1] > target){
+                    return mid;
+                }else{
+                    left = mid+1;
+                }
+            }else if (A[mid]> target){
+                right = mid - 1;
+                
+            }
+        }
+    }
+    return mid;
+}
+
+vector<int> searchRange(int A[], int n, int target) {
+    vector<int> res;
+    if(n ==0) return res;
+    int left = 0;
+    int right = n -1;
+    int mid;
+    while(left<=right){
+        mid = left + (right-left)/2;
+        if(A[mid] == target){
+            int leftEdge = searchForEdge(A, left, mid, target, true);
+            int rightEdge = searchForEdge(A, mid, right, target, false);
+            res.push_back(leftEdge);
+            res.push_back(rightEdge);
+            return res;
+        }else if (A[mid]<target){
+            left = mid+1;
+        }else{
+            right = mid-1;
+        }
+    }
+    res.push_back(-1);
+    res.push_back(-1);
+    
+    return res;
+    
+}
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -2645,8 +2812,30 @@ int main(int argc, const char * argv[])
     //int B[] = {1};
     //double res = findMedianSortedArrays(A, 1, B, 1);
     
+    /*
     int res = make3dollar();
     cout<<res<<endl;
+    */
+    
+    //ListNode* input = new ListNode(1);
+    //ListNode* res = reverseKGroup(input, 2);
+    /*
+    string s = "lingmindraboofooowingdingbarrwingmonkeypoundcake";
+    vector<string> input = {"fooo","barr","wing","ding","wing"};
+    vector<int> res = findSubstring(s, input);;
+    
+    s = "a";
+    input = {"a"};
+    res = findSubstring(s, input);
+    
+    s = "barfoothefoobarman";
+    input = {"foo","bar"};
+    res = findSubstring(s, input);
+    */
+    int input[] = {5, 7, 7, 8, 8, 10};
+    int target = 8;
+    vector<int> res = searchRange(input, 6, target);
+    cout<<res[0]<<" "<<res[1]<<endl;
     
     
     return 0;
