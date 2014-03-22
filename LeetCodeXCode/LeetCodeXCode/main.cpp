@@ -1310,6 +1310,9 @@ vector<vector<int> > threeSum(vector<int> &num) {
     sort(num.begin(), num.end(), [](int a, int b){return a<b;});
     
     for(int i= 0;i< num.size();i++){
+        if(i< num.size() && num[i] == num[i+1]){
+            continue;
+        }
         int left = 0;
         int right = (int)(num.size()) -1;
         while(left< right){
@@ -1342,6 +1345,8 @@ vector<vector<int> > threeSum(vector<int> &num) {
             }else {
                 left ++;
             }
+            while(left<right && num[left] == num[left+1]) left ++;
+            while(left<right && num[right] == num[right-1]) right--;
         }
     }
     
@@ -2554,6 +2559,481 @@ vector<int> searchRange(int A[], int n, int target) {
     
 }
 
+/*
+ http://oj.leetcode.com/problems/search-insert-position/
+ */
+int searchInsert(int A[], int n, int target) {
+    int left = 0;
+    int right = n-1;
+    int mid;
+    while(left<=right){
+        mid = left + (right-left)/2;
+        if(A[mid] == target){
+            return mid;
+        }else if(A[mid] < target){
+            if(mid == n-1 || A[mid+1] > target){
+                return mid+1;
+            }else{
+                left = mid+1;
+            }
+        }else if(A[mid]>target){
+            if(mid == 0 || A[mid-1] < target){
+                return mid;
+            }else{
+                right = mid-1;
+            }
+        }
+    }
+    return -1;
+}
+
+/*
+ http://oj.leetcode.com/problems/valid-sudoku/
+ */
+bool isValidateSudokuRow(vector<vector<char>>& board, int rowid){
+    int tracker[9] = {0,0,0,0,0,0,0,0,0};
+    vector<char> row = board.at(rowid);
+    for(vector<char>::iterator it = row.begin();it != row.end(); it++){
+        if(*it != '.'){
+            int index = *it - '1';
+            if(tracker[index] == 0){
+                tracker[index] = 1;
+            }else{
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool isValidateSudokuColumn(vector<vector<char>>& board, int columnid){
+    int tracker[9] = {0,0,0,0,0,0,0,0,0};
+    for(vector<vector<char>>::iterator it = board.begin(); it!= board.end(); it ++){
+        if(it->at(columnid) != '.'){
+            int index = it->at(columnid) - '1';
+            if(tracker[index] == 0){
+                tracker[index] = 1;
+            }else{
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool isValidateSudokuBlock(vector<vector<char>>& board, int left, int top, int right, int bottom){
+    int tracker[9] = {0,0,0,0,0,0,0,0,0};
+    for(int i = left;i<= right;i++){
+        for(int j = top;j <= bottom;j++){
+            if( board.at(i).at(j) != '.'){
+                int index = board.at(i).at(j) - '1';
+                if(tracker[index] == 0){
+                    tracker[index] = 1;
+                }else{
+                    return false;
+                }
+            }
+        }
+    }
+    
+    return true;
+}
+
+bool isValidSudoku(vector<vector<char>> &board) {
+    if(board.size() != 9 || board.at(0).size() != 9) return false;
+    for(int i = 0;i< 9;i++){
+        if(!isValidateSudokuRow(board, i) || !isValidateSudokuColumn(board, i)){
+            return false;
+        }
+    }
+    
+    for(int i = 0;i< 9;i+=3){
+        for(int j = 0;j< 9;j+=3){
+            if(!isValidateSudokuBlock(board, i,j, i+2, j+ 2)){
+                return false;
+            }
+            
+        }
+    }
+    return true;
+}
+
+/*
+ */
+TreeNode *buildTree(vector<int> &inorder, vector<int> &postorder) {
+    if(inorder.size() == 0 && postorder.size() == 0){
+        return NULL;
+    }
+    
+    int node = *(postorder.end() -1);
+    int pivotIndex = -1;
+    for(int i = 0;i< inorder.size(); i++){
+        if(inorder[i] == node){
+            pivotIndex = i;
+            break;
+        }
+    }
+    int leftLength = pivotIndex;
+    //int rightLength = inorder.size() - pivotIndex-1;
+    vector<int> leftInorder(inorder.begin(), inorder.begin()+ leftLength);
+    vector<int> rightInorder(inorder.begin() + leftLength+1, inorder.end());
+    vector<int> leftPostorder(postorder.begin(), postorder.begin() + leftLength);
+    vector<int> rightPostorder(postorder.begin() + leftLength, postorder.end() -1);
+    
+    TreeNode* leftNode = buildTree(leftInorder, leftPostorder);
+    TreeNode* rightNode = buildTree(rightInorder, rightPostorder);
+    TreeNode* root = new TreeNode(inorder[pivotIndex]);
+    root->left = leftNode;
+    root->right = rightNode;
+    return root;
+}
+
+/*
+ */
+int firstMissingPositive(int A[], int n) {
+    bool tracker[n];
+    int i = 0;
+    for(i = 0;i<n;i++){
+        if(A[i]>=0 && A[i] <n+1){
+            tracker[A[i]-1] = true;
+        }
+    }
+    
+    for(int i = 0;i<n;i++)
+    {
+        if(!tracker[i]){
+            return i+1;
+        }
+        
+    }
+    return n+1;
+}
+
+/*
+ http://oj.leetcode.com/problems/wildcard-matching/
+ */
+bool isMatchWildcard(const char *s, const char *p) {
+    if(*s == '\0' && *p == '\0'){
+        return true;
+    }else if(*p == '\0'){
+        return false;
+    }else if(*s == '\0'){
+        if(*p == '*'){
+            return isMatchWildcard(s, p+1);
+        }else{
+            return false;
+        }
+    }
+    
+    if(*p == '?'){
+        return isMatchWildcard(s+1, p+1);
+    }else if(*p == '*'){
+        return isMatchWildcard(s, p+1) || isMatchWildcard(s+1, p+1);
+    }else if(*s == *p){
+        return isMatchWildcard(s+1, p+1);
+    }else{
+        return false;
+    }
+}
+
+/*
+ http://oj.leetcode.com/problems/combination-sum/
+ */
+void worker(vector<vector<int>>& res, vector<int> &candidates, int target, int level, vector<int> tracker, int sum){
+    if(sum == target){
+        vector<int> tmp(tracker);
+        res.push_back(tmp);
+        return;
+    }else if(sum > target){
+        return;
+    }else{
+        for(int i = level;i< candidates.size(); i++){
+            tracker.push_back(candidates[i]);
+            worker(res, candidates, target, i, tracker, sum+candidates[i] );
+            tracker.pop_back();
+        }
+    }
+}
+
+vector<vector<int> > combinationSum(vector<int> &candidates, int target) {
+    vector<vector<int>> res;
+    vector<int> tracker;
+    sort(candidates.begin(), candidates.end());
+    worker(res,candidates, target, 0, tracker, 0);
+    return res;
+}
+
+
+/*
+ http://oj.leetcode.com/problems/gas-station/
+ */
+int canCompleteCircuit(vector<int> &gas, vector<int> &cost) {
+    int sum = 0;
+    int total = 0;
+    int j = -1;
+    for(int i = 0; i < gas.size() ; ++i){
+        sum += gas[i]-cost[i];
+        total += gas[i]-cost[i];
+        if(sum < 0){
+            j=i; sum = 0;
+        }
+    }
+    return total>=0? j+1 : -1;
+}
+
+/*
+ http://oj.leetcode.com/problems/zigzag-conversion/
+ */
+string convert(string s, int nRows) {
+    if(s.length() == 0) return s;
+    if (nRows == 1) return s;
+    
+    string buf;
+    int diff = nRows + nRows - 2;
+    for (int i = 0; i < nRows; i++) {
+        int index = i;
+        while (index < s.length()) {
+            buf += s[index];
+            index += diff;
+            if (i != 0 && i != nRows - 1 && index - i - i < s.length()) {
+                buf += (s[index - i - i]);
+            }
+        }
+    }
+    
+    return buf;
+}
+
+/*
+ http://oj.leetcode.com/problems/implement-strstr/
+ */
+char *strStr(char *haystack, char *needle) {
+    if(*needle == '\0') return haystack;
+    if(*haystack == NULL) return NULL;
+    // begin to build p array. failture array
+    vector<int> p;
+    p.push_back(-1);
+    int k = -1;
+    int q = 1;
+    while(*(needle + q) != '\0'){
+        while(k >-1 && *(needle + k+1) != *(needle + q)){
+            k = p[k];
+        }
+        if(*(needle + k+1) == *(needle + q)){
+            k ++;
+        }
+        p.push_back(k);
+        q++;
+    }
+    
+    q = -1;
+    int i = 0;
+    while(*(haystack+i) != '\0'){
+        while(q >-1 && *(needle + q+1) != *(haystack + i)){
+            q = p[q];
+        }
+        if(*(needle+ q+1) == *(haystack + i) ){
+            q ++;
+        }
+        if(q > -1 && *(needle + q+1) == '\0'){
+            return haystack + i -q;
+        }
+        i++;
+    }
+    
+    if(q > -1 && *(needle + q+1) == '\0'){
+        return haystack + i -q-1;
+    }
+
+    return NULL;
+}
+
+/*
+ http://oj.leetcode.com/problems/count-and-say/
+ */
+string countAndSay(int n) {
+    string res = "1";
+    for(int i = 1;i<n;i++){
+        string tmp;
+        int start = 0;
+        int end = 0;
+        while(res[end] != '\0'){
+            while(res[end] != '\0' && res[end] == res[start]){
+                end ++;
+            }
+            int length = end-start;
+            string k;
+            while(length != 0){
+                k.insert(k.begin(), (length % 10) + '0');
+                length /= 10;
+            }
+            tmp+=k;
+            tmp+=res[start];
+            start = end;
+            
+        }
+        res = tmp;
+        res += '\0';
+        
+    }
+    return res;
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/permutations/
+ */
+void worker(vector<vector<int>> &res, vector<int> &num, int level){
+    if(level == num.size()){
+        vector<int> tmp(num);
+        res.push_back(tmp);
+        return;
+    }
+    for(int i = level;i< num.size(); i++){
+        swap(num[level], num[i]);
+        worker(res, num, level+1);
+        swap(num[level], num[i]);
+        
+    }
+    
+}
+vector<vector<int> > permute(vector<int> &num) {
+    vector<vector<int>> res;
+    worker(res, num, 0);
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/permutations-ii/
+ */
+void workerUnique(vector<vector<int>> &res, vector<int> &num, int level){
+    if(level == num.size()){
+        vector<int> tmp(num);
+        res.push_back(tmp);
+        return;
+    }
+    
+    workerUnique(res, num, level+1);
+    for(int i = level;i< num.size(); i++){
+        if(num[level] != num[i]){
+            swap(num[level], num[i]);
+            workerUnique(res, num, i+1);
+            swap(num[level], num[i]);
+
+        }
+    }
+}
+
+vector<vector<int> > permuteUnique(vector<int> &num) {
+    vector<vector<int>> res;
+    workerUnique(res, num, 0);
+    return res;
+}
+
+vector<int> convertToNum(string s1){
+    vector<int> res;
+    for(int i = (int)s1.length()-1;i>=0;i--){
+        //check to make sure each char is num...
+        res.push_back(s1[i] - '0');
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/submissions/detail/4862021/
+ */
+/*
+//leet code passed version. stringstream does not compile here
+string multiply(string num1, string num2) {
+    // get rid of odd case 0 multiplier
+    if (num1.size() == 1 && num1[0] == '0' ||
+        num2.size() == 1 && num2[0] == '0') {
+        return "0";
+    }
+    
+    stringstream ss;
+    
+    int sum=0;
+    int n1 = num1.size();
+    int n2 = num2.size();
+    for (int k=0; k < n1+n2-1; k++) {
+        for (int rj = 0; rj < n2; rj++) {
+            int ri = k - rj;
+            if (ri >= 0 && ri < n1) {
+                int i = n1 - 1 - ri;
+                int j = n2 - 1 - rj;
+                sum += (num1[i]-'0') * (num2[j]-'0');
+            }
+            
+        }
+        ss << sum%10;
+        sum /= 10;
+    }
+    if (sum > 0)
+        ss << sum;
+    
+    const string &s = ss.str();
+    
+    return string(s.rbegin(), s.rend());
+}
+ */
+
+string stringMultiplacation(string s1, string s2){
+    vector<int> num1;
+    vector<int> num2;
+    int sign = 1;
+    
+    if(s1[0]== '-'){
+        sign *= -1;
+        s1 = s1.substr(1);
+    }
+    if(s2[0] == '-'){
+        sign *= -1;
+        s2 = s2.substr(1);
+    }
+    num1 = convertToNum(s1);
+    num2 = convertToNum(s2);
+    int res[num1.size() + num2.size()];
+    for(int i = 0;i< num1.size() + num2.size(); i++){
+        res[i] = 0;
+    }
+    int carry = 0;
+    int tmp = 0;
+    
+    for(int i = 0;i< num1.size(); i++){
+        carry = 0;
+        for(int j = 0;j< num2.size(); j++){
+            tmp = num1[i] * num2[j] ;
+            tmp += carry;
+            res[i+j] += tmp;
+            carry = res[i+j] /10;
+            res[i+j] %= 10;
+        }
+        if(carry > 0){
+            res[ i+ num2.size()] += carry;
+        }
+    }
+    
+    string final;
+    for(int i= 0; i< num1.size() + num2.size(); i++)
+    {
+        cout<<res[i]<<endl;
+        final.insert(final.begin(), res[i] + '0');
+    }
+    
+    if(final[0] == '0'){
+        final = final.substr(1);
+    }
+    if (sign == -1) {
+        final.insert(final.begin(), '-');
+        
+    }
+    return string(final.begin(), final.end());
+    
+}
+
+
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -2832,11 +3312,75 @@ int main(int argc, const char * argv[])
     input = {"foo","bar"};
     res = findSubstring(s, input);
     */
+    /*
     int input[] = {5, 7, 7, 8, 8, 10};
     int target = 8;
     vector<int> res = searchRange(input, 6, target);
     cout<<res[0]<<" "<<res[1]<<endl;
+    */
     
+    //int input[] = {1};
+    //int res = searchInsert(input, 1, 2);
+    //cout<<res<<endl;
+    /*
+    string s1 = ".87654321";
+    string s2 = "2........";
+    string s3 = "3........";
+    string s4 = "4........";
+    string s5 = "5........";
+    string s6 = "6........";
+    string s7 = "7........";
+    string s8 = "8........";
+    string s9 = "9........";
+    */
+    
+    /*
+    string s1 = "....5..1.";
+    string s2 = ".4.3.....";
+    string s3 = ".....3..1";
+    string s4 = "8......2.";
+    string s5 = "..2.7....";
+    string s6 = ".15......";
+    string s7 = ".....2...";
+    string s8 = ".2.9.....";
+    string s9 = "..4......";
+    vector<char> v1(s1.begin(), s1.end());
+    vector<char> v2(s2.begin(), s2.end());
+    vector<char> v3(s3.begin(), s3.end());
+    vector<char> v4(s4.begin(), s4.end());
+    vector<char> v5(s5.begin(), s5.end());
+    vector<char> v6(s6.begin(), s6.end());
+    vector<char> v7(s7.begin(), s7.end());
+    vector<char> v8(s8.begin(), s8.end());
+    vector<char> v9(s9.begin(), s9.end());
+    
+    vector<vector<char>> input = {v1, v2,v3,v4,v5,v6,v7,v8,v9};
+    bool res = isValidSudoku(input);
+    */
+    //int A[] = {0};
+    //int res = firstMissingPositive(A,1);
+    //cout<< res<<endl;
+
+    //vector<int> inorder = {1};
+    //vector<int> posterorder = {1};
+    
+    //TreeNode*res = buildTree(inorder, posterorder);
+    
+    //char* haystack = "bcababc";
+    //char* needle = "ababc";
+//    char* res = strStr(haystack, needle);
+    //haystack = "aaa";
+    //needle = "a";
+    //char* res = strStr(haystack, needle);
+    //string res = countAndSay(4);
+    //vector<int> input = {1,1,2};
+    //vector<vector<int>> res = permuteUnique(input);
+    string res = stringMultiplacation("11", "11");
+    cout<< res<<endl;
+    cout<< stringMultiplacation("11", "-11")<<endl;
+    cout<< stringMultiplacation("99", "-99")<<endl;
+    cout<< stringMultiplacation("878", "99")<<endl;
+    cout<< stringMultiplacation("0", "0")<<endl;
     
     return 0;
 }

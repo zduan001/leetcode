@@ -1,0 +1,515 @@
+FB 
+1) 给一棵树，tree node里面增加定义一项 vector<TreeNode*> afterIt,也就是保存
+这一层中此节点之后（右侧）的所有节点指针。求如何实现这个vector。
+
+2) 着色，给定一个矩阵，内部某区间被1以不规则形状封闭包围起来，其它位置都是0
+，要求在该被包围区间内任何一点点击，把整个被包围的空间里0全部改成数字1。
+
+Round 2:
+1)  给定无限integer流，找Top K大；如果不是流而是数组，如何优化。
+
+2）给一组interval区间，[Ai, Aj]， 其中Ai表示人员A进入会场时间，Aj表示人员A离
+开会场时间。要求，有没有任何时间点上会场一个人都没有。
+
+Manager面聊了聊，他说需要Hadoop experience，但是说不是那种会在Hadoop上建应用
+而是实际会
+manipulate Hadoop那种，问了不少细节，他说实际更加靠近Distributed System的感
+觉。
+
+
+unknown
+给定一个总时间T
+
+给定N个数 A_1, A_2, ... A_N
+
+问能不能把这N个数分成2组，每组的和都小于或等于T
+
+感觉是NP的？而且好像贪心也不行
+
+amazon
+1. (Bar Raiser) Amazon服务器有很多log文件记录用户访问Amazon的行为,每条log形
+式为(时间   访问者ID   访问网页)
+     每个访问者访问Amazon网页所产生的每条log不一定在同一个log文件里,相近时间
+的log也不一定在一个文件里.
+    
+    问:
+     用户每次访问Amazon都会产生一串访问序列(类似先主页 ->搜索产品->产品介绍-
+>另一个产品->.....), 针对每一串   访问序列,仅取前三个网页组成一个三元组(如上
+面的例子,就是<主页,某搜索页面,某产品页面>), 统计TOP K 的三元组.
+(跪在这题上了,先要确定如何判断用户的一次访问,然后是怎样从好多log文件中高效地
+提取每个用户每次访问的前三个网页,存在什么地方,最后把这堆信息用heap或者其他什
+么取top k).
+
+2. 给一个二叉树,找到与给定节点距离为N的所有节点(没有parent link,有parent
+link),两个节点间隔着几条边,就是距离为几
+
+3.  1) Remove duplicate in an array
+     2) Longest common prefix in an array of strings.
+
+4. 1) Top K elements in an array.
+    2) 两个单词,长度一样,找出从一个单词变到另一个单词的最短路径,每次只能改变
+一个字母,且改变字母后的单词必须是有效的单词(我是假定有字典能判断一个单词是否
+有效,然后BFS.)   
+
+
+FB
+总共电面一轮，onsite3轮……半轮问resume和project，2.5轮问代码……算上电面，总共面了9道，其中5道是leetcode原题，这里就不说了，刷好leetcode是关键吖……说说剩下的4道吧……
+
+1. median of integer stream. 没写代码，讲了下思路和数据结构……这题版上有讨
+
+论过，非常感谢！ http://www.ardendertat.com/2011/11/03/programming-interview-que2. 在一个x轴上，有很多矩阵，这些矩阵下面的那条横线跟x轴是重叠的……矩阵之间可以部分重叠或者一个矩阵被另一个矩阵完全覆盖……要求输出最后图像的轮廓……不知道描述清楚了没有…这题没写代码，讲了下思路……
+
+3. 给了一堆开会时间, (si, ei), 开始时间和结束时间……判断是否可以只用一个会议室满足所有会议.注意，(4,5), (5,6)……这个输入返回true……4. 同样的一堆会议时间，返回最少需要多少间会议室.
+
+
+T
+原文链接: http://www.mitbbs.com/article_t/JobHunting/32646439.html
+一个双向链表，带头尾指针，每个节点可能都有父节点和子节点，每个父子节点又是一个链表。要求把它拍扁，顺序随意。&quot;
+
+题目确切是啥意思？有没有大牛讲讲或者举个例子？解题思路呢？
+
+T
+http://www.mitbbs.com/article_t/JobHunting/32644033.html
+第一题，shell script的排序题，利用sleep。
+
+第二题，一个数组，找三个连续数为最大和的所有可能。
+比如 4 2 3 1 2 2 5
+最大和为9, 那组合有4 2 1, 2 2 5
+
+第三题，leetcode Trapping Rain Water.
+
+面完第一轮我就跟面试官和recruiter说了我的background不适合这个组能不能换个组
+，因为我申的是infra组啊！被拒绝。。。但是第一轮feedback还挺好。
+
+phone2:
+第二轮真是奇葩。。。就问了一个巨简单的path sum
+
+我直接一维的dp。。结果面试官没看懂。。。让我写了个recursive的。
+然后就又开始问linux的东西，命令啊之类的，然后问如果一个程序一直在run那cpu会
+怎么样。
+
+FLG
+http://www.mitbbs.com/article_t/JobHunting/32643137.html
+要求递归先根遍历一棵树，打印所有node。不是binary tree。
+
+每个parent都可以有很多children。各个parent的children数目可以不同。node不知道自己的sibling。没有指向sibling的指针。parent自己存了一个链表，里面是指向所有children的指针。
+
+这棵树有几百万个node，所以不能一次pre-order travel完，因为内存不够大。所以需要分多次遍历。
+
+第一次从root开始pre-order遍历100个node，然后记住这第100个node的位置。第二次就直接从第100个node开始先根遍历。第三次就直接从第200个node开始先根遍历。。。知道所有node都遍历完。
+
+这里的第100、200个node是指：如果一次性把所有的几百万个node都先根走完的话所碰到的第100、200个node。所以题目就是问如何多次分块遍历一棵树。要求用递归写，但是可以使用stack。
+
+about C
+http://www.mitbbs.com/article_t/JobHunting/32644965.html
+1，what is abi and api, give some example2, what happens when exception is thrown?3, what if exception is not caught anywhere?
+
+4, what must be initialized in the initialization list?5, what is reference vs. pointer?
+
+6, how do you debug a box which has no debugger installed? i.e. you suspect a process is hanging, but no debugger, how to tell what goes wrong?
+
+	
+G intern	
+http://www.mitbbs.com/article_t/JobHunting/32644877.html
+
+问简历的，说了十几分钟。
+1.recursive 题目。 leetcode 类似题目。不难。
+时间，空间复杂度。
+2.实现 void Schedule(int64 timestamp, function* to_run) = 0;
+多个模块会调用这个function*， 如何实现。
+
+
+3.fibonacci
+为啥不用recursive。分别的时间复杂度。空间复杂度，包含函数栈上的。
+3.设计电梯系统。20层，3个电梯。
+
+估计希望不大了。2、4答的不好。完全没准备过设计题，只刷了算法题。
+求大牛指导如何准备。
+
+你被黑了吧
+schedule实现很复杂的，要你写code，明显还要考你mutex/lock
+
+具体实现，用一个queue来存timestamp+function
+然后开一个线程，其中一个loop
+每次检查queue的开头时间是不是过了，过了的话，取出来执行func。
+schedule就要往那个queue里插入pair<timestamp, func*>
+
+注意你需要一个mutex和一个lock来保护对queue的访问。
+
+F design question 
+这里原帖地址: http://www.mitbbs.com/article_t/JobHunting/32492515.html
+
+以下为转载内容
+
+===========================我是分割线==================
+
+稍微总结一下
+
+1. 入门级的news feed
+http://www.quora.com/What-are-best-practices-for-building-somet
+http://www.infoq.com/presentations/Scale-at-Facebook
+http://www.infoq.com/presentations/Facebook-Software-Stack
+一般的followup question是估算需要多少server
+另外这个帖子有讨论
+http://www.mitbbs.ca/article_t/JobHunting/32463885.html
+这篇文章稍微提到要怎么approach这种题，可以稍微看看
+http://book.douban.com/reading/23757677/
+
+
+2. facebook chat,这个也算是挺常问的
+http://www.erlang-factory.com/upload/presentations/31/EugeneLet
+https://www.facebook.com/note.php?note_id=14218138919
+http://www.cnblogs.com/piaoger/archive/2012/08/19/2646530.html
+http://essay.utwente.nl/59204/1/scriptie_J_Schipers.pdf
+
+3. typeahead search/search suggestion，这个也常见
+https://www.facebook.com/video/video.php?v=432864835468
+问题在这个帖子里被讨论到，基本上每个问题，在视频里都有回答
+http://www.mitbbs.com/article_t/JobHunting/32438927.html
+
+
+4. Facebook Messaging System(有提到inbox search, which has been asked before）
+messaging system就是一个把所有chat/sms/email之类的都结合起来的一个系统
+http://www.infoq.com/presentations/HBase-at-Facebook
+http://sites.computer.org/debull/A12june/facebook.pdf
+http://www.slideshare.net/brizzzdotcom/facebook-messages-hbase/
+https://www.youtube.com/watch?v=UaGINWPK068
+
+
+5. 任给一个手机的位置信号(经纬度)，需要返回附近5mile 的POI
+这个这里有讨论，这题貌似nyc很爱考...
+http://www.mitbbs.ca/article0/JobHunting/32476139_0.html
+
+
+6. Implement second/minute/hour/day counters
+这题真不觉得是system design，但万一问道，还是要有准备，貌似在总部面试会被问
+道....
+这个帖子有讨论
+http://www.mitbbs.com/article_t/JobHunting/32458451.html
+
+
+7. facebook photo storage，这个不太会被问起，但是知道也不错
+https://www.usenix.org/legacy/event/osdi10/tech/full_papers/Beaver.pdf
+https://www.facebook.com/note.php?note_id=76191543919
+
+
+8. facebook timeline,这个也不太是个考题，看看就行了
+https://www.facebook.com/note.php?note_id=10150468255628920
+http://highscalability.com/blog/2012/1/23/facebook-timeline-bro
+
+
+除了这些，准备一下这些题目
+implement memcache
+http://www.adayinthelifeof.nl/2011/02/06/memcache-internals/
+
+implement tinyurl（以及distribute across multiple servers)
+http://stackoverflow.com/questions/742013/how-to-code-a-url-sho
+
+determine trending topics(twitter)
+http://www.americanscientist.org/issues/pub/the-britney-spears-
+http://www.michael-noll.com/blog/2013/01/18/implementing-real-t
+
+copy one file to multiple servers
+http://vimeo.com/11280885
+
+稍微知道一下dynamo key value store，以及google的gfs和big table
+
+
+另外推荐一些网站
+http://highscalability.com/blog/category/facebook
+这个high scalability上有很多讲system design的东西，不光是facebook的，没空的
+话，就光看你要面试的那家就好了..
+facebook engineering blog
+http://www.quora.com/Facebook-Engineering/What-is-Facebooks-arc
+http://stackoverflow.com/questions/3533948/facebook-architectur
+
+其他家的
+http://www.quora.com/What-are-the-top-startup-engineering-blogs
+
+
+==================================================================
+在说说怎么准备这样的面试
+首先如果你连availability/scalability/consistency/partition之类的都不是太有概
+念的话，我建议先去wikipedia或者找一个某个大学讲这门课的网站稍微看一下，别一
+点都不知道
+这个链接也不错
+http://www.aosabook.org/en/distsys.html
+
+如果你这些基本的东西都还知道，那么我觉得你就和大部分毫无实际经验的人差不多一
+个水平...
+能做的就是一点一点去准备，如果你还有充足的时间的话，建议从你面试的那家公司的
+engineering blog看起，把人家用的technology stack/product都搞清楚，然后在把能
+找到的面试题都做一遍呗....我们做coding题说白了不也是题海战术...而且你如果坚
+持看下去，真的会看出心得，你会发现很多地方都有相同之处，看多了就也能照葫芦画
+瓢了...
+
+再有就是面试的时候应该怎么去approach这种题，我说说我的做法
+1. product spec/usage scenario 和面试者confirm这个东西到底是做什么的
+可以先列出来几个major functionality，然后有时间的话，再补充一些不重要的
+把你想的都写下来
+
+2. define some major components
+就是画几个圈圈框框的，每个发表一番您的高见....然后讲他们之间怎么interact
+
+以上是question specific的东西，
+这个讲完了，我们可以讲一些每道题都是用的，比如说
+怎么scale/怎么partition/怎么实现consistency，这些东西，可以套用到任何题上
+
+
+
+当然了，我们遇到的题和解题的方法可能都有些出入，不见得每道题有一个路数下来，
+最重要的是，讲题的时候要有条理，画图要清楚，保持和面试官的交流，随时问一下人
+家的意见。
+
+我能想到的就这么多，欢迎大家交流，希望大家都能找到理想的工作.
+
+unknown
+http://www.mitbbs.com/article_t/JobHunting/32643095.html
+输入一个正整数N，要求输出所有1到N的可能排列，满足任两个相邻的数之和是一个完
+全平方数（比如4，9，16，25等等）。如果不存在这种排列就输出无解。
+
+G
+http://www.mitbbs.com/article_t/JobHunting/32642289.html
+
+现在还不知道怎么算正确答案，请大牛们指点……
+
+要求design一个Permutation<E> interface. permutation的个数 k 会在初始化的时候
+给定。例如，k=3的时候，有如下list，注意是排好序的:
+A B C
+A C B
+B A C
+B C A
+C A B
+C B A
+
+然后要求实现两个函数
+bool hasNextPermutation(),
+E getNextPermutation() //按照顺序返回
+
+请问大家会怎么做呢？
+LeetCode -> next permutation
+
+T
+http://www.mitbbs.com/article_t/JobHunting/32639643.html
+感谢版上driftdrift大牛内推，之前自己投的fulltime简历被秒据。。。
+今天面的，面试官德裔美国人，之前在BOA当过10年tech lead，后来做过短期的
+startup，入职twitter半年。
+过程：
+1.面官自我介绍
+2.自我介绍，聊project，其中distributed system project，聊到PAXO
+3.coding 题
+Graph traversal题，不难：
+Given:
+1. Red and Blue fields, each worth one unit
+2. Each field has some neighbors
+3. Find the largest continuous field of a given color
+example：
+R - B - B - R
+|   |   |   |
+B - R - R - R
+B:4
+R:3
+面官挺nice的，一直在跟我讨论，把 functions 的signature都写好了
+4.问问题
+
+感觉上岁数的面官，算法题不会太刁难。。。
+
+Online Test
+twitter给电面之前都让做online test，通过codility，都不难。
+我碰到的题：
+1. Single number （leetcode上有，用bits manipulation做）
+2. Given zero-indexed array A of N integers,
+Sets S[K] are finite for each K, S[K] = { A[K], A[A[K]], A[A[A[K]]], ... }.
+returns the size of the largest set S[K] for this array
+其他在网上搜到的题：
+
+http://www.1point3acres.com/bbs/thread-83646-1-1.html
+ttp://www.mitbbs.com/article_t0/JobHunting/32498187.html
+http://www.mitbbs.com/article_t/JobHunting/32454305.html  
+
+G
+http://www.mitbbs.com/article_t/JobHunting/32638713.html
+
+上午两个人，一个年轻老美，一个国人大哥。
+
+年轻老美问了个机器人走网格的题，虽然没有做过，不过类似的题目看过一些，所以很容易就用dp写了一个。之后就是聊些我做的科研，g家做的类似项目，职业规划等等。
+
+国人大哥面我，上来出了个很简单的string题，直接水过，后来出了个比较难的string题，只让说了想法，没让写程序，估计那复杂度写起来要悲剧。。。感谢国人大哥的放水！大家要互相帮助阿。可惜不知道这位大哥的email和全名，不然要写个感谢信。
+
+下午三个，两个美国老头，目测都60以上把（看来老美一点年龄歧视都没有阿），一个40多老美。
+
+第一个美国老头上来把手机拿出来说正在玩一个游戏，问我怎么编程解决，一个类似华容道的游戏，就说了下bfs的思路，怎么建立图，也没让写程序。后来问了简单的个概率题，我不知道怎么卡住了，后来经过提示搞出来了。后来又问了个矩阵里面搜索元素
+
+的题，binary search搞定。问复杂度，由于和常规的bs不一样，结果我答的有问题，他自己估计没想到我这个解法，也没说清楚我这个的复杂度是多少，只说应该比较efficient，就过了。回来之后我才想到正确的复杂度是多少-_-。。。
+
+第二个美国老头问了个字符串查找的题，我灵机一动用hashmap直接写了个O(n)的，就过了。然后问了些底层的string之类，还问了c++的memory leak，我回答说把new/delete写在构造/析构函数里，或者用smart pointer，他说知道sp不错阿，很多人面试用c++，却不知道sp -_-....
+
+最后一个老美问了个设计题，类似dropbox，我就把知道的都乱说一通了，目测他还比较满意。
+
+总结一下，没有碰到烙印，老美都比较nice，国人大哥也放水，感觉还不错。有同学推荐，直接onsite了，没有电面。本人一直以来以科研为主，编程水平一般，这次也是第一次面试公司，之前就看了几本算法书比较重要的几章，leetcode就做了七八十道，一遍也没刷完，所以比较心虚。不过感觉没有g家面试没有大家说的那么难，大家要有信心。
+
+最后说一下，g家吃的挺一般阿，完全不如传说中那么好，工作环境也是一堆人在一起，类似网吧-_-
+
+
+FLG *******
+http://www.mitbbs.com/article_t/JobHunting/32638805.html
+从别处看来的，
+给定N个点，每个点有(x,y)坐标， 要找一个最小面积的矩形，使得它cover至少k个点.
+这个题目输入是那N个坐标和参数k, 输出是最小面积矩形
+这个题O(N)能不能搞定，还是必须要O(N^2). 哪位大牛谈谈
+
+G
+http://www.mitbbs.com/article_t/JobHunting/32618935.html
+顺便大家帮忙分析下题目难度，还有我的回答有没有什么低级错误。除了LRU在
+
+leetcode上有，其他的我都不知道该说简单呢还是难呢，看到要实现memcpy然后就吓了一跳。
+
+1. switch的工作原理流程。
+
+2. 估计挂在这里了。
+1）. 生死棋盘游戏。
+
+我只想到最简单的方法，遍历所有cell，根据规则更新棋盘是生是死。还有别的更好方法吗？
+
+2）. 生成迷宫，基本上不怎么会。
+
+我先说随机生成0/1。但可能会出现迷宫不可解的情况，然后我就差不多挂了。求更好方法。
+
+3. 从文件中读入记录，然后生成树，计算pathsum，文件记录格式，node, parent, weight.然后讨论一些特殊的情况。
+
+4. LRU实现，我其中用的了map，顺便写一个hash table实现map。我其中有一行出现了bug，删除的时候忘记更新map了。
+
+5. 实现memcpy，这个比较没头绪，不知道要考啥，先写一个最简单的大概是 *dst = *src， 之类的，然后问怎么优化让他更快点，
+
+因为刚开始用的是 char 的指针，我说把指针变成 uint_32t 会更快点，当然也可以uint_64t了，
+有什么别的建议吗？
+
+
+Unkown*****************
+http://www.mitbbs.com/article_t/JobHunting/32639321.html
+Find the complement domino pairs.
+
+多米诺骨牌由2个数字构成，每个数字可以是0-6. 给定an array of Dominos, find if
+there are two complement dominos. Complement dominos是说两个多米诺骨牌a和b
+。a的上半部分的数字和b的上半部分的数字相加是6，a的下半部分的数字和b的下半部
+分的数字相加也是6。多米诺骨牌可以翻转。
+
+举个例子，
+
++----+     +----+
+|   x    |      | x  x  |
+| x  x  |      | x  x  |
++----+     +----+
+|    x   |      |    x   |
+|    x   |      | x   x |
++----+     +----+
+是complement dominos，
+
++----+      +----+
+| x   x  |      |         |
+| x   x  |      |         |
++----+      +----+
+|    x    |      |x x x |
+|    x    |      |x x x |
++----+      +----+
+以上每一个和自身都是complementory，但是在上面的题中，IFF array里面有2个一样
+的才算。
+
+请大牛赐教用什么data structure表示domino，然后怎么找complement。多谢啦！！
+
+为了让大家less confused，这是一个多米诺骨牌的例子：http://www.amazon.com/Double-Professional-Dominoes-Spinner-Wooden/dp/B001VE30PQ/ref=sr_1_2?ie=UTF8&qid=1393973008&sr=8-2&keywords=Domino
+
+
+FLG
+http://www.mitbbs.com/article_t/JobHunting/32636739.html
+
+1. anagram
+2. OO design: candy bar
+3. sort color
+4. 给一个小写的string，例如“abcd” 输出所有大小写混合的组合
+5. string to double
+6. given a string words, find the shortest substring including all the given
+key words
+7. what is little/big endian, how to tell if one machine is little or big
+endian machine？
+8. power set
+9. smart pointer
+10. given a set of weighted intervals, find the set non-overlap weighted
+intervals that has the biggest weight
+11. two sum变形
+12. serialize/deserialize binary tree, the leetcode solution is not accepted
+by the interviewer, nor the inorder&preorder sequence method
+13. design a data structure that can support: get element in O(1), delete
+randomly in O(1)
+14. how to swap the i-th and j-th bits of an integer
+15. median of two sorted arrays - all possible solutions discussed
+16. find the kth element from an unsorted array
+17. valid number
+18, given an unsorted integer array, find three integers can form a triangle
+19. tell if two words are one-character different: replace/delete/insert
+20. given an array of 32-bit integers, the array is already sorted according
+to the most significant 28bits, sort the array in O(n)
+21. return all the nodes on the deepest path of a BST O(n)
+22. an array of float number, calculate the average value with a sliding
+window, the window is moved with k steps every time. need to keep the
+precision for float type: 1000000 + 0.01 = 1000000 (not wanted)
+23. big integer operation and compare
+24. generate maze
+25. what is TCP, UDP, RTP, differences of them? what is RTP header? what is
+DNS? Who owns DNS? What is the name of the organization that manages DNS?
+Can a company own its own DNS? Describe how DNS works in very detailed way.
+what will happen when you type google.com? How google deal with so many
+requests per second? How to load balance the request? What is SSL? What is
+the protocol/design mechanism of SSL?
+
+update：
+没有人对20 和22题感兴趣吗？我在版上还没有看到比较相似的题目。。。
+其他的题，板上都出现过的
+
+L
+http://www.mitbbs.com/article_t/JobHunting/32637329.html
+4: Given a social graph, find if there is a path between two persons with at
+most 2 steps (3rd level connection), how to handle it in distributed way (
+large graph stored at a large number of nodes, minimize cross-communication)
+ 
+5: 设计题:  a restful server with 4GB, 
+given a request such as: http://seq=4?len=60?xxxxdata
+the system will store the binary data with that sequence number.
+given a request: http://startseq=3?maxLen=100, the system returns all data objects with sequence >= 3 with total data length less equal than 100.
+http://www.mitbbs.com/article_t/JobHunting/32637329.html
+
+Multi thread Hashtable ** google it.
+http://www.mitbbs.com/article_t/JobHunting/32636571.html
+
+Amazon
+http://www.mitbbs.com/mobile/marticle_t.php?board=JobHunting&gid=32633319&start=0&pno=1
+有一种String,是把一个更短的String重复n次而构成的，那个更短的String长度至少为
+2，输入一个String写代码返回T或者F
+例子：
+"abcabcabc"  Ture   因为它把abc重复3次构成
+"bcdbcdbcde" False  最后一个是bcde
+"abcdabcd"   True   因为它是abcd重复2次构成
+"xyz"       False  因为它不是某一个String重复
+"aaaaaaaaaa"  False  重复的短String长度应至少为2（这里不能看做aa重复5次)
+
+要求算法复杂度为O(n)
+
+public boolean isMultiple(String s){
+
+}
+
+
+Amazon
+http://www.mitbbs.com/article_t/JobHunting/32636661.html
+class MagicNumber{
+boolean isMagicNum(long num);
+long nextMagic(long num){
+    while(!isMagicNum(num)){
+    num++;
+}
+return num;
+}
+}
+consider a data structure to improve the nextMagic(long num)
+
+问下这道题如何回答 感觉一点想法都没有 谢谢
