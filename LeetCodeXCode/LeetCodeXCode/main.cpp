@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 Duan, David. All rights reserved.
 //
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <map>
@@ -2183,16 +2184,16 @@ void worker(vector<vector<int>>& res, vector<int>&tmp, vector<int>& s, int level
         return;
     }
     
-//    for(int i = level; i< s.size();i++){
-//        if(i>0 && s[i] == s[i-1] ){
-//            i++;
-//        }
-        worker(res, tmp, s, level+1);
+    for(int i = level; i< s.size(); i++)
+    {
+        if(i != level  && s[i] == s[i-1]) continue;
+        
         tmp.push_back(s[level]);
-        worker(res,tmp, s, level+1);
-        tmp.erase(tmp.end()-1);
-//    }
+        worker(res, tmp, s, level+1);
+        tmp.pop_back();
+    }
 }
+
 vector<vector<int> > subsetsWithDup(vector<int> &S) {
     vector<vector<int>> res;
     vector<int> tmp;
@@ -3032,7 +3033,208 @@ string stringMultiplacation(string s1, string s2){
     
 }
 
+/*
+ http://oj.leetcode.com/problems/flatten-binary-tree-to-linked-list/
+ */
+void flatten(TreeNode *root) {
+    if(!root) return;
+    stack<TreeNode*> s;
+    if(root->right){
+        s.push(root->right);
+    }
+    if(root->left){
+        s.push(root->left);
+    }
+    
+    TreeNode* tail = root;
+    while(!s.empty()){
+        TreeNode* tmp = s.top();
+        tail->right = tmp;
+        tail->left = NULL;
+        tail = tmp;
+        s.pop();
+        if(tmp->right) s.push(tmp->right);
+        if(tmp->left) s.push(tmp->left);
+    }
+}
 
+/*
+ http://oj.leetcode.com/problems/decode-ways/
+ */
+int worker(unordered_map<int, int> & tracker, string s){
+
+    if(s.length() == 1 || s.length() == 0) return 1;
+    int first;
+    int second;
+    int length =(int)s.length();
+    if(s[0] == '1' || (s[0] == '2' && s[1] - '0' <=6)){
+        
+        if(tracker.find(length-1) != tracker.end())
+        {
+            first = tracker.find(length-1)->second;
+        }else{
+            first =worker(tracker, s.substr(1));
+            tracker.insert(make_pair(length-1, first));
+        }
+        if(tracker.find(length-2) != tracker.end()){
+            second = tracker.find(length-2)->second;
+        }else{
+            second =worker(tracker, s.substr(2));
+            tracker.insert(make_pair(length-2, second));
+        }
+        return first + second;
+    } else {
+        if(tracker.find(length-1) != tracker.end())
+        {
+            first = tracker.find(length-1)->second;
+        }else{
+            first =worker(tracker, s.substr(1));
+            tracker.insert(make_pair(length-1, first));
+        }
+
+        return first;
+    }
+}
+
+int numDecodings(string s) {
+    unordered_map<int, int> tracker;
+    return worker(tracker,s);
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/powx-n/
+ */
+double pow(double x, int n) {
+    if (n == 0) return 1.0;
+    // Compute x^{n/2} and store the result into a temporary
+    // variable to avoid unnecessary computing
+    double half = pow(x, n / 2);
+    if (n % 2 == 0)
+        return half * half;
+    else if (n > 0)
+        return half * half * x;
+    else
+        return half * half / x;
+}
+
+/*
+ http://oj.leetcode.com/problems/jump-game-ii/
+ */
+int jump(int A[], int n) {
+    int  tracker[n];
+    for(int i = 0;i< n;i++)
+    {
+        tracker[i] = INT_MAX;
+    }
+    for(int i = 0;i<n-1;i++){
+        for(int j = 0; j<=A[i]; j++){
+            if(i+j < n && tracker[i+j] > tracker[i] +1){
+                tracker[i+j] = tracker[i]+1;
+            }
+        }
+    }
+    return tracker[n-1];
+
+}
+
+/*
+ http://oj.leetcode.com/problems/simplify-path/
+ */
+string simplifyPath(string path) {
+    stringstream ss(path);
+    string item;
+    vector<string> elems;
+    while(getline(ss, item, '/')){
+        elems.push_back(item);
+    }
+    
+    stack<string> stack;
+    for(vector<string>::iterator it = elems.begin(); it != elems.end(); it ++){
+        if(*it == "."){
+            continue;
+        }else if(*it == ".."){
+            stack.pop();
+        }else if(*it != ""){
+            stack.push(*it);
+        }
+    }
+    string res;
+    while(!stack.empty()){
+        if(res.length() != 0){
+            res = "/" + res;
+        }
+        res = stack.top() + res;
+        stack.pop();
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/distinct-subsequences/
+ */
+int numDistinct(string S, string T) {
+    if(S.length() == 0 || T.length() == 0) return 0;
+    if(S.length() <  T.length()) return 0;
+    int m = (int)S.length();
+    int n = (int)T.length();
+    int tracker[n][m];
+    for(int i = 0;i< n ; i++)
+        for(int j = 0;j<m;j++)
+            tracker[i][j] = 0;
+    
+    if(S[0] == T[0]){
+        tracker[0][0] = 1;
+    }else{
+        tracker[0][0] = 0;
+    }
+    
+    for(int i =1; i< m; i++){
+        if(T[0] == S[i]){
+            tracker[0][i] = tracker[0][i-1] +1;
+        }else{
+            tracker[0][i] = tracker[0][i-1];
+        }
+    }
+    int tmp;
+    for(int i = 1;i< n; i++){
+        for(int j = i;j<m; j++){
+            tmp = 0;
+            if(T[i] == S[j]) tmp = tracker[i-1][j-1];
+            tracker[i][j] = tmp + tracker[i][j-1];
+        }
+    }
+    return tracker[n-1][m-1];
+}
+
+
+/*
+ * We use "last" to keep track of the maximum distance that has been reached
+ * by using the minimum steps "ret", whereas "curr" is the maximum distance
+ * that can be reached by using "ret+1" steps. Thus,
+ * curr = max(i+A[i]) where 0 <= i <= last.
+ */
+int jumpII(int A[], int n) {
+    int ret = 0;
+    int last = 0;
+    int curr = 0;
+    for (int i = 0; i < n; ++i) {
+        if (i > last) {
+            last = curr;
+            ++ret;
+        }
+        curr = max(curr, i+A[i]);
+    }
+    
+    return ret;
+}
+
+/*
+ http://oj.leetcode.com/problems/largest-rectangle-in-histogram/
+ */
+int largestRectangleArea(vector<int> &height) {
+    return 0;
+}
 
 int main(int argc, const char * argv[])
 {
@@ -3283,9 +3485,10 @@ int main(int argc, const char * argv[])
     cout<<(*res.begin())<<endl;
     */
     
-    /*vector<int> input = {1,2};
-    vector<vector<int>> res = subsetsWithDup(input);
-     */
+    
+    //vector<int> input = {1,1,2};
+    //vector<vector<int>> res = subsetsWithDup(input);
+    
     //ListNode* input = new ListNode(1);
     //ListNode* res = partition(input, 0);
     //int A[] = {1};
@@ -3368,19 +3571,31 @@ int main(int argc, const char * argv[])
     
     //char* haystack = "bcababc";
     //char* needle = "ababc";
-//    char* res = strStr(haystack, needle);
+    //char* res = strStr(haystack, needle);
     //haystack = "aaa";
     //needle = "a";
     //char* res = strStr(haystack, needle);
     //string res = countAndSay(4);
     //vector<int> input = {1,1,2};
     //vector<vector<int>> res = permuteUnique(input);
-    string res = stringMultiplacation("11", "11");
-    cout<< res<<endl;
-    cout<< stringMultiplacation("11", "-11")<<endl;
-    cout<< stringMultiplacation("99", "-99")<<endl;
-    cout<< stringMultiplacation("878", "99")<<endl;
-    cout<< stringMultiplacation("0", "0")<<endl;
+    //string res = stringMultiplacation("11", "11");
+    //cout<< res<<endl;
+    //cout<< stringMultiplacation("11", "-11")<<endl;
+    //cout<< stringMultiplacation("99", "-99")<<endl;
+    //cout<< stringMultiplacation("878", "99")<<endl;
+    //cout<< stringMultiplacation("0", "0")<<endl;
+    /*
+    int res = numDecodings("12");
+    cout<<res<<endl;
+    
+    res = numDecodings("123");
+    cout<<res<<endl;
+    */
+    //double res = pow(8.88023, 3);
+    //cout<<res<<endl;
+    
+    int res = numDistinct("rabbbit", "rabbit");
+    cout<<res<<endl;
     
     return 0;
 }
