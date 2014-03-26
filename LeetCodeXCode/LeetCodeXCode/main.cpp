@@ -3236,6 +3236,286 @@ int largestRectangleArea(vector<int> &height) {
     return 0;
 }
 
+/*
+ http://oj.leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/
+ */
+int maxProfitIII(vector<int> &prices) {
+    int res = 0;
+    int left = 0;
+    int right = 0;
+    for(int i = 1; i< prices.size()-1;i++){
+        vector<int> v1(prices.begin(), prices.begin() +1);
+        vector<int> v2(prices.begin()+ 1, prices.end());
+        left = maxProfit(v1);
+        right = maxProfit(v2);
+        res = res> left+right? res: left+ right;
+        
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/n-queens/
+ */
+bool checkQueen(vector<int>& queens, int q){
+    int size = (int)queens.size();
+    for(int i = 0;i< size; i++){
+        if(q == queens[i]) return false;
+        if( abs(q-queens[i]) == abs(size-i)) return false;
+    }
+    return true;
+    
+}
+
+void worker(int n, vector<int>& queens, vector<vector<string>>& res){
+    if(queens.size() == n){
+        vector<string> tmp;
+        for(int i = 0;i< n;i++){
+            string s1;
+            for(int j = 0;j< n;j++){
+                if(j != queens[i])
+                    s1 += '.';
+                else
+                    s1 += 'Q';
+            }
+            tmp.push_back(s1);
+        }
+        res.push_back(tmp);
+    }
+    
+    for(int i = 0;i< n;i++){
+        if(checkQueen(queens, i)){
+            queens.push_back(i);
+            worker(n, queens, res);
+            queens.pop_back();
+        }
+    }
+}
+
+vector<vector<string> > solveNQueens(int n) {
+    vector<vector<string>> res;
+    vector<int> queens;
+    worker(n, queens, res);
+    return res;
+}
+
+void worker(int n, vector<int>& queens, int& res){
+    if(queens.size() == n){
+        res++;
+    }
+    
+    for(int i = 0;i< n;i++){
+        if(checkQueen(queens, i)){
+            queens.push_back(i);
+            worker(n, queens, res);
+            queens.pop_back();
+        }
+    }
+}
+
+/*
+ http://oj.leetcode.com/problems/n-queens-ii/
+ */
+int totalNQueens(int n) {
+    int res = 0;
+    vector<int> queens;
+    worker(n, queens, res);
+    return res;
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/rotate-image/
+ */
+void rotate(vector<vector<int> > &matrix) {
+    int n = (int)matrix.size();
+    if(n<2) return;
+    for(int i = 0;i<n/2;i++){
+        for(int j = i;j<n-i-1;j++){
+            int tmp = matrix[i][j];
+            matrix[i][j] =matrix[n-j-1][i] ;
+            matrix[n-j-1][i] =matrix[n-1-i][n-j-1];
+            matrix[n-1-i][n-j-1] =matrix[j][n-i-1];
+            matrix[j][n-i-1] = tmp;
+        }
+    }
+}
+
+/*
+ http://oj.leetcode.com/problems/word-search/
+ */
+bool worker(vector<vector<char>> &board, vector<vector<bool>> &tracker, string word, string tmp, int i, int j){
+    if(word == tmp) return true;
+    if(i >0 && !tracker[i-1][j]){
+        tmp += board[i-1][j];
+        tracker[i-1][j] = true;
+        if(worker(board, tracker, word, tmp, i-1,j))
+            return true;
+        tracker[i-1][j] = false;
+        tmp.pop_back();
+    }
+    
+    if(j >0 && !tracker[i][j-1]){
+        tmp +=board[i][j-1];
+        tracker[i][j-1] = true;
+        if(worker(board, tracker, word, tmp, i, j-1))
+            return true;
+        tracker[i][j-1] = false;
+        tmp.pop_back();
+    }
+    
+    if(i+1< board.size() && !tracker[i+1][j]){
+        tmp += board[i+1][j];
+        tracker[i+1][j] = true;
+        if(worker(board, tracker, word, tmp, i+1, j))
+            return true;
+        tracker[i+1][j] = false;
+        tmp.pop_back();
+    }
+    
+    if(j+1< board[0].size() && !tracker[i][j+1]){
+        tmp + board[i][j+1];
+        tracker[i][j+1] = true;
+        if(worker(board, tracker, word, tmp, i, j+1))
+            return true;
+        tracker[i][j+1] = false;
+        tmp.pop_back();
+    }
+    return false;
+    
+}
+
+bool exist(vector<vector<char>> &board, string word) {
+    vector<vector<bool>> tracker;
+    
+    for(int i = 0;i< board.size();i++){
+        vector<bool> tmp;
+        for(int j = 0;j< board[i].size(); j++){
+            tmp.push_back(false);
+        }
+        tracker.push_back(tmp);
+    }
+    
+    for(int i = 0;i< board.size();i++){
+        for(int j = 0;j<board[i].size(); j++){
+            string tmp;
+            tmp.insert(tmp.begin(), board[i][j]);
+            
+            if(worker(board, tracker, word, tmp, i,j))
+                return true;
+            
+        }
+    }
+    return false;
+}
+
+/*
+ http://oj.leetcode.com/problems/unique-paths/
+ */
+int uniquePaths(int m, int n) {
+    int tracker[m][n];
+    for(int i = 0;i< n;i++) tracker[0][i] = 1;
+    for(int i = 0;i<m;i++) tracker[i][0] = 1;
+    for(int i = 1;i<m;i++){
+        for(int j = 1;j<n;j++){
+            tracker[i][j] = tracker[i-1][j] + tracker[i][j-1];
+        }
+    }
+    return tracker[m-1][n-1];
+}
+
+/*
+ http://oj.leetcode.com/problems/unique-paths-ii/
+ */
+int uniquePathsWithObstacles(vector<vector<int> > &obstacleGrid) {
+    int m = (int)obstacleGrid.size();
+    int n = (int)obstacleGrid[0].size();
+    int tracker[m][n];
+
+    if(obstacleGrid[0][0] == 1)
+        tracker[0][0] = 0;
+    else
+        tracker[0][0] = 1;
+    
+    for(int i = 1;i<n;i++){
+        if(obstacleGrid[0][i] == 1)
+            tracker[0][i] = 0;
+        else
+            tracker[0][i] = tracker[0][i-1];
+    }
+    for(int j = 1;j<m;j++){
+        if(obstacleGrid[j][0] == 1)
+            tracker[j][0] = 0;
+        else
+            tracker[j][0] = tracker[j-1][0];
+    }
+    
+    for(int i = 1;i<m;i++){
+        for(int j = 1;j<n;j++){
+            if(obstacleGrid[i][j] ==1){
+                tracker[i][j] =0;
+            }else{
+                tracker[i][j] = tracker[i-1][j] + tracker[i][j-1];
+            }
+                
+        }
+    }
+    return tracker[m-1][n-1];
+}
+
+/*
+ http://oj.leetcode.com/problems/combination-sum-ii/
+ */
+void worker(vector<int>& num, vector<int>& tracker, vector<vector<int>>& res, int sum, int level, int target){
+    if(sum > target) return;
+    if(sum == target){
+        vector<int> x(tracker);
+        res.push_back(x);
+        return;
+    }
+    
+    worker(num, tracker, res, sum, level+1, target);
+    sum += num[level];
+    tracker.push_back(num[level]);
+    worker(num, tracker, res, sum, level+1, target);
+    sum -= num[level];
+    tracker.pop_back();
+    
+}
+
+vector<vector<int> > combinationSum2(vector<int> &num, int target) {
+    vector<vector<int>> res;
+    vector<int> tracker;
+    sort(num.begin(), num.end());
+    worker(num, tracker, res, 0, 0, target);
+    return res;
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/combinations/
+ */
+void worker(vector<vector<int>>& res, vector<int> &tmp, int index, int n, int k){
+    if(index > n) return;
+    if(tmp.size() == k){
+        vector<int> x(tmp);
+        res.push_back(x);
+        return;
+    }
+    worker(res,tmp,index+1, n,k);
+    tmp.push_back(index);
+    worker(res, tmp, index+1, n,k);
+    tmp.pop_back();
+}
+
+
+vector<vector<int> > combine(int n, int k) {
+    vector<int> tmp;
+    vector<vector<int>> res;
+    worker(res, tmp, 1, n, k);
+    return res;
+}
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -3594,8 +3874,17 @@ int main(int argc, const char * argv[])
     //double res = pow(8.88023, 3);
     //cout<<res<<endl;
     
-    int res = numDistinct("rabbbit", "rabbit");
-    cout<<res<<endl;
+    //int res = numDistinct("rabbbit", "rabbit");
+    //cout<<res<<endl;
+    
+    //vector<int> v1={1,2};
+    //vector<int> v2 = {3,4};
+    //vector<vector<int>> matrix = {v1,v2};
+    //rotate(matrix);
+    vector<char> v= {'a', 'a'};
+    vector<vector<char>> input = {v};
+    bool res = exist(input, "aa");
+    cout<< res <<endl;
     
     return 0;
 }
