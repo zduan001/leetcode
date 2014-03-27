@@ -1313,58 +1313,38 @@ string longestCommonPrefix(vector<string> &strs) {
  http://oj.leetcode.com/problems/3sum/
  */
 vector<vector<int> > threeSum(vector<int> &num) {
-    vector<vector<int>> tracker;
     vector<vector<int>> res;
+    if(num.size() <3) return res;
     sort(num.begin(), num.end(), [](int a, int b){return a<b;});
-    
-    for(int i= 0;i< num.size();i++){
-        if(i< num.size() && num[i] == num[i+1]){
-            continue;
-        }
-        int left = 0;
-        int right = (int)(num.size()) -1;
-        while(left< right){
-            if(left == i){
-                left ++;
-                continue;
-            }
-            if(right == i){
-                right--;
-                continue;
-            }
-            if(num[i] + num[left] + num[right] == 0){
-                vector<int> x = {i, left, right};
-                sort(x.begin(), x.end(), [](int a, int b)->bool {return a<b;});
-                bool contain = false;
-                for(vector<vector<int>>::iterator it = tracker.begin(); it != tracker.end(); it++){
-                    if((*it)[0] == x[0] && (*it)[1] == x[1] && (*it)[2] == x[2]){
-                        contain = true;
-                        break;
-                    }
-                }
-                if(!contain){
-                    tracker.push_back(x);
-                }
-                left++;
-                right--;
-                
-            }else if(num[i] + num[left] + num[right] > 0){
-                right--;
-            }else {
-                left ++;
-            }
-            while(left<right && num[left] == num[left+1]) left ++;
-            while(left<right && num[right] == num[right-1]) right--;
+    vector<int> a;
+    for(int i = 0;i< num.size();i++){
+        if(a.size() ==0 || a[a.size()-1] != num[i]){
+            a.push_back(num[i]);
         }
     }
-    
-    for(vector<vector<int>>::iterator it = tracker.begin(); it != tracker.end(); it++){
-        vector<int> tmp = {num[(*it)[0]], num[(*it)[1]], num[(*it)[2]]};
-        res.push_back(tmp);
+    num = a;
+    int n = (int)num.size();
+    for(int i = 0;i<n;i++){
+        int j = i+1;
+        int k = n-1;
+        while(j<k){
+            int sum = num[i] + num[j] + num[k];
+            if(sum <0){
+                j++;
+            }else if(sum>0){
+                k--;
+            }else{
+                vector<int> tmp(3);
+                tmp.push_back(num[i]);
+                tmp.push_back(num[j]);
+                tmp.push_back(num[k]);
+                res.push_back(tmp);
+                j++;
+                k--;
+            }
+        }
     }
-    
     return res;
-
 }
 
 /*
@@ -4041,67 +4021,73 @@ int lengthOfLastWord(const char *s) {
  http://oj.leetcode.com/problems/largest-rectangle-in-histogram/
  */
 int largestRectangleAreaII(vector<int> &height) {
-    if(height.size() ==0) return 0;
-    if(height.size() ==1) return height[0];
-    
-    int highestIndex =0;
-    for(int i = 0;i< height.size();i++){
-        if(height[i] > height[highestIndex]){
-            highestIndex = i;
-        }
-    }
-    
-    int maxArea = height[highestIndex];
-    int left;
-    int right;
-    if(highestIndex==0)
-    {
-        left = highestIndex;
-        right = highestIndex +1;
-    }else if(highestIndex == height.size() -1){
-        left = highestIndex-1;
-        right = highestIndex;
-    }else if(height[highestIndex-1] > height[highestIndex+1]){
-        left = highestIndex-1;
-        right = highestIndex;
-    }else{
-        left = highestIndex;
-        right = highestIndex+1;
-    }
-
-    int minHeight = min(height[left], height[right]);
-    maxArea = max(maxArea, minHeight * (right-left +1));
-    
-    while(left>0 && right < height.size()-1){
-        if(height[left-1] > height[right+1]){
-            left--;
-            minHeight = min(minHeight, height[left]);
-        }
-        else{
-            right++;
-            minHeight= min(minHeight, height[right]);
-        }
-        maxArea = max(maxArea, minHeight * (right-left +1));
-    }
-    
-    if(left == 0){
-        while(right < height.size()){
-
-            minHeight = min(minHeight, height[right]);
-            maxArea = max(maxArea, minHeight * (right-left +1));
-                        right++;
-        }
-    }
-    
-    if(right == height.size()-1){
-        while(left >= 0){
-            minHeight = min(minHeight, height[left]);
-            maxArea = max(maxArea, minHeight * (right-left +1));
-            left--;
+    stack<int> tracker;
+    int maxArea = 0;
+    int i = 0;
+    height.push_back(0);
+    while(i< height.size()){
+        if(tracker.empty() || height[i] >= height[tracker.top()]){
+            tracker.push(i++);
+        }else{
+            int t = tracker.top();
+            tracker.pop();
+            maxArea = max(maxArea, height[t] * (tracker.empty()? i: i - tracker.top() -1));
+            
         }
     }
     return maxArea;
 }
+
+
+
+int largestRectAreaIII(vector<int> &h) {
+    stack<int> p;
+    int i = 0, m = 0;
+    h.push_back(0);
+    while(i < h.size()) {
+        if(p.empty() || h[p.top()] <= h[i])
+            p.push(i++);
+        else {
+            int t = p.top();
+            p.pop();
+            m = max(m, h[t] * (p.empty() ? i : i - p.top() - 1 ));
+        }
+    }
+    return m;
+}
+
+/*
+ http://oj.leetcode.com/problems/3sum-closest/
+ */
+int threeSumClosest(vector<int> &num, int target) {
+    int res;
+    if(num.size() <3) return 0;
+    sort(num.begin(), num.end(), [](int a, int b){return a<b;});
+    vector<int> a;
+    /*
+    for(int i = 0;i< num.size();i++){
+        if(a.size() ==0 || a[a.size()-1] != num[i]){
+            a.push_back(num[i]);
+        }
+    }
+    num = a;
+     */
+    res = INT_MAX;
+    int n = (int)num.size();
+    for(int i = 0;i<n;i++){
+        int j = i+1;
+        int k = n-1;
+        while(j<k){
+            int sum = num[i] + num[j] + num[k];
+            if(abs(sum-target) < abs(res - target)){
+                res = sum;
+            }
+        }
+    }
+    return res;
+}
+
+
 
 int main(int argc, const char * argv[])
 {
@@ -4491,7 +4477,11 @@ int main(int argc, const char * argv[])
     //int input[] = {1,1,1,2,2,3};
     //int res = removeDuplicatesII(input, 6);
     //cout<<res<<endl;
-    vector<int> input = {2,1,5,6,2,3};
-    int res = largestRectangleAreaII(input);
+    vector<int> input = {1,1};
+    int res = largestRectAreaIII(input);
+    cout<<res<<endl;
+    
+    res = largestRectangleAreaII(input);
+    cout<<res<<endl;
     return 0;
 }
