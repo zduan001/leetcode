@@ -33,6 +33,13 @@ struct TreeNode {
     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
+struct Interval {
+    int start;
+    int end;
+    Interval() : start(0), end(0) {}
+    Interval(int s, int e) : start(s), end(e) {}
+};
+
 
 ListNode *insertionSortList(ListNode *head) {
 	ListNode *dummyHead = new ListNode(-1);
@@ -3516,6 +3523,586 @@ vector<vector<int> > combine(int n, int k) {
     return res;
 }
 
+/*
+ http://oj.leetcode.com/problems/maximum-subarray/
+ */
+int maxSubArray(int A[], int n) {
+    int res = A[0];
+    //int start = 0 ;
+    int sum = A[0];
+    
+    for(int end = 0;end< n ;end++){
+        sum += A[end];
+        if(sum < 0){
+            sum = 0;
+            //start = end;
+        }
+        else{
+            res = res > sum? res : sum;
+        }
+    }
+    return res;
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/merge-intervals/
+ */
+
+bool waytoSort(Interval i1, Interval i2) {return i1.start < i2.start;}
+
+vector<Interval> merge(vector<Interval> &intervals) {
+    
+    if(intervals.size() <2 ) return intervals;
+    sort(intervals.begin(), intervals.end(), waytoSort);
+    int left = 0, right= 0;
+    int maxright = intervals[left].end;
+    vector<Interval> res;
+    while(right < intervals.size()){
+        while(right < intervals.size() -1 && maxright >= intervals[right+1].start ){
+            right++;
+            maxright = max(maxright, intervals[right].end);
+        }
+        
+        Interval tmp(intervals[left].start, maxright);
+        res.push_back(tmp);
+        left = right+1;
+        right = left;
+        maxright = intervals[left].end;
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/add-binary/
+ */
+string addBinary(string a, string b) {
+    int firstindex = (int)a.length() -1;
+    int secondindex = (int)b.length() -1;
+    int carry = 0;
+    string res;
+    int ai, bi;
+    char tmp;
+    while(secondindex >=0 || firstindex >=0){
+        if(firstindex >=0){
+            ai = a[firstindex] == '1'?1:0;
+        }else{
+            ai = 0;
+        }
+        
+        if(secondindex >=0){
+            bi = b[secondindex] == '1'?1:0;
+        }else{
+            bi = 0;
+        }
+        
+        tmp = (carry+ ai+bi) % 2 ? '1': '0';
+        carry = (carry + ai + bi) / 2;
+        res = tmp + res;
+        secondindex --;
+        firstindex --;
+    }
+    
+    if(carry >0){
+        res = '1'+ res;
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/rotate-list/
+ */
+ListNode *rotateRight(ListNode *head, int k) {
+    if(!head || !(head->next)) return head;
+    if(k <1) return head;
+    ListNode* dummyHead = new ListNode(0);
+    dummyHead->next = head;
+    ListNode *front = dummyHead;
+    ListNode *back= dummyHead;
+    for(int i = 0;i< k;i++){
+        front = front->next;
+        if(!(front->next)) front = dummyHead;
+    }
+    
+    if(front == dummyHead) return head;
+    
+    while(front->next){
+        front = front->next;
+        back = back->next;
+    }
+    
+    ListNode* newHead = back->next;
+    back->next = NULL;
+    front->next = head;
+    return newHead;
+}
+
+/*
+ http://oj.leetcode.com/problems/minimum-path-sum/
+ */
+int minPathSum(vector<vector<int> > &grid) {
+    //if(!grid) return 0;
+    int m = (int)grid.size();
+    if(m ==0) return 0;
+    int n = (int)grid[0].size();
+    if(n == 0) return 0;
+    
+    int tracker[m][n];
+    tracker[0][0] = grid[0][0];
+    for(int i = 1;i<n;i++){
+        tracker[0][i] = tracker[0][i-1] + grid[0][i];
+    }
+    for(int i = 1;i<m;i++){
+        tracker[i][0] = tracker[i-1][0] + grid[i][0];
+    }
+    
+    for(int i = 1;i <m;i++){
+        for(int j = 1;j<n;j++){
+            tracker[i][j] = grid[i][j] + min(tracker[i-1][j], tracker[i][j-1]);
+        }
+    }
+    
+    return tracker[m-1][n-1];
+}
+
+/*
+ http://oj.leetcode.com/problems/spiral-matrix/
+ */
+vector<int> spiralOrder(vector<vector<int> > &matrix) {
+
+    vector<int> res;
+    int top = 0;
+    int bottom = (int)matrix.size()-1;
+    if(bottom < 0) return res;
+    int left = 0;
+    int right = (int)matrix[0].size()-1;
+    if(right < 0) return res;
+    int direction = 0;
+    int i = 0;
+    int j = 0;
+    while(top <= bottom && left <= right){
+        res.push_back(matrix[i][j]);
+        switch (direction) {
+            case 0:
+                if(j < right){
+                    j++;
+                }else{
+                    top ++;
+                    i++;
+                    direction = (direction+1)%4;
+                }
+                break;
+            case 1:
+                if(i< bottom){
+                    i++;
+                }else{
+                    right--;
+                    j--;
+                    direction = (direction+1)%4;
+                }
+                break;
+            case 2:
+                if(j >left){
+                    j--;
+                }else{
+                    bottom--;
+                    i--;
+                    direction = (direction+1)%4;
+                }
+                break;
+            case 3:
+                if(i>top){
+                    i--;
+                }else{
+                    left ++;
+                    j++;
+                    direction = (direction+1)%4;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/plus-one/
+ */
+vector<int> plusOne(vector<int> &digits) {
+    int index = (int)digits.size()-1;
+    int carry = 1;
+    int tmp = 0;
+    while(index>=0){
+        tmp = (carry + digits[index]) %10;
+        carry = (carry + digits[index]) /10;
+        digits[index] = tmp;
+        index --;
+    }
+    if(carry >0){
+        digits.insert(digits.begin(), carry);
+    }
+    return digits;
+}
+
+/*
+ http://oj.leetcode.com/problems/spiral-matrix-ii/
+ */
+vector<vector<int>> generateMatrix(int n) {
+    vector<vector<int>> res;
+    vector<int> tmp;
+    for(int i = 0;i< n;i++){
+        tmp.push_back(0);
+    }
+    for(int i = 0;i< n;i++){
+        vector<int> x(tmp);
+        res.push_back(x);
+    }
+    
+    int top = 0;
+    int bottom = n -1;
+    if(bottom < 0) return res;
+    int left = 0;
+    int right = n - 1;
+    if(right < 0) return res;
+    int direction = 0;
+    int i = 0;
+    int j = 0;
+    int current = 1;
+    while(top <= bottom && left <= right){
+        res[i][j] = current ++;
+        switch (direction) {
+            case 0:
+                if(j < right){
+                    j++;
+                }else{
+                    top ++;
+                    i++;
+                    direction = (direction+1)%4;
+                }
+                break;
+            case 1:
+                if(i< bottom){
+                    i++;
+                }else{
+                    right--;
+                    j--;
+                    direction = (direction+1)%4;
+                }
+                break;
+            case 2:
+                if(j >left){
+                    j--;
+                }else{
+                    bottom--;
+                    i--;
+                    direction = (direction+1)%4;
+                }
+                break;
+            case 3:
+                if(i>top){
+                    i--;
+                }else{
+                    left ++;
+                    j++;
+                    direction = (direction+1)%4;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/text-justification/
+ */
+string makeString(vector<string> &tmp, int L){
+
+    string s;
+    if(tmp.size() == 1){
+        s = tmp[0];
+        for(int i = 0;i< L-tmp[0].length() ;i++){
+            s += " ";
+        }
+        return s;
+    }
+    int len = 0;
+    for(int i = 0;i< tmp.size();i++){
+        len += (int)tmp[i].length();
+    }
+
+    
+    int space = ((L-len) /  (int)tmp.size()) + 1;
+    int count = (L-len) % (int)tmp.size();
+    
+    for(int j = 0;j<tmp.size();j++){
+        if(j != 0){
+            for(int i = 0;i< space; i++){
+                s += " ";
+            }
+            
+            if(count >0){
+                s += " ";
+                count--;
+            }
+        }
+        s += tmp[j];
+    }
+    return s;
+}
+
+vector<string> fullJustify(vector<string> &words, int L) {
+    vector<string> res;
+    vector<string> tmp;
+    int length = -1;
+    for(int i = 0;i< words.size();i++){
+        if((length + words[i].length() + 1) <L){
+            tmp.push_back(words[i]);
+            length += (words[i].length() + 1);
+        }else{
+            string s = makeString(tmp, L);
+            res.push_back(s);
+            tmp.clear();
+            tmp.push_back(words[i]);
+            length = -1;
+            
+        }
+    }
+    if(tmp.size() != 0){
+        string s = makeString(tmp, L);
+        res.push_back(s);
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/climbing-stairs/
+ */
+int climbStairs(int n) {
+    if(n<2) return 1;
+    if(n==2) return 2;
+    int tracker[n];
+    tracker[0] = 1;
+    tracker[1] = 2;
+    for(int i = 2;i< n;i++){
+        tracker[i] = tracker[i-1] + tracker[i-2];
+    }
+    return tracker[n-1];
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/set-matrix-zeroes/
+ */
+void setZeroes(vector<vector<int> > &matrix) {
+    unordered_set<int> rows;
+    unordered_set<int> columns;
+    int m = (int)matrix.size();
+    int n = (int)matrix[0].size();
+    for(int i= 0;i<m;i++){
+        for(int j = 0;j< n;j++){
+            if(matrix[i][j] == 0){
+                rows.insert(i);
+                columns.insert(j);
+            }
+        }
+    }
+    
+    for(unordered_set<int>::iterator it = rows.begin();it!= rows.end(); it++){
+        for(int j = 0;j< n;j++){
+            matrix[*it][j] = 0;
+        }
+    }
+    
+    for(unordered_set<int>::iterator it = columns.begin();it!= columns.end();it++){
+        for(int i = 0;i< m;i++){
+            matrix[i][*it] = 0;
+        }
+    }
+}
+
+/*
+ http://oj.leetcode.com/problems/sort-colors/
+ */
+void sortColors(int A[], int n) {
+    int r = 0;
+    int w = 0;
+    int b = n-1;
+    for(w=0;w<=b;)
+    {
+        if(A[w] == 0){
+            swap(A[r++], A[w++]);
+        }else if(A[w] == 2){
+            swap(A[w], A[b--]);
+        }else{
+            w++;
+        }
+    }
+}
+
+/*
+ http://oj.leetcode.com/problems/minimum-window-substring/
+ */
+string minWindow(string S, string T) {
+    deque<int> tracker;
+    unordered_map<char, pair<int,int>> map;
+    for(int i = 0;i<T.length();i++){
+        if(map.find(T[i])== map.end())
+        {
+            map.insert(make_pair(T[i], make_pair(1,0)));
+        }else{
+            (map.find(T[i])->second).first++;
+        }
+    }
+    string s;
+    int end = 0;
+    int count = 0;
+    while(end < S.length()){
+        if(map.find(S[end])!= map.end()){
+            tracker.push_back(end);
+            auto it =map.find(S[end]);
+            (it->second).second ++;
+            count++;
+            if((it->second).first == (it->second).second){
+                if(count == T.length()){
+                    if((tracker.back()- tracker.front() + 1 )< s.length() || s.length() == 0){
+                        s = S.substr(tracker.front(), tracker.back() - tracker.front() +1);
+                    }
+                }
+            }else if((it->second).first < (it->second).second){
+                while(true){
+                    auto ab = map.find(T[tracker.front()]);
+                    (ab->second).second --;
+                    count --;
+                    tracker.pop_front();
+                    if((it->second).first == (it->second).second){
+                        break;
+                    }
+                }
+            }
+        }
+        end++;
+    }
+    return s;
+}
+
+/*
+ http://oj.leetcode.com/problems/remove-duplicates-from-sorted-array-ii/
+ */
+int removeDuplicatesII(int A[], int n) {
+    if(A==NULL || n == 0) return 0;
+    int currentvalue = A[0];
+    int currentcount = 1;
+    int back= 0;
+    int front = 1;
+    while(front<n){
+        if(A[front] != currentvalue){
+            A[++back] = A[front++];
+            currentvalue = A[back];
+            currentcount = 1;
+        }else if(currentcount ==1){
+            A[++back] = A[front++];
+            currentcount ++;
+        }else{
+            front++;
+        }
+    }
+    return back+1;
+}
+
+/*
+ http://oj.leetcode.com/problems/length-of-last-word/
+ */
+int lengthOfLastWord(const char *s) {
+    int lastlength = 0;
+    int index= -1;
+    int length = 0;
+    while(*s != '\0'){
+        if(*s == ' '){
+            if(length-index != 0){
+                lastlength = length-index;
+            }
+            index = length;
+        }
+        s++;
+        length ++;
+    }
+    //if(index == -1) return length;
+    if(length - index == 1)
+        return lastlength;
+    return length-index-1;
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/largest-rectangle-in-histogram/
+ */
+int largestRectangleAreaII(vector<int> &height) {
+    if(height.size() ==0) return 0;
+    if(height.size() ==1) return height[0];
+    
+    int highestIndex =0;
+    for(int i = 0;i< height.size();i++){
+        if(height[i] > height[highestIndex]){
+            highestIndex = i;
+        }
+    }
+    
+    int maxArea = height[highestIndex];
+    int left;
+    int right;
+    if(highestIndex==0)
+    {
+        left = highestIndex;
+        right = highestIndex +1;
+    }else if(highestIndex == height.size() -1){
+        left = highestIndex-1;
+        right = highestIndex;
+    }else if(height[highestIndex-1] > height[highestIndex+1]){
+        left = highestIndex-1;
+        right = highestIndex;
+    }else{
+        left = highestIndex;
+        right = highestIndex+1;
+    }
+
+    int minHeight = min(height[left], height[right]);
+    maxArea = max(maxArea, minHeight * (right-left +1));
+    
+    while(left>0 && right < height.size()-1){
+        if(height[left-1] > height[right+1]){
+            left--;
+            minHeight = min(minHeight, height[left]);
+        }
+        else{
+            right++;
+            minHeight= min(minHeight, height[right]);
+        }
+        maxArea = max(maxArea, minHeight * (right-left +1));
+    }
+    
+    if(left == 0){
+        while(right < height.size()){
+
+            minHeight = min(minHeight, height[right]);
+            maxArea = max(maxArea, minHeight * (right-left +1));
+                        right++;
+        }
+    }
+    
+    if(right == height.size()-1){
+        while(left >= 0){
+            minHeight = min(minHeight, height[left]);
+            maxArea = max(maxArea, minHeight * (right-left +1));
+            left--;
+        }
+    }
+    return maxArea;
+}
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -3881,10 +4468,30 @@ int main(int argc, const char * argv[])
     //vector<int> v2 = {3,4};
     //vector<vector<int>> matrix = {v1,v2};
     //rotate(matrix);
-    vector<char> v= {'a', 'a'};
-    vector<vector<char>> input = {v};
-    bool res = exist(input, "aa");
-    cout<< res <<endl;
+    //vector<char> v= {'a', 'a'};
+    //vector<vector<char>> input = {v};
+    //bool res = exist(input, "aa");
+    //cout<< res <<endl;
     
+    //string res = addBinary("1", "0");
+    //cout<<res<<endl;
+    
+    /*vector<int> v1 = {1};
+    vector<int> v2 = {2};
+    vector<int> v3 = {3};
+    vector<vector<int>> input = {v1, v2, v3};
+    
+    vector<int> res = spiralOrder(input);
+    */
+    //vector<string> input={""};
+    //vector<string> res = fullJustify(input, 2);
+    
+    //string res = minWindow("ADOBECODEBANC", "ABC");
+    //cout<<res<<endl;
+    //int input[] = {1,1,1,2,2,3};
+    //int res = removeDuplicatesII(input, 6);
+    //cout<<res<<endl;
+    vector<int> input = {2,1,5,6,2,3};
+    int res = largestRectangleAreaII(input);
     return 0;
 }
