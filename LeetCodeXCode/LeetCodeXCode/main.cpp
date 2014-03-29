@@ -2700,25 +2700,25 @@ int firstMissingPositive(int A[], int n) {
 /*
  http://oj.leetcode.com/problems/wildcard-matching/
  */
-bool isMatchWildcard(const char *s, const char *p) {
+bool isMatchII(const char *s, const char *p) {
     if(*s == '\0' && *p == '\0'){
         return true;
     }else if(*p == '\0'){
         return false;
     }else if(*s == '\0'){
         if(*p == '*'){
-            return isMatchWildcard(s, p+1);
+            return isMatchII(s, p+1);
         }else{
             return false;
         }
     }
     
     if(*p == '?'){
-        return isMatchWildcard(s+1, p+1);
+        return isMatchII(s+1, p+1);
     }else if(*p == '*'){
-        return isMatchWildcard(s, p+1) || isMatchWildcard(s+1, p+1);
+        return isMatchII(s, p+1) || isMatchII(s+1, p+1) || isMatchII(s+1, p);
     }else if(*s == *p){
-        return isMatchWildcard(s+1, p+1);
+        return isMatchII(s+1, p+1);
     }else{
         return false;
     }
@@ -3454,6 +3454,7 @@ int uniquePathsWithObstacles(vector<vector<int> > &obstacleGrid) {
  http://oj.leetcode.com/problems/combination-sum-ii/
  */
 void worker(vector<int>& num, vector<int>& tracker, vector<vector<int>>& res, int sum, int level, int target){
+    if(level > num.size()) return;
     if(sum > target) return;
     if(sum == target){
         vector<int> x(tracker);
@@ -3462,11 +3463,13 @@ void worker(vector<int>& num, vector<int>& tracker, vector<vector<int>>& res, in
     }
     
     worker(num, tracker, res, sum, level+1, target);
-    sum += num[level];
-    tracker.push_back(num[level]);
-    worker(num, tracker, res, sum, level+1, target);
-    sum -= num[level];
-    tracker.pop_back();
+    if(level == 0 ||num[level] != num[level-1]){
+        sum += num[level];
+        tracker.push_back(num[level]);
+        worker(num, tracker, res, sum, level+1, target);
+        sum -= num[level];
+        tracker.pop_back();
+    }
     
 }
 
@@ -3551,6 +3554,26 @@ vector<Interval> merge(vector<Interval> &intervals) {
         maxright = intervals[left].end;
     }
     return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/insert-interval/
+ */
+vector<Interval> insert(vector<Interval> &intervals, Interval newInterval) {
+    vector<Interval> v;
+    int i = 0;
+    int n = (int)intervals.size();
+    while(i < n && newInterval.start > intervals[i].end)
+        v.push_back(intervals[i++]);
+    while(i < n && newInterval.end >= intervals[i].start) {
+        newInterval.end = max(newInterval.end, intervals[i].end);
+        newInterval.start = min(newInterval.start, intervals[i].start);
+        ++i;
+    }
+    v.push_back(newInterval);
+    while(i < n)
+        v.push_back(intervals[i++]);
+    return v;
 }
 
 /*
@@ -3926,7 +3949,7 @@ void sortColors(int A[], int n) {
 /*
  http://oj.leetcode.com/problems/minimum-window-substring/
  */
-string minWindow(string S, string T) {
+/*string minWindow(string S, string T) {
     deque<int> tracker;
     unordered_map<char, pair<int,int>> map;
     for(int i = 0;i<T.length();i++){
@@ -3967,6 +3990,43 @@ string minWindow(string S, string T) {
         end++;
     }
     return s;
+}
+ */
+
+string minWindow(string S, string T) {
+    int TAlphaStat[260];
+    fill_n(TAlphaStat, 260, 0);
+    for (char& c : T){
+        TAlphaStat[c]++;
+    }
+
+    int currentAlphaStat[260];
+    fill_n(currentAlphaStat, 260, 0);
+    int head = 0, tail = 0;
+    int containNum = 0;
+    int minWidth = INT_MAX, left = -1;
+    
+    while (tail < S.length()){
+        char& tc = S[tail];
+        if (TAlphaStat[tc] > 0){
+            if (currentAlphaStat[tc] < TAlphaStat[tc]){
+                containNum++;
+            }
+            currentAlphaStat[tc]++;
+        }
+        if (containNum == T.length()){
+            while (head < tail && (currentAlphaStat[S[head]] > TAlphaStat[S[head]] || TAlphaStat[S[head]] == 0)){
+                currentAlphaStat[S[head]]--;
+                head++;
+            }
+            if (minWidth > tail - head + 1){
+                minWidth = tail - head + 1;
+                left = head;
+            }
+        }
+        tail++;
+    }
+    return left == -1 ? "" : S.substr(left, minWidth);
 }
 
 /*
@@ -4064,15 +4124,11 @@ int threeSumClosest(vector<int> &num, int target) {
     if(num.size() <3) return 0;
     sort(num.begin(), num.end(), [](int a, int b){return a<b;});
     vector<int> a;
-    /*
-    for(int i = 0;i< num.size();i++){
-        if(a.size() ==0 || a[a.size()-1] != num[i]){
-            a.push_back(num[i]);
-        }
+    if(target >=0){
+        res = INT_MAX;
+    }else{
+        res = INT_MAX + target;
     }
-    num = a;
-     */
-    res = INT_MAX;
     int n = (int)num.size();
     for(int i = 0;i<n;i++){
         int j = i+1;
@@ -4082,12 +4138,74 @@ int threeSumClosest(vector<int> &num, int target) {
             if(abs(sum-target) < abs(res - target)){
                 res = sum;
             }
+            if(sum == target) return sum;
+            if(sum < target){
+                j++;
+            }else{
+                k--;
+            }
         }
     }
     return res;
 }
 
+/*
+ http://oj.leetcode.com/problems/scramble-string/
+ */
+void swapString(string& s, int start, int pivot, int end)
+{
+    if(pivot <= start || pivot >=end){
+        return;
+    }
+    
+    int left = start;
+    int right = pivot;
+    
+    while(left<=right){
+        swap(s[left++], s[right--]);
+        
+    }
+    
+    left = pivot+1;
+    right = end;
+    while(left<=right){
+        swap(s[left++], s[right--]);
+    }
+    
+    left = start;
+    right = end;
+    while(left<=right){
+        swap(s[left++], s[right--]);
+    }
+}
 
+bool worker(string&s1, string s2, int start, int end){
+    if(s1 == s2) return true;
+    if(start >=end) return false;
+    
+    for(int i = start+1;i<=end;i++){
+        swapString(s1, start, i, end);
+        if(worker(s1, s2, start, start + end-i )|| worker(s1, s2, start +end-i+1, end)){
+            return true;
+        }
+        swapString(s1, start, start+ end-i, end);
+    }
+    return false;
+    
+}
+
+bool isScramble(string s1, string s2) {
+    if(s1.length() != s2.length()) return false;
+    return worker(s1, s2, 0, s1.length()-1);
+    
+}
+
+/*
+ http://oj.leetcode.com/problems/maximal-rectangle/
+ */
+int maximalRectangle(vector<vector<char> > &matrix) {
+    
+}
 
 int main(int argc, const char * argv[])
 {
@@ -4477,11 +4595,22 @@ int main(int argc, const char * argv[])
     //int input[] = {1,1,1,2,2,3};
     //int res = removeDuplicatesII(input, 6);
     //cout<<res<<endl;
+    /*
     vector<int> input = {1,1};
     int res = largestRectAreaIII(input);
     cout<<res<<endl;
     
     res = largestRectangleAreaII(input);
+    cout<<res<<endl;
+     */
+    //vector<int> input = {-3,-2,-5,3,-4};
+    //int res = threeSumClosest(input, -1);
+    
+    //vector<int> input = {1,1};
+    //vector<vector<int>> res = combinationSum2(input, 2);
+    string s1 = "abcdefghijklmnopq";
+    string s2 = "efghijklmnopqcadb";
+    bool res = isScramble(s1, s2);
     cout<<res<<endl;
     return 0;
 }
