@@ -4196,7 +4196,7 @@ bool worker(string&s1, string s2, int start, int end){
 
 bool isScramble(string s1, string s2) {
     if(s1.length() != s2.length()) return false;
-    return worker(s1, s2, 0, s1.length()-1);
+    return worker(s1, s2, 0, (int)s1.length()-1);
     
 }
 
@@ -4204,6 +4204,118 @@ bool isScramble(string s1, string s2) {
  http://oj.leetcode.com/problems/maximal-rectangle/
  */
 int maximalRectangle(vector<vector<char> > &matrix) {
+    int n = (int)matrix.size();
+    int m = (int)matrix[0].size();
+    int tracker[n][m];
+    for(int i = 0;i<n ;i++){
+        for(int j = 0;j<m;j++){
+            tracker[i][j]= 0;
+        }
+    }
+    int max = 0;
+    for(int i = 0;i< n;i++){
+        for(int j = 0;j<m;j++){
+            if(j==0)
+            {
+                tracker[i][j] = (matrix[i][j] - '0');
+            }
+            if(matrix[i][j] == '0')
+                tracker[i][j] = 0;
+            else
+                tracker[i][j] = tracker[i][j-1]+1;
+         }
+    }
+    
+    
+    return max;
+}
+
+/*
+ http://oj.leetcode.com/problems/gray-code/
+ */
+void worker(int n, int level, vector<int>& res, int tmp){
+    if(level ==n ){
+        res.push_back(tmp);
+        return;
+    }
+    
+    worker(n, level+1, res, tmp);
+    tmp ^= (1<<level);
+    worker(n, level+1, res, tmp);
+    tmp ^= (1<<level);
+    
+}
+
+vector<int> grayCode(int n) {
+    vector<int> res;
+    if(n<0) return res;
+    if(n ==0) {
+        res.push_back(0);
+        return res;
+    }
+    worker(n,0,res, 0);
+    return res;
+}
+
+vector<int> grayCodeII(int n){
+    vector<int> res;
+    int count = 1<<n;
+    for(int i =0;i<count; i++){
+        res.push_back(i ^ (i>>1));
+    }
+    return res;
+}
+
+/*
+ http://oj.leetcode.com/problems/unique-binary-search-trees-ii/
+ */
+vector<TreeNode*> worker(int start, int end){
+    vector<TreeNode*> res;
+    if(start > end){
+        res.push_back(NULL);
+        return res;
+    }
+    if(start == end){
+        res.push_back(new TreeNode(start));
+        return res;
+    }
+    
+    for(int i = start;i<=end; i++){
+        vector<TreeNode*> leftVector = worker(start, i-1);
+        vector<TreeNode*> rightVector = worker(i+1, end);
+        for(auto l: leftVector){
+            for(auto r: rightVector){
+                TreeNode* tmp = new TreeNode(i);
+                tmp->left = l;
+                tmp->right = r;
+                res.push_back(tmp);
+            }
+        }
+    }
+    return res;
+}
+
+vector<TreeNode *> generateTrees(int n) {
+    return worker(1, n);
+}
+
+/*
+ http://oj.leetcode.com/problems/populating-next-right-pointers-in-each-node/
+ */
+void worker(TreeLinkNode*& leftNode, TreeLinkNode*& rightNode, TreeLinkNode* root){
+    if(!root){
+        leftNode = NULL;
+        rightNode = NULL;
+        return;
+    }
+    
+    if(root->left){
+        root->left->next = root->right;
+        
+    }
+}
+
+void connectII(TreeLinkNode *root) {
     
 }
 
@@ -4608,9 +4720,12 @@ int main(int argc, const char * argv[])
     
     //vector<int> input = {1,1};
     //vector<vector<int>> res = combinationSum2(input, 2);
-    string s1 = "abcdefghijklmnopq";
-    string s2 = "efghijklmnopqcadb";
-    bool res = isScramble(s1, s2);
-    cout<<res<<endl;
+    //string s1 = "abcdefghijklmnopq";
+    //string s2 = "efghijklmnopqcadb";
+    //bool res = isScramble(s1, s2);
+    //cout<<res<<endl;
+    
+    //vector<int> res = grayCode(1);
+    vector<TreeNode*> res = generateTrees(3);
     return 0;
 }
