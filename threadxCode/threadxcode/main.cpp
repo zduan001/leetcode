@@ -88,11 +88,7 @@ void function_b(){
         q.pop_back();
         locker.unlock();
         cout<< " t2 got value from t1 " << data <<endl;
-        //}else{
-        //    locker.unlock();
-        //    cout<< " no data yet"<<endl;
-        //    this_thread::sleep_for(chrono::milliseconds(500));
-        //}
+
     }
 }
 

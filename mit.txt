@@ -1,15 +1,19 @@
 FB 
 1) 给一棵树，tree node里面增加定义一项 vector<TreeNode*> afterIt,也就是保存
 这一层中此节点之后（右侧）的所有节点指针。求如何实现这个vector。
+[Done]
 
 2) 着色，给定一个矩阵，内部某区间被1以不规则形状封闭包围起来，其它位置都是0
 ，要求在该被包围区间内任何一点点击，把整个被包围的空间里0全部改成数字1。
+[BFS] or 
 
 Round 2:
 1)  给定无限integer流，找Top K大；如果不是流而是数组，如何优化。
+[Priority Queue]
 
 2）给一组interval区间，[Ai, Aj]， 其中Ai表示人员A进入会场时间，Aj表示人员A离
 开会场时间。要求，有没有任何时间点上会场一个人都没有。
+[Sort and merge, then check the count of intervals]
 
 Manager面聊了聊，他说需要Hadoop experience，但是说不是那种会在Hadoop上建应用
 而是实际会
@@ -19,12 +23,16 @@ manipulate Hadoop那种，问了不少细节，他说实际更加靠近Distribut
 
 unknown
 给定一个总时间T
-
 给定N个数 A_1, A_2, ... A_N
-
 问能不能把这N个数分成2组，每组的和都小于或等于T
-
 感觉是NP的？而且好像贪心也不行
+[?] ******************************************************
+first sum the whole array up make sure the sum is less than 2T. otherwise there is no
+solution
+then knapsack with capacity of T and each item weight is the number value is 1 one
+
+
+
 
 amazon
 1. (Bar Raiser) Amazon服务器有很多log文件记录用户访问Amazon的行为,每条log形
@@ -39,15 +47,20 @@ amazon
 (跪在这题上了,先要确定如何判断用户的一次访问,然后是怎样从好多log文件中高效地
 提取每个用户每次访问的前三个网页,存在什么地方,最后把这堆信息用heap或者其他什
 么取top k).
+[had this question at Ebay]
 
 2. 给一个二叉树,找到与给定节点距离为N的所有节点(没有parent link,有parent
 link),两个节点间隔着几条边,就是距离为几
+[?] ****************
+
 
 3.  1) Remove duplicate in an array
-     2) Longest common prefix in an array of strings.
+    2) Longest common prefix in an array of strings.
+
+
 
 4. 1) Top K elements in an array.
-    2) 两个单词,长度一样,找出从一个单词变到另一个单词的最短路径,每次只能改变
+	2) 两个单词,长度一样,找出从一个单词变到另一个单词的最短路径,每次只能改变
 一个字母,且改变字母后的单词必须是有效的单词(我是假定有字典能判断一个单词是否
 有效,然后BFS.)   
 
@@ -57,9 +70,12 @@ FB
 
 1. median of integer stream. 没写代码，讲了下思路和数据结构……这题版上有讨
 
-论过，非常感谢！ http://www.ardendertat.com/2011/11/03/programming-interview-que2. 在一个x轴上，有很多矩阵，这些矩阵下面的那条横线跟x轴是重叠的……矩阵之间可以部分重叠或者一个矩阵被另一个矩阵完全覆盖……要求输出最后图像的轮廓……不知道描述清楚了没有…这题没写代码，讲了下思路……
+论过，非常感谢！ http://www.ardendertat.com/2011/11/03/programming-interview-que
+2. 在一个x轴上，有很多矩阵，这些矩阵下面的那条横线跟x轴是重叠的……矩阵之间可以部分重叠或者一个矩阵被另一个矩阵完全覆盖……要求输出最后图像的轮廓……不知道描述清楚了没有…这题没写代码，讲了下思路……
 
-3. 给了一堆开会时间, (si, ei), 开始时间和结束时间……判断是否可以只用一个会议室满足所有会议.注意，(4,5), (5,6)……这个输入返回true……4. 同样的一堆会议时间，返回最少需要多少间会议室.
+3. 给了一堆开会时间, (si, ei), 开始时间和结束时间……判断是否可以只用一个会议室满足所有会议.注意，(4,5), (5,6)……这个输入返回true……
+
+4. 同样的一堆会议时间，返回最少需要多少间会议室.
 
 
 T
@@ -102,11 +118,22 @@ http://www.mitbbs.com/article_t/JobHunting/32643137.html
 
 about C
 http://www.mitbbs.com/article_t/JobHunting/32644965.html
-1，what is abi and api, give some example2, what happens when exception is thrown?3, what if exception is not caught anywhere?
-
-4, what must be initialized in the initialization list?5, what is reference vs. pointer?
-
-6, how do you debug a box which has no debugger installed? i.e. you suspect a process is hanging, but no debugger, how to tell what goes wrong?
+1，what is abi and api, give some example
+2, what happens when exception is thrown?
+	All stacks pop
+3, what if exception is not caught anywhere?
+	Hand all the way to the top, i.e. main(), and then halted by operating system
+4, what must be initialized in the initialization list?
+5, what is reference vs. pointer?
+	reference is alias, bound forever, can not change.
+	pointer is more universal, unless you define something like
+	int * const *
+	Also there's some difference when you use reference/pointer as parameters 
+	passed into a function.
+6, how do you debug a box which has no debugger installed? i.e. you suspect a process 
+	is hanging, but no debugger, how to tell what goes wrong?
+	C: printf printf printf printf printf
+	C++: cout cout cerr cerr 
 
 	
 G intern	
@@ -146,7 +173,7 @@ F design question
 稍微总结一下
 
 1. 入门级的news feed
-http://www.quora.com/What-are-best-practices-for-building-somet
+http://www.quora.com/What-are-best-practices-for-building-something-like-a-News-Feed
 http://www.infoq.com/presentations/Scale-at-Facebook
 http://www.infoq.com/presentations/Facebook-Software-Stack
 一般的followup question是估算需要多少server
