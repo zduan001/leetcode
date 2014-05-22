@@ -298,6 +298,89 @@ int largestRectangleArea(vector<int> &height) {
     return result;
 }
 
+int maximalRectangle(vector<vector<char> > &matrix) {
+    if(matrix.size() == 0 || matrix[0].size() == 0) return 0;
+    vector<int> tracker(matrix[0].size()+1, 0);
+    int maxArea = 0;
+    for(int i = 0;i< (int)matrix.size();i++)
+    {
+        for(int j = 0;j< (int)matrix[i].size();j++)
+        {
+            if(matrix[i][j] == '1'){
+                tracker[j] ++;
+            }
+            else
+            {
+                tracker[j] = 0;
+            }
+        }
+        maxArea = max(maxArea, largestRectangleArea(tracker));
+    }
+    return maxArea;
+    
+    
+}
+
+bool isInterleave(string s1, string s2, string s3)
+{
+    if(s1.length() + s2.length() != s3.length()) return false;
+    vector<vector<bool>> tracker(s1.length() + 1, vector<bool>(s2.length()+1, true));
+    
+    for(int i = 1;i<= s1.length();i++)
+    {
+        tracker[i][0] = s1[i-1] == s3[i-1] && tracker[i-1][0];
+    }
+    
+    for(int j = 1;j<=s2.length();j++)
+    {
+        tracker[0][j] = s2[j-1] == s3[j-1] && tracker[0][j-1];
+    }
+    
+    for(int i = 1;i<= s1.length();i++)
+    {
+        for(int j = 1;j<=s2.length();j++)
+        {
+            tracker[i][j] = (s1[i-1] == s3[i+j-1] && tracker[i-1][j]) || (s2[j-1] == s3[i+j-1] && tracker[i][j-1]);
+        }
+    }
+    
+    return tracker[s1.length()][s2.length()];
+    
+}
+
+string longestPalindrome(string s) {
+    int maxlength = 0;
+    string res;
+    for(int i = 0;i< s.length();i++)
+    {
+        int left = i;
+        int right = i;
+        while(left>=0 && right<s.length() && s[left] == s[right])
+        {
+            int length = right - left +1;
+            if(length > maxlength)
+            {
+                maxlength = length;
+                res = s.substr(left, length);
+            }
+            left--;right++;
+        }
+        left = i;
+        right = i+1;
+        while(left>=0 && right<s.length() && s[left] == s[right])
+        {
+            int length = right - left +1;
+            if(length > maxlength)
+            {
+                maxlength = length;
+                res = s.substr(left, length);
+            }
+            left--;right++;
+        }
+    }
+    return res;
+}
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -328,12 +411,20 @@ int main(int argc, const char * argv[])
     cout<<res<<endl;
     */
     
+    /*
     vector<int> height;
     height.push_back(2);
     height.push_back(3);
     
     int res = largestRectangleArea(height);
     cout <<res<<endl;
+    */
+    string s1 = "aa";
+    string s2 = "ab";
+    string s3 = "aaba";
+    
+    bool res = isInterleave(s1,s2,s3);
+    cout <<res;
     
     // insert code here...
     //std::cout << "Hello, World!\n";
