@@ -1249,6 +1249,199 @@ int minDistance(string word1, string word2) {
     return tracker[m-1][n-1];
 }
 
+void sortColors(int A[], int n) {
+    int i = -1;
+    int left = 0;
+    int right = n-1;
+    while(left<=right)
+    {
+        if(A[left] ==0)
+        {
+            swap(A, ++i, left++);
+        }
+        else if(A[left] == 1)
+        {
+            left++;
+        }else if(A[left] == 2)
+        {
+            swap(A, left, right--);
+        }
+    }
+}
+
+string minWindow(string S, string T) {
+    int TAlphaStat[260];
+    fill_n(TAlphaStat, 260, 0);
+    for (char& c : T)
+    {
+        TAlphaStat[c]++;
+    }
+    int currentAlphaStat[260];
+    fill_n(currentAlphaStat, 260, 0);
+    int head = 0, tail = 0;
+    int containNum = 0;
+    int minWidth = INT_MAX, left = -1;
+    while (tail < S.length())
+    {
+        char& tc = S[tail];
+        if (TAlphaStat[tc] > 0){
+            if (currentAlphaStat[tc] < TAlphaStat[tc]){
+                containNum++;
+            }
+            currentAlphaStat[tc]++;
+        }
+        if (containNum == T.length()){
+            while (head < tail && (currentAlphaStat[S[head]] > TAlphaStat[S[head]] || TAlphaStat[S[head]] == 0)){
+                currentAlphaStat[S[head]]--;
+                head++;
+            }
+            if (minWidth > tail - head + 1){
+                minWidth = tail - head + 1;
+                left = head;
+            }
+        }
+        tail++;
+    }
+    return left == -1 ? "" : S.substr(left, minWidth);
+    
+}
+
+void worker(vector<int> &s, int begin, vector<int> &path, vector<vector<int> > &result) {
+    result.push_back(path);
+    
+    for (int i = begin; i < s.size(); ++i) {
+        if (i == begin || s[i] != s[i - 1])
+        {
+        path.push_back(s[i]);
+        worker(s, i + 1, path, result);
+        path.pop_back();
+        }
+    }
+}
+
+vector<vector<int> > subsetsWithDup(vector<int> &S) {
+    vector<vector<int>> res;
+    if(S.size() == 0) return res;
+    
+    sort(S.begin(), S.end());
+    vector<int> tmp;
+    worker(S, 0, tmp, res);
+    return res;
+    
+}
+
+vector<int> inorderTraversal(TreeNode *root) {
+    vector<int> res;
+    if(!root) return res;
+    stack<TreeNode*> tracker;
+    bool backtrack = false;
+    tracker.push(root);
+    while(!tracker.empty())
+    {
+        TreeNode* tmp = tracker.top();
+        
+        if(tmp->left && !backtrack)
+        {
+            tracker.push(tmp->left);
+            continue;
+        }
+        
+        tracker.pop();
+        res.push_back(tmp->val);
+        backtrack = true;
+        
+        if( tmp->right)
+        {
+            tracker.push(tmp->right);
+            backtrack = false;
+        }
+    }
+    return res;
+    
+}
+
+int worker(int left, int right)
+{
+    if(left >= right) return 1;
+    int res = 0;
+    
+    for(int i = left;i<=right;i++)
+    {
+        int leftres = worker(left, i-1);
+        int rightres = worker(i+1, right);
+        res += leftres * rightres;
+    }
+    return res;
+}
+
+int numTrees(int n) {
+    return worker(1,n);
+}
+
+
+vector<vector<int> > zigzagLevelOrder(TreeNode *root) {
+    stack<TreeNode *> s1;
+    stack<TreeNode *> s2;
+    vector<vector<int>> res;
+    if (!root) return res;
+    s1.push(root);
+    bool leftToRight = true;
+    vector<int>* container  = new vector<int>();
+    while(!s1.empty())
+    {
+        TreeNode* tmp = s1.top();
+        s1.pop();
+        container->push_back(tmp->val);
+        if(leftToRight){
+            if(tmp->left) s2.push(tmp->left);
+            if(tmp->right) s2.push(tmp->right);
+        }else{
+            if(tmp->right) s2.push(tmp->right);
+            if(tmp->left) s2.push(tmp->left);
+        }
+        
+        if(s1.empty())
+        {
+            leftToRight = !leftToRight;
+            swap(s1, s2);
+            res.push_back(*container);
+            container = new vector<int>();
+        }
+    }
+    return res;
+}
+
+
+vector<vector<int> > zigzagLevelOrderI(TreeNode *root) {
+    vector<vector<int>> res;
+    if(!root) return res;
+    stack<TreeNode*> s1;
+    stack<TreeNode*> s2;
+    bool leftToRight = true;
+    s1.push(root);
+    vector<int>* container = new vector<int>();
+    while(!s1.empty()){
+        TreeNode* tmp = s1.top();
+        container->push_back(tmp->val);
+        if(leftToRight){
+            if(tmp->left) s2.push(tmp->left);
+            if(tmp->right) s2.push(tmp->right);
+        }else{
+            if(tmp->right) s2.push(tmp->right);
+            if(tmp->left) s2.push(tmp->left);
+        }
+        s1.pop();
+        
+        if(s1.empty()){
+            leftToRight = !leftToRight;
+            swap(s1,s2);
+            res.push_back(*container);
+            container = new vector<int>();
+        }
+    }
+    return res;
+}
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -1359,8 +1552,28 @@ int main(int argc, const char * argv[])
     //int res = sqrt(2);
     //cout <<res;
     
-    int res = minDistance("ab", "bc");
-    cout<<res<<endl;
+    //int res = minDistance("ab", "bc");
+    //cout<<res<<endl;
+    
+    //vector<int> input = {2,1,2};
+    //vector<vector<int>> res = subsetsWithDup(input);
+    //cout<<res.size()<<endl;
+    /*
+    TreeNode* t1 = new TreeNode(1);
+    TreeNode* t2 = new TreeNode(2);
+    TreeNode* t3 = new TreeNode(3);
+    TreeNode* t4 = new TreeNode(4);
+    TreeNode* t5 = new TreeNode(5);
+    
+    t1->left = t2;
+    t2->right = t3;
+    t1->right = t4;
+    t4->left = t5;
+    
+    vector<int> res = inorderTraversal(t1);
+    cout<<res.size()<<endl;
+    */
+    int res = numTrees(3);
     
     // insert code here...
     //std::cout << "Hello, World!\n";
