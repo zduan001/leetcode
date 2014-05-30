@@ -46,6 +46,12 @@ struct Interval {
     Interval(int s, int e) : start(s), end(e) {}
 };
 
+struct TreeLinkNode {
+  int val;
+  TreeLinkNode *left, *right, *next;
+  TreeLinkNode(int x) : val(x), left(NULL), right(NULL), next(NULL) {}
+};
+
 int findKthElement(int A[], int m , int B[], int n, int k)
 {
     if(m > n)
@@ -77,7 +83,6 @@ int findKthElement(int A[], int m , int B[], int n, int k)
         return A[ia-1];
     }
 }
-
 
 double findMedianSortedArrays(int A[], int m, int B[], int n)
 {
@@ -228,6 +233,7 @@ bool isMatch(const char *s, const char *p) {
         {
             p = p+1;
         }
+        
         if(*p != '\0')
             return false;
         else
@@ -327,8 +333,6 @@ int maximalRectangle(vector<vector<char> > &matrix) {
         maxArea = max(maxArea, largestRectangleArea(tracker));
     }
     return maxArea;
-    
-    
 }
 
 bool isInterleave(string s1, string s2, string s3)
@@ -353,9 +357,7 @@ bool isInterleave(string s1, string s2, string s3)
             tracker[i][j] = (s1[i-1] == s3[i+j-1] && tracker[i-1][j]) || (s2[j-1] == s3[i+j-1] && tracker[i][j-1]);
         }
     }
-    
     return tracker[s1.length()][s2.length()];
-    
 }
 
 string longestPalindrome(string s) {
@@ -1249,7 +1251,8 @@ int minDistance(string word1, string word2) {
     return tracker[m-1][n-1];
 }
 
-void sortColors(int A[], int n) {
+void sortColors(int A[], int n)
+{
     int i = -1;
     int left = 0;
     int right = n-1;
@@ -1262,7 +1265,8 @@ void sortColors(int A[], int n) {
         else if(A[left] == 1)
         {
             left++;
-        }else if(A[left] == 2)
+        }
+        else if(A[left] == 2)
         {
             swap(A, left, right--);
         }
@@ -1284,18 +1288,23 @@ string minWindow(string S, string T) {
     while (tail < S.length())
     {
         char& tc = S[tail];
-        if (TAlphaStat[tc] > 0){
-            if (currentAlphaStat[tc] < TAlphaStat[tc]){
+        if (TAlphaStat[tc] > 0)
+        {
+            if (currentAlphaStat[tc] < TAlphaStat[tc])
+            {
                 containNum++;
             }
             currentAlphaStat[tc]++;
         }
-        if (containNum == T.length()){
-            while (head < tail && (currentAlphaStat[S[head]] > TAlphaStat[S[head]] || TAlphaStat[S[head]] == 0)){
+        if (containNum == T.length())
+        {
+            while (head < tail && (currentAlphaStat[S[head]] > TAlphaStat[S[head]] || TAlphaStat[S[head]] == 0))
+            {
                 currentAlphaStat[S[head]]--;
                 head++;
             }
-            if (minWidth > tail - head + 1){
+            if (minWidth > tail - head + 1)
+            {
                 minWidth = tail - head + 1;
                 left = head;
             }
@@ -1303,7 +1312,6 @@ string minWindow(string S, string T) {
         tail++;
     }
     return left == -1 ? "" : S.substr(left, minWidth);
-    
 }
 
 void worker(vector<int> &s, int begin, vector<int> &path, vector<vector<int> > &result) {
@@ -1312,9 +1320,9 @@ void worker(vector<int> &s, int begin, vector<int> &path, vector<vector<int> > &
     for (int i = begin; i < s.size(); ++i) {
         if (i == begin || s[i] != s[i - 1])
         {
-        path.push_back(s[i]);
-        worker(s, i + 1, path, result);
-        path.pop_back();
+            path.push_back(s[i]);
+            worker(s, i + 1, path, result);
+            path.pop_back();
         }
     }
 }
@@ -1440,6 +1448,240 @@ vector<vector<int> > zigzagLevelOrderI(TreeNode *root) {
         }
     }
     return res;
+}
+
+int numDistinct(string S, string T) {
+    int n = (int)S.length();
+    int m = (int)T.length();
+    vector<vector<int>> tracker(m, vector<int>(n, 0));
+    
+    if(T[0] == S[0]) tracker[0][0] = 1;
+    else tracker[0][0] = 0;
+    
+    for(int i = 1;i<n;i++)
+    {
+        if(T[0] == S[n])
+        {
+            tracker[0][i] = tracker[0][i-1]+1;
+        }
+        else
+        {
+            tracker[0][i] = tracker[0][i-1];
+        }
+    }
+    
+    
+    
+    for(int i = 1;i<m;i++)
+    {
+        for(int j = i;j<n;j++)
+        {
+            if(T[i] == S[j])
+            {
+                tracker[i][j] = tracker[i-1][j] + tracker[i][j-1];
+            }
+            else
+            {
+                tracker[i][j] = tracker[i][j-1];
+            }
+        }
+    }
+    return tracker[m-1][n-1];
+}
+
+void connect(TreeLinkNode *root) {
+    TreeLinkNode* prev= NULL;
+    TreeLinkNode* nextStart = root;
+    if(!root) return;
+    while(nextStart)
+    {
+        TreeLinkNode* tmp = nextStart;
+        nextStart = NULL;
+        prev= NULL;
+        while(tmp)
+        {
+            if(!nextStart)
+            {
+                nextStart = tmp->left? tmp->left:tmp->right;
+            }
+            
+            if(tmp->left)
+            {
+                if(prev) prev->next = tmp->left;
+                prev = tmp->left;
+            }
+            
+            if(tmp->right)
+            {
+                if(prev) prev->next = tmp->right;
+                prev = tmp->right;
+            }
+
+            tmp = tmp->next;
+        }
+    }
+}
+
+int maxSum = INT_MIN;
+
+int worker(TreeNode *root) {
+    if(!root) return 0;
+    
+    int left = worker(root->left);
+    int right = worker(root->right);
+    
+    int sum = root->val;
+    if(left>0) sum+= left;
+    if(right>0) sum+=right;
+    maxSum = max(sum, maxSum);
+    
+    return max(left,right)>0 ? root->val + max(left,right): root->val;
+}
+
+
+int maxPathSum(TreeNode *root) {
+    return max(worker(root), maxSum);
+}
+
+int longestConsecutive(vector<int> &num) {
+    unordered_map<int,int> tracker;
+    unordered_set<int>visited;
+    
+    for(int i = 0;i< num.size();i++)
+    {
+        tracker.insert(make_pair(num[i],i));
+    }
+    
+    int maxlength = INT_MIN;
+
+    for(int i = 0;i<num.size();i++)
+    {
+        int count;
+        if(visited.find(i) == visited.end())
+        {
+            int tmp = num[i];
+            count = 1;
+            visited.insert(i);
+            while( tracker.find(++tmp) != tracker.end())
+            {
+                count ++;
+                visited.insert(tracker.find(tmp)->second);
+                
+                
+            }
+            tmp = num[i];
+            while(tracker.find(--tmp) != tracker.end())
+            {
+                count ++;
+                visited.insert(tracker.find(tmp)->second);
+            }
+        }
+        maxlength = max(maxlength, count);
+        
+    }
+    return maxlength;
+}
+
+
+void worker(vector<pair<int,int>>& tmp, int i, int j, vector<vector<char>>& board, unordered_set<pair<int,int>>& visited)
+{
+    if(i >=0 && i< board.size() &&
+       j >=0 && j < board[0].size() &&
+       board[i][j] == 'O')//&&
+//       visited.find(make_pair(i,j)) == visited.end())
+    {
+        //tmp.push_back(make_pair(i,j));
+        //visited.insert(make_pair(i,j));
+        //worker(tmp, i-1, j, board, visited);
+        //worker(tmp, i+1, j, board, visited);
+        //worker(tmp, i, j-1, board, visited);
+        //worker(tmp, i, j+1, board, visited);
+    }
+}
+ 
+/*
+void solve(vector<vector<char>> &board) {
+    int m = (int)board.size();
+    int n = (int)board[0].size();
+    unordered_set<pair<int,int>> visited;
+    vector<vector<pair<int,int>>> tracker;
+    for(int i = 0;i< m;i++)
+    {
+        for(int j = 0;j<n;j++)
+        {
+            vector<pair<int,int>> tmp;
+            if(visited.find(make_pair(i,j)) == visited.end() && board[i][j] == 'O')
+            {
+                worker(tmp, i, j, board, visited);
+            }
+            tracker.push_back(tmp);
+        }
+    }
+    
+    for(int i = 0;i< tracker.size();i++)
+    {
+        bool inside = true;
+        for(auto it : tracker[i])
+        {
+            if(it.first == 0 ||
+               it.first == m-1 ||
+               it.second == n-1 ||
+               it.second == 0)
+            {
+                inside = false;
+                break;
+            }
+        }
+        
+        if(inside)
+        {
+            for(auto it:tracker[i])
+            {
+                board[it.first][it.second] = 'X';
+            }
+        }
+    }
+}
+*/
+
+int minCut(string s) {
+    int n = (int)s.length();
+    int f[n+1];
+    bool tracker[n][n];
+    fill_n(&tracker[0][0], n*n, false);
+    for (int i = 0; i <= n; i++)
+        f[i]=n-1-i;
+    for(int i = n-1;i>=0;i++)
+    {
+        for(int j = i; j<n;j++)
+        {
+            if(s[i] == s[j] && (j-i <2 || tracker[i+1][j-1]))
+            {
+                tracker[i][j] = true;
+                f[i] = min(f[i], f[j] +1);
+            }
+        }
+    }
+    return f[0];
+}
+
+int minCutI(string s) {
+    const int n = (int)s.size();
+    int f[n+1];
+    bool p[n][n];
+    fill_n(&p[0][0], n * n, false);
+    //the worst case is cutting by each char
+    for (int i = 0; i <= n; i++)
+        f[i]=n-1-i;// 最后一个 f[n]=-1
+    for (int i = n - 1; i >= 0; i--) {
+        for (int j = i; j < n; j++) {
+            if (s[i] == s[j] && (j - i < 2 || p[i + 1][j - 1])) {
+                p[i][j] = true;
+                f[i] = min(f[i], f[j + 1] + 1);
+            }
+        }
+    }
+    return f[0];
 }
 
 int main(int argc, const char * argv[])
@@ -1573,10 +1815,33 @@ int main(int argc, const char * argv[])
     vector<int> res = inorderTraversal(t1);
     cout<<res.size()<<endl;
     */
-    int res = numTrees(3);
+    //int res = numTrees(3);
+    /*
+    TreeLinkNode* t1 = new TreeLinkNode(1);
+    TreeLinkNode* t2 = new TreeLinkNode(2);
+    TreeLinkNode* t3 = new TreeLinkNode(3);
+    TreeLinkNode* t4 = new TreeLinkNode(4);
+    TreeLinkNode* t5 = new TreeLinkNode(5);
+    
+    t1->left = t2;
+    t2->right = t3;
+    t1->right = t4;
+    t4->left = t5;
+    
+    connect(t1);
+    */
+    //TreeNode* t1 = new TreeNode(-3);
+    
+    //int res = maxPathSum(t1);
+    //cout<< res<<endl;
+    
+    vector<int> A = {-339,-524,-826,870,395,-173,805,690,798,992,96,-735};
+
+    int res = longestConsecutive(A);
+    cout<<res<<endl;
+    
     
     // insert code here...
     //std::cout << "Hello, World!\n";
     return 0;
 }
-
