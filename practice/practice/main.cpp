@@ -256,12 +256,9 @@ queue<TreeNodeWithParent*> findNode(TreeNodeWithParent *node, int d){
             }
             swap(q1, q2);
         }
-        
     }
-    
     // if we travelled all. return empty set.
     return q1;
-    
 }
 
 void nextPermutation(vector<int> &num) {
@@ -397,51 +394,6 @@ int findKthElement(int A[], int m, int B[], int n, int k)
     }
 }
 
-/*
- bool isInterleave(string s1, string s2, string s3) {
- if(s3.length() != s1.length() + s2.length()) return false;
- if(s1 == "") return s2 == s3;
- if(s2 == "") return s1 == s3;
- bool tracker[s1.length()+1][s2.length()+1];
- for(int i = 0; i< s1.length()+1;i++){
- for(int j = 0;j<s2.length()+1; j++){
- tracker[i][j] =false;
- }
- }
- tracker[0][0] = true;
- for(int i = 1;i< s1.length() +1; i++)
- {
- tracker[i][0] = s1.substr(s1.length() -i, i) == s3.substr(s3.length()-i, i);
- //cout<<i<<", "<<0<<": "<<tracker[i][0]<<endl;
- }
- for(int j = 1; j< s2.length()+1; j++)
- {
- tracker[0][j] = s2.substr(s2.length() - j, j) == s3.substr(s3.length()-j, j);
- //cout<<0<<", "<<j<<": "<<tracker[0][j]<<endl;
- }
- 
- for(int i = 1;i< (int)s1.length()+1; i++){
- for(int j= 1;j< (int)s2.length()+1; j++){
- if(s1[s1.length() -i] != s3[s3.length() - i-j] && s2[s2.length()-j] != s3[s3.length()-i-j] ){
- tracker[i][j] = false;
- }else
- {
- if(s1[s1.length() -i] == s3[s3.length() - i-j])
- {
- tracker[i][j] = tracker[i][j] || tracker[i-1][j];
- }
- if(s2[s2.length()-j] == s3[s3.length()-i-j])
- {
- tracker[i][j] = tracker[i][j] || tracker[i][j-1];
- }
- }
- //cout<<i<<", "<<j<<": "<<tracker[i][j]<<endl;
- }
- }
- return tracker[s1.length()][s2.length()];
- }
- */
-
 
 bool isInterleave(string s1, string s2, string s3) {
     if(s1.length() + s2.length() != s3.length()) return false;
@@ -520,6 +472,54 @@ float fetchMin()
         return (minDeque.front()).price;
     }
     return -1.0;
+}
+
+#define MAX_BUFFER_SIZE 4096
+extern char *read4096();
+char buffer[MAX_BUFFER_SIZE];
+
+char *readline()
+{
+    int EOFVal = 0;
+    
+    static int currentPos = MAX_BUFFER_SIZE;
+    char *s = NULL;
+    int i, szz = 0;
+    
+    while(true)
+    {
+        if(!EOFVal)
+        {
+            if(currentPos != MAX_BUFFER_SIZE)
+            {
+                for(int i = currentPos;i< MAX_BUFFER_SIZE;i++)
+                {
+                    if(buffer[i] == '\n' || buffer[i] == '\0')
+                        break;
+                }
+                
+                int oldsize = (s==NULL) ? 0: strlen(s);
+                
+                szz = i - currentPos;
+                s = (char*) realloc(s, sizeof(char) * (szz+1));
+                
+                memccpy(s+ oldsize, buffer + currentPos, szz, i-currentPos);
+                s[szz] = '\0';
+                currentPos = i;
+                
+                if(i == MAX_BUFFER_SIZE) break;
+            }
+            else
+            {
+                strcpy(buffer, read4096());
+                currentPos = 0;
+                if(strlen(buffer) < 4096)
+                {
+                    EOFVal = 1;
+                }
+            }
+    }
+    return s;
 }
 
 

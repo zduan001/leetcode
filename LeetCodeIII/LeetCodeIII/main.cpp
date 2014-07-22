@@ -1069,8 +1069,6 @@ vector<int> spiralOrder(vector<vector<int> > &matrix) {
         }
     }
     return res;
-    
-    
 }
 
 bool sortIntervalFunctions(Interval i1, Interval i2)
@@ -1170,6 +1168,7 @@ vector<string> fullJustify(vector<string> &words, int L) {
             {
                 if(tmp.size() == 1)
                 {
+                    // although there is no need for this padding white space
                     while(tmp[0].size() < L)
                         tmp[0].append(" ");
                     res.push_back(tmp[0]);
@@ -1566,8 +1565,6 @@ int longestConsecutive(vector<int> &num) {
             {
                 count ++;
                 visited.insert(tracker.find(tmp)->second);
-                
-                
             }
             tmp = num[i];
             while(tracker.find(--tmp) != tracker.end())
@@ -1684,6 +1681,32 @@ int minCutI(string s) {
     return f[0];
 }
 
+int lengthOfLongestSubstring(string s) {
+    if(s.length() == 0)return 0;
+    int res = 1;
+    int tracker[256];
+    fill_n(&tracker[0], 256, 0);
+    int left = 0;
+    int right = 0;
+    while(right < s.length())
+    {
+        tracker[s[right]]++;
+        if(tracker[s[right]] == 1)
+        {
+            res = max(res, right-left+1);
+        }
+        else
+        {
+            while(tracker[s[left]] == 1)
+            {
+                tracker[s[left++]]--;
+            }
+            tracker[s[left]] --;
+        }
+    }
+    return res;
+}
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -1783,14 +1806,14 @@ int main(int argc, const char * argv[])
     vector<vector<int>> input = {v1,v2,v3};
     vector<int> res = spiralOrder(input);
     */
-    /*
-    vector<string> input = {""};
-    vector<string> res = fullJustify(input, 0);
+    
+    vector<string> input = {"This", "is", "an", "example","of", "text","justification."};
+    vector<string> res = fullJustify(input, 16);
     for(int i =0;i< res.size();i++)
     {
         cout<<res[i]<<endl;
     }
-    */
+    
     //int res = sqrt(2);
     //cout <<res;
     
@@ -1835,10 +1858,10 @@ int main(int argc, const char * argv[])
     //int res = maxPathSum(t1);
     //cout<< res<<endl;
     
-    vector<int> A = {-339,-524,-826,870,395,-173,805,690,798,992,96,-735};
+    //vector<int> A = {-339,-524,-826,870,395,-173,805,690,798,992,96,-735};
 
-    int res = longestConsecutive(A);
-    cout<<res<<endl;
+    //int res = longestConsecutive(A);
+    //cout<<res<<endl;
     
     
     // insert code here...
