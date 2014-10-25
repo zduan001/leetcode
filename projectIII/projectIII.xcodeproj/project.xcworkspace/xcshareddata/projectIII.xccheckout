@@ -14,7 +14,7 @@
 		<string>https://github.com/zduan001/leetcode.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>projectIII/projectIII.xcodeproj/project.xcworkspace</string>
+	<string>projectIII/projectIII.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>A0231ACAF5DEB7934F292264D747EE541020AB07</key>

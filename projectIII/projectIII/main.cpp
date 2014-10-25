@@ -630,9 +630,9 @@ vector<int> searchRange(int A[], int n, int target) {
 //
 //
 ////////////////////////////////////////////////
-void worker(vector<int>& num, int target, vector<int>& tmp, int level, vector<vector<int>>& res)
+void worker(vector<int>& num, int gap, vector<int>& tmp, int level, vector<vector<int>>& res)
 {
-    if(0 == target)
+    if(0 == gap)
     {
         res.push_back(tmp);
         return;
@@ -640,23 +640,24 @@ void worker(vector<int>& num, int target, vector<int>& tmp, int level, vector<ve
     else
     {
         int prev = -1;
-        if(level < num.size())
+        for(int i = level;i< num.size();i++)
         {
-            for(int i = level+1;i< num.size();i++)
+            if(num[i] == prev)
             {
-                if(num[i] == prev)
-                {
-                    continue;
-                }
-                prev = num[i];
-                tmp.push_back(num[i]);
-                worker(num, target - num[i], tmp, i+1, res);
-                tmp.pop_back();
+                continue;
             }
+            if(gap < num[i])
+            {
+                return;
+            }
+            prev = num[i];
+            tmp.push_back(num[i]);
+            worker(num, gap - num[i], tmp, i+1, res);
+            tmp.pop_back();
         }
     }
 }
-vector<vector<int> > combinationSum2(vector<int> &num, int target) {
+vector<vector<int> > combinationSum2II(vector<int> &num, int target) {
     
     sort(num.begin(), num.end());
     vector<vector<int>> res;
@@ -2664,7 +2665,7 @@ char *strStrII(char *haystack, char *needle) {
 }
 
 //3.3
-int atoi(const char *str) {
+int atoiII(const char *str) {
     while(*str == ' ') str++;
     int sign = 1;
     int res = 0;
@@ -4039,8 +4040,8 @@ int searchInsert(int A[], int n, int target) {
 
 //7.3
 bool searchMatrix(vector<vector<int> > &matrix, int target) {
-    int n = matrix.size();
-    int m = matrix[0].size();
+    int n = (int)matrix.size();
+    int m = (int)matrix[0].size();
     int i = 0;
     int j = m-1;
     while(i<n && j >=0)
@@ -4061,6 +4062,1302 @@ bool searchMatrix(vector<vector<int> > &matrix, int target) {
     return false;
 }
 
+//8.1
+void worker(vector<int> &S, int level, vector<vector<int>>& res, vector<int> tracker)
+{
+    if(level == S.size())
+    {
+        res.push_back(tracker);
+    }
+    worker(S, level+1, res, tracker);
+    tracker.push_back(S[level]);
+    worker(S, level+1, res, tracker);
+    tracker.pop_back();
+}
+
+vector<vector<int>> subsets(vector<int> &S) {
+    vector<vector<int>> res;
+    vector<int> tracker;
+    worker(S, 0, res, tracker);
+    return res;
+}
+
+//8.2
+
+void worker(vector<int> &S, int level, vector<int>& tmp, vector<vector<int>>& res)
+{
+    res.push_back(tmp);
+    
+    for(int i = level;i< S.size();i++)
+    {
+        if(i == level || S[i] != S[i-1])
+        {
+            tmp.push_back(S[i]);
+            worker(S, i+1, tmp, res);
+            tmp.pop_back();
+        }
+    }
+}
+
+vector<vector<int> > subsetsWithDupII(vector<int> &S) {
+    vector<vector<int>> res;
+    if(S.size() == 0) return res;
+    
+    sort(S.begin(), S.end());
+    vector<int> tmp;
+    workerx(S, 0, tmp, res);
+    return res;
+}
+
+//8.3
+void permuteworker(vector<int>& num, int level, vector<vector<int>>& res)
+{
+    if(level == num.size())
+    {
+        res.push_back(num);
+        return;
+    }
+    for(int i = level;i< num.size(); i++)
+    {
+        swap(num, level, i);
+        permuteworker(num, level+1, res);
+        swap(num, level, i);
+    }
+}
+
+vector<vector<int> > permute(vector<int> &num) {
+    vector<vector<int>> res;
+    sort(num.begin(), num.end());
+    permuteworker(num, 0, res);
+    return res;
+}
+
+//8.4
+// the reason I have to use an unordered_set to track which number I have used
+// instead of just compare the the item before the current item in the vector
+// num, is that, after each swap, the item in vector num is no longer sorted..
+void permuteworkerUnique(vector<int>& num, int level, vector<vector<int>>& res)
+{
+    if(level == num.size())
+    {
+        res.push_back(num);
+        return;
+    }
+    unordered_set<int> t;
+    for(int i = level;i< num.size(); i++)
+    {
+        if(i == level || t.find(num[i]) == t.end())
+        {
+            t.insert(num[i]);
+            swap(num, level, i);
+            permuteworkerUnique(num, level+1, res);
+            swap(num, level, i);
+        }
+    }
+}
+
+vector<vector<int> > permuteUniqueII(vector<int> &num) {
+    vector<vector<int>> res;
+    sort(num.begin(), num.end());
+    permuteworkerUnique(num, 0, res);
+    return res;
+}
+
+//8.5
+void combineWorker(int n, int k, int level, vector<vector<int>>& res, vector<int>& tracker)
+{
+    if(level == k)
+    {
+        if(tracker.size() == k)
+        {
+            res.push_back(tracker);
+        }
+        return;
+    }
+    for(int i = level;i<=n;i++)
+    {
+        tracker.push_back(i);
+        combineWorker(n, k, level+1, res, tracker);
+        tracker.pop_back();
+    }
+}
+
+vector<vector<int> > combine(int n, int k) {
+    vector<vector<int>> res;
+    vector<int> tracker;
+    combineWorker(n, k, 0, res, tracker);
+    return res;
+    
+}
+
+
+//8.6
+void letterCombinationWorker(int level, string digits, string& tmp, vector<string>& res, unordered_map<char, string> tracker)
+{
+    if(level == digits.length())
+    {
+        res.push_back(tmp);
+        return;
+    }
+    
+    string x = tracker[digits[level]];
+    for(int i = 0;i< x.length();i++)
+    {
+        tmp = tmp + x[i];
+        letterCombinationWorker(level+1, digits, tmp, res, tracker);
+        tmp.pop_back();
+    }
+}
+
+vector<string> letterCombinations(string digits) {
+    vector<string> res;
+    if(digits.length() == 0)
+    {
+        res.push_back("");
+        return res;
+    }
+    unordered_map<char, string> map;
+    map['2']= "abc";
+    map['3'] = "def";
+    map['4'] = "ghi";
+    map['5'] = "jkl";
+    map['6'] = "mno";
+    map['7'] = "pqrs";
+    map['8'] = "tuv";
+    map['9'] = "wxyz";
+    string tmp;
+    letterCombinationWorker(0, digits, tmp, res, map);
+    
+    return res;
+}
+
+//9.1
+vector<string> getString(string s)
+{
+    vector<string> res;
+    for(int i = 0;i<s.length();i++)
+    {
+        char oldChar = s[i];
+        string tmp(s);
+        for(char c = 'a';c <= 'z';c++)
+        {
+            if(c != oldChar)
+            {
+                swap(c, tmp[i]);
+                res.push_back(tmp);
+                swap(c, tmp[i]);
+            }
+        }
+        //swap(oldChar, s[i]);
+    }
+    return res;
+}
+
+int ladderLength(string start, string end, unordered_set<string> &dict) {
+    queue<string> tracker;
+    int len = 0;
+    unordered_set<string> visited;
+    tracker.push(start);
+    visited.insert(start);
+    tracker.push("");
+    while(!tracker.empty())
+    {
+        string tmp = tracker.front();
+        tracker.pop();
+        if(tmp == "")
+        {
+            if(tracker.empty())
+            {
+                break;
+            }
+            else
+            {
+                len++;
+                tracker.push("");
+            }
+        }else
+        {
+            vector<string> next = getString(tmp);
+            for(auto i : next)
+            {
+                if(i == end)
+                {
+                    return len+2;
+                }
+                else
+                {
+                    if(visited.find(i) == visited.end() && dict.find(i) != dict.end())
+                    {
+                        visited.insert(i);
+                        tracker.push(i);
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
+
+//9.2
+//this method still need some work. if a word
+//can be reached by 2 word from previous level
+//that will be 2 different path then ...
+
+struct qElement{
+    string val;
+    qElement* parent;
+    qElement(string s) : val(s), parent(NULL) {}
+};
+
+vector<vector<string>> findLadders(string start, string end, unordered_set<string> &dict) {
+    
+    queue<qElement*> tracker;
+    vector<vector<string>> res;
+    int len = 0;
+    bool found = false;
+    unordered_set<string> visited;
+    tracker.push(new qElement(start));
+    visited.insert(start);
+    tracker.push(new qElement(""));
+    while(!tracker.empty())
+    {
+        qElement* tmp = tracker.front();
+        tracker.pop();
+        if(tmp->val== "")
+        {
+            if(tracker.empty() || found)
+            {
+                break;
+            }
+            else
+            {
+                len++;
+                tracker.push(new qElement(""));
+            }
+        }else
+        {
+            vector<string> next = getString(tmp->val);
+            for(auto i : next)
+            {
+                if(i == end)
+                {
+                    found = true;
+                    vector<string> swapper;
+                    qElement* runner = tmp;
+                    while(runner)
+                    {
+                        swapper.insert(swapper.begin(), runner->val);
+                        runner = runner->parent;
+                    }
+                    //swapper.insert(swapper.begin(), start);
+                    swapper.push_back(end);
+                    res.push_back(swapper);
+                }
+                else
+                {
+                    if(visited.find(i) == visited.end() && dict.find(i) != dict.end())
+                    {
+                        visited.insert(i);
+                        qElement* qe = new qElement(i);
+                        qe->parent = tmp;
+                        tracker.push(qe);
+                    }
+                }
+            }
+        }
+    }
+    return res;
+}
+
+//9.3 surrounding region
+void findArea(vector<vector<char>>& board, int k, int l, int m, int n, char old, char newchar){
+    
+    stack<pair<int,int>> tracker;
+    if(board[k][l] == old){
+        tracker.push(make_pair(k, l));
+    }
+    
+    while(!tracker.empty()){
+        pair<int,int> tmp = tracker.top();
+        tracker.pop();
+        board[tmp.first][tmp.second] = newchar;
+        k = tmp.first;
+        l = tmp.second;
+        
+        if(k>0 && board[k-1][l] == old){
+            tracker.push(make_pair( k-1, l));
+        }
+        if(k+1 <m && board[k+1][l] == old){
+            tracker.push(make_pair( k+1, l));
+        }
+        if(l>0 && board[k][l-1] == old){
+            tracker.push(make_pair( k, l-1));
+        }
+        if(l+1<n && board[k][l+1] == old){
+            tracker.push(make_pair( k, l+1));
+        }
+    }
+}
+void solveSurroundingRegion(vector<vector<char>> &board) {
+    if(&board == NULL) return;
+    
+    const int m = (int)board.size();
+    if(m == 0) return;
+    const int n = (int)board[0].size();
+    if(n == 0) return;
+    
+    for(int i = 0;i< m;i++){
+        for(int j = 0;j < n;j ++){
+            if(board[i][j] == 'O'){
+                board[i][j] = 'A';
+            }
+        }
+    }
+    
+    for(int j = 0; j<n;j++){
+        if(board[0][j] == 'A'){
+            findArea(board, 0, j, m, n, 'A', 'O');
+        }
+        if(board[m-1][j] == 'A'){
+            findArea(board, m-1, j, m, n, 'A', 'O');
+        }
+    }
+    
+    for(int i = 0;i<m;i++){
+        if(board[i][0] == 'A'){
+            findArea(board, i, 0, m, n, 'A', 'O');
+        }
+        if(board[i][n-1] == 'A'){
+            findArea(board, i, n-1, m, n, 'A', 'O');
+        }
+    }
+    
+    for(int i = 0;i< m;i++){
+        for(int j = 0;j < n;j ++){
+            if(board[i][j] == 'A'){
+                board[i][j] = 'X';
+            }
+        }
+    }
+}
+
+//10.1
+bool isPalindrome(string s, int i, int j)
+{
+    while(i<=j)
+    {
+        if(s[i] == s[j])
+        {
+            i++;
+            j--;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void workerPartition(string s, int level, vector<string>& tracker, vector<vector<string>>& res)
+{
+    if(level == s.length())
+    {
+        res.push_back(tracker);
+        return;
+    }
+    else
+    {
+        for(int i = level;i< s.size();i++)
+        {
+            if(isPalindrome(s, level, i))
+            {
+                tracker.push_back(s.substr(level, i - level+1));
+                workerPartition(s, i+1, tracker, res);
+                tracker.pop_back();
+            }
+        }
+    }
+}
+
+vector<vector<string>> partition(string s)
+{
+    vector<string> tracker;
+    vector<vector<string>> res;
+    workerPartition(s, 0, tracker, res);
+    return res;
+    
+}
+
+//10.2
+int uniquePaths(int m, int n) {
+    if(m == 0 && n ==0) return 0;
+    vector<vector<int>> tracker(m, vector<int>(n, 0));
+    for(int i =0;i<m;i++)
+    {
+        tracker[i][0] = 1;
+    }
+    for (int j = 0;j<n;j++)
+    {
+        tracker[0][j] = 1;
+    }
+    for(int i = 1;i<m;i++)
+    {
+        for(int j = 1;j<n;j++)
+        {
+            tracker[i][j] = tracker[i-1][j] + tracker[i][j-1];
+        }
+    }
+    return tracker[m-1][n-1];
+}
+
+//10.3
+int uniquePathsWithObstacles(vector<vector<int> > &obstacleGrid) {
+    int m = (int)obstacleGrid.size();
+    int n = (int)obstacleGrid[0].size();
+    
+    vector<vector<int>> tracker(m, vector<int>(n, INT_MAX));
+    if(obstacleGrid[0][0] == 0)
+    {
+        tracker[0][0] = 1;
+    }
+    for(int i = 1;i<m ;i++)
+    {
+        if(obstacleGrid[i][0] == 0)
+        {
+            tracker[i][0] = tracker[i-1][0];
+        }
+    }
+    for(int j = 1;j<n;j++)
+    {
+        if(obstacleGrid[0][j] == 0)
+        {
+            tracker[0][j] = tracker[0][j-1];
+        }
+    }
+    
+    for(int i = 1;i<m;i++)
+    {
+        for(int j = 1;j<n;j++)
+        {
+            if(obstacleGrid[i][j] ==0)
+            {
+                if((tracker[i-1][j] == INT_MAX) && (tracker[i][j-1] == INT_MAX))
+                {
+                    tracker[i][j] = INT_MAX;
+                }
+                else if(tracker[i-1][j] == INT_MAX)
+                {
+                    tracker[i][j] = tracker[i][j-1];
+                }
+                else if(tracker[i][j-1] == INT_MAX)
+                {
+                    tracker[i][j] = tracker[i-1][j];
+                }
+                else
+                {
+                    tracker[i][j] = tracker[i-1][j]+tracker[i][j-1];
+                }
+            }
+        }
+    }
+    for(int i = 0;i<m;i++)
+    {
+        for(int j = 0;j<n;j++)
+        {
+            cout<< tracker[i][j] << " ";
+        }
+        cout<<endl;
+    }
+    
+    return tracker[m-1][n-1] == INT_MAX? 0: tracker[m-1][n-1];
+}
+
+//10.4
+bool checkQueeens(vector<int> queens, int k)
+{
+    int n = queens.size();
+    
+    for(int i = 0;i< n;i++)
+    {
+        if(k == queens[i])
+        {
+            return false;
+        }
+        if(abs(n - i) == abs(queens[i] - k))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+vector<string> makeMatrix(vector<int> queens, int n)
+{
+    vector<string> res;
+    for(int i = 0;i<n;i++)
+    {
+        string tmp;
+        for(int j=0;j<n;j++)
+        {
+            if(queens[i] == j)
+            {
+                tmp = tmp + 'Q';
+            }
+            else
+            {
+                tmp = tmp + '.';
+            }
+        }
+        res.push_back(tmp);
+    }
+    return res;
+}
+
+
+
+void worker(int n, vector<int>& queens, vector<vector<string>>& res)
+{
+    if(queens.size() == n)
+    {
+        res.push_back(makeMatrix(queens, n));
+        return;
+    }
+    else
+    {
+        for(int j = 0;j<n;j++)
+        {
+            if(checkQueeens(queens, j))
+            {
+                queens.push_back(j);
+                worker(n, queens, res);
+                queens.pop_back();
+            }
+        }
+    }
+}
+
+vector<vector<string> > solveNQueens(int n) {
+    vector<vector<string>> res;
+    vector<int> queens;
+    worker(n, queens, res);
+    return res;
+}
+
+//10.5
+void worker(int n, vector<int>& queens, int& res)
+{
+    if(queens.size() == n)
+    {
+        res++;
+        return;
+    }
+    else
+    {
+        for(int j = 0;j<n;j++)
+        {
+            if(checkQueeens(queens, j))
+            {
+                queens.push_back(j);
+                worker(n, queens, res);
+                queens.pop_back();
+            }
+        }
+    }
+}
+
+int totalNQueens(int n) {
+    int res = 0;
+    vector<int> queens;
+    worker(n, queens, res);
+    return res;
+}
+
+//10.6
+int getInt(string s)
+{
+    int res;
+    for(int i = (int)s.length()-1;i>=0;i--)
+    {
+        res += s[i] - '0';
+    }
+    return res;
+}
+
+void worker(string s, vector<int>& tracker, vector<string>& res )
+{
+    if(tracker.size() == 3)
+    {
+        int a1 =getInt(s.substr(0, tracker[0]));
+        int a2 = getInt(s.substr(tracker[0], tracker[1]-tracker[0]));
+        int a3 = getInt(s.substr(tracker[1], tracker[2]-tracker[1]));
+        int a4 = getInt(s.substr(tracker[2], tracker.size() - tracker[2]));
+        if((a1<=255 && a2 <=255 && a3 <=255 && a4<= 255) &&
+           (a1 != 0 || a2!=0 || a3!= 0 || a4 !=0))
+        {
+            string tmp = s;
+            for(int i = (int)tracker.size()-1;i>=0;i--)
+            {
+                tmp.insert(tracker[i], ".");
+            }
+            res.push_back(tmp);
+        }
+    }
+    else
+    {
+        int level = 0;
+        if(tracker.size()>0)
+        {
+            level = tracker[tracker.size()-1];
+        }
+        for(int i = level+1;i<level+4;i++)
+        {
+            int a =getInt(s.substr(level, i-level));
+            bool valid = true;
+            
+            if(a>255) valid = false;
+            if (a == 0 && i-level > 1) valid = false;
+            if(a>0 && s[level] == '0') valid = false;
+                
+                
+            if(valid)
+            {
+                tracker.push_back(i);
+                worker(s, tracker, res);
+                tracker.pop_back();
+            }
+        }
+    }
+}
+vector<string> restoreIpAddresses(string s) {
+    vector<string> res;
+    if(s.length()> 12)
+        return res;
+    vector<int> tracker;
+    worker(s, tracker, res);
+    return res;
+    
+}
+
+//10.6
+void dfs(string s, size_t start, size_t step, string ip, vector<string> &result)
+{
+    if (start == s.size() && step == 4)
+    {
+        // 找到一个合法解
+        ip.resize(ip.size() - 1);
+        result.push_back(ip);
+        return;
+    }
+    
+    if (s.size() - start > (4 - step) * 3)
+        return; // 剪枝
+    
+    if (s.size() - start < (4 - step))
+        return; // 剪枝
+    
+    int num = 0;
+    
+    for (size_t i = start; i < start + 3; i++)
+    {
+        num = num * 10 + (s[i] - '0');
+        // 当前结点合法，则继续往下递归
+        if (num <= 255)
+        {
+            ip += s[i];
+            dfs(s, i + 1, step + 1, ip + '.', result);
+        }
+        
+        // this is a key!!!!!!!!!!!!!!
+        if (num == 0)
+            break; // 不允许前缀 0，但允许单个 0
+    }
+}
+
+vector<string> restoreIpAddressesII(string s)
+{
+    vector<string> result;
+    string ip; // 存放中间结果
+    dfs(s, 0, 0, ip, result);
+    return result;
+}
+
+
+//10.7
+void workerSum(vector<int>& candidates, int level, int& sum, int target, vector<int>& tmp, vector<vector<int>>& res)
+{
+    if(sum == target)
+    {
+        res.push_back(tmp);
+    }
+    else if(sum > target)
+    {
+        return;
+    }
+    else
+    {
+        for(int i = level;i<candidates.size();i++)
+        {
+            sum += candidates[i];
+            tmp.push_back(candidates[i]);
+            workerSum(candidates, i, sum, target, tmp, res);
+            tmp.pop_back();
+            sum -= candidates[i];
+        }
+    }
+}
+
+vector<vector<int> > combinationSum(vector<int> &candidates, int target) {
+    sort(candidates.begin(), candidates.end());
+    vector<int> tmp;
+    vector<vector<int>> res;
+    int sum = 0;
+    workerSum(candidates, 0, sum, target, tmp, res);
+    return res;
+    
+}
+
+//10.8
+void workerII(vector<int>& num, int gap, vector<int>& tmp, int level, vector<vector<int>>& res)
+{
+    if(0 == gap)
+    {
+        res.push_back(tmp);
+        return;
+    }
+    else
+    {
+        int prev = -1;
+        for(int i = level;i< num.size();i++)
+        {
+            if(num[i] == prev)
+            {
+                continue;
+            }
+            if(gap < num[i])
+            {
+                return;
+            }
+            prev = num[i];
+            tmp.push_back(num[i]);
+            workerII(num, gap - num[i], tmp, i+1, res);
+            tmp.pop_back();
+        }
+    }
+}
+
+vector<vector<int> > combinationSum2(vector<int> &num, int target) {
+    
+    sort(num.begin(), num.end());
+    vector<vector<int>> res;
+    vector<int> tmp;
+    workerII(num, target, tmp, 0, res);
+    return res;
+}
+
+//10.9
+void worker(int left, int right, int n, string tmp, vector<string>& res)
+{
+    if(left >n || right >n)
+    {
+        return;
+    }
+    if(left == n && right == n)
+    {
+        res.push_back(tmp);
+    }
+    else
+    {
+        if(left >right)
+        {
+            worker(left+1, right, n, tmp + "(", res);
+            worker(left, right+1, n, tmp + ")", res);
+        }
+        else if(right == left)
+        {
+            worker(left+1, right, n, tmp + "(", res);
+        }
+        else
+        {
+            return;
+        }
+    }
+}
+
+vector<string> generateParenthesis(int n) {
+    vector<string> res;
+    worker(0,0,n,"", res);
+    return res;
+}
+
+//10.11
+bool existWorker(vector<vector<char>> board, string word, string tmp, int i, int j, vector<vector<bool>> tracker)
+{
+    if(tmp.size() > word.size())
+    {
+        return false;
+    }
+    if(word.size() == tmp.size())
+    {
+        return true;
+    }
+    else
+    {
+        int m = (int)board.size();
+        int n = (int)board[0].size();
+        if(!tracker[i][j] && word[tmp.size()] == board[i][j])
+        {
+            tracker[i][j] = true;
+                
+            if(((i >0 && existWorker(board, word, tmp + board[i][j], i-1, j, tracker)) ||
+            (j >0 && existWorker(board, word, tmp + board[i][j], i, j-1, tracker)) ||
+            (i < m-1 && existWorker(board, word, tmp + board[i][j], i+1, j, tracker)) ||
+                    (j < n-1 && existWorker(board, word, tmp + board[i][j], i, j+1, tracker))))
+            {
+                return true;
+            }
+            else
+            {
+                tracker[i][j] = false;
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+}
+
+bool exist(vector<vector<char> > &board, string word) {
+    int m = (int)board.size();
+    int n = (int)board[0].size();
+    vector<vector<bool>> tracker(m, vector<bool>(n, false));
+    for(int i = 0;i<m;i++)
+    {
+        for(int j = 0;j<n;j++)
+        {
+            if(existWorker(board, word, "", i, j, tracker))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+static bool dfs(const vector<vector<char> > &board, const string &word,
+                int index, int x, int y, vector<vector<bool> > &visited) {
+    if (index == word.size())
+        return true; // 收敛条件
+    if (x < 0 || y < 0 || x >= board.size() || y >= board[0].size())
+        return false; // 越界,终止条件
+    if (visited[x][y]) return false; // 已经访问过,剪枝
+    if (board[x][y] != word[index]) return false; // 不相等,剪枝
+    visited[x][y] = true;
+    bool ret = dfs(board, word, index + 1, x - 1, y, visited) ||
+    dfs(board, word, index + 1, x + 1, y, visited) ||
+    dfs(board, word, index + 1, x, y - 1, visited)||
+    dfs(board, word, index + 1, x, y + 1, visited);
+    visited[x][y] = false;
+    return ret;
+}
+
+bool existII(vector<vector<char> > &board, string word) {
+    int m = (int)board.size();
+    int n = (int)board[0].size();
+    vector<vector<bool>> tracker(m, vector<bool>(n, false));
+    for(int i = 0;i<m;i++)
+    {
+        for(int j = 0;j<n;j++)
+        {
+            if(dfs(board, word, 0, i, j, tracker))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+//11.1
+double pow(double x, int n) {
+    int sign = 1;
+    if(n<0)
+    {
+        sign = -1;
+        n = -n;
+    }
+    double tmp;
+    if( n == 0)
+        return 1;
+    else if( n == 1)
+        return x;
+    else
+    {
+        tmp = pow(x, n/2);
+        if(n & 1)
+        {
+            tmp = tmp * tmp * x;
+        }
+        else
+        {
+            tmp = tmp * tmp;
+        }
+    }
+    if(sign<0)
+        return 1/tmp;
+    else
+        return tmp;
+}
+
+//11.1
+int sqrt(int x) {
+    if(x < 0) return -1;
+    if( x ==1) return 1;
+    double left = 0;
+    double right = x;
+    while(right - left > 0.0001)
+    {
+        double mid = left + (right-left)/2;
+        if(mid* mid < x)
+        {
+            left = mid;
+        }
+        else
+        {
+            right = mid;
+        }
+    }
+    return (int)left;
+}
+
+//12.1
+bool canJump(int A[], int n) {
+    int lastIndex = 0;
+    for(int i = 0;i<n;i++)
+    {
+        lastIndex = max(lastIndex, i+ A[i]);
+    }
+    return lastIndex>= n-1;
+}
+
+//12.2
+// this is dynamic programming. O(n^2)
+int jumpII(int A[], int n) {
+    int tracker[n];
+    fill_n(&tracker[0],n,INT_MAX);
+    tracker[0] =0;
+    for(int i = 1;i<n;i++)
+    {
+        int tmp = tracker[i];
+        for(int j = i-1;j>=0;j--)
+        {
+            if(i-j >A[j] && A[j] != INT_MAX)
+            {
+                tmp = min(tmp, A[j] +1);
+            }
+            
+        }
+        A[i] = tmp;
+    }
+    return A[n-1];
+}
+
+//this is a O(n)
+int jumpIII(int A[], int n)
+{
+    if(n<2) return 0;
+    int left = 0;
+    int right = 0;
+    int step = 0;
+    while(left <=right && right < n)
+    {
+        int old_right = right;
+        step++;
+        for(int i = left;i<=old_right;i++)
+        {
+            right = max(right, i+ A[i]);
+            if(right>=n-1) return step;
+        }
+        left = old_right+1;
+    }
+    return step;
+}
+
+//12.3
+int maxProfit(vector<int> &prices) {
+    int res = 0;
+    int c = 0;
+    for(int i = 1;i<(int)prices.size();i++)
+    {
+        c = max(prices[i] - prices[i-1], c + prices[i] - prices[i-1]);
+        res = max ( c, res);
+    }
+    return res;
+}
+
+//12.4
+int maxProfitII(vector<int> &prices) {
+    int res = 0;
+    for(int i = 1;i<(int)prices.size();i++)
+    {
+        if(prices[i] - prices[i-1] >0)
+        {
+            res += prices[i]-prices[i-1];
+        }
+    }
+    return res;
+}
+
+//12.5
+int lengthOfLongestSubstring(string s) {
+    int tracker[256];
+    fill_n(&tracker[0], 256, -1);
+    int startIndex = -1;
+    int res = 0;
+    for(int i = 0;i<(int)s.size();i++)
+    {
+        if(tracker[s[i]] > startIndex)
+        {
+            startIndex = tracker[s[i]];
+        }
+        res= max(res, i - startIndex);
+        tracker[s[i]] = i;
+    }
+    return res;
+}
+
+//12.6
+int maxArea(vector<int> &height) {
+    int res = 0;
+    int left = 0;
+    int right = (int)height.size()-1;
+    
+    while(left<right)
+    {
+        res = max(res, (right-left) * min(height[left], height[right]));
+        if(height[left] < height[right])
+        {
+            left++;
+        }
+        else
+        {
+            right--;
+        }
+    }
+    return res;
+}
+
+//13.1
+int minimumTotal(vector<vector<int>>& triangle)
+{
+    vector<vector<int>> tracker;
+    int n = (int)triangle.size();
+    if(n ==0) return 0;
+    tracker.push_back(triangle[0]);
+    for(int i = 1;i<n;i++)
+    {
+        vector<int> tmp;
+        for(int j = 0;j< triangle[i].size();j++)
+        {
+            int x;
+            if(j ==0) x = tracker[i-1][0];
+            else if(j == triangle[i].size()-1) x = tracker[i-1][j-1];
+            else x = min (tracker[i-1][j-1], tracker[i-1][j]);
+                
+            tmp.push_back(x + triangle[i][j]);
+        }
+        tracker.push_back(tmp);
+    }
+    
+    int res = INT_MAX;
+    for(int i = 0;i< tracker[n-1].size();i++)
+    {
+        res = min (res, tracker[n-1][i]);
+    }
+    return res;
+}
+
+//13.2
+int maxSubArray(int A[], int n) {
+    if(n <1) return 0;
+    int res = INT_MIN;
+    int f = 0;
+    int left = -1;
+    int right =-1;
+    int maxL = -1;
+    int maxR = -1;
+    for(int i = 0;i< n;i++)
+    {
+        if(A[i] > f+A[i])
+        {
+            left = i;
+            right = i;
+        }
+        else
+        {
+            right = i;
+        }
+        f = max(f+A[i], A[i]);
+        if(res < f)
+        {
+            maxL = left;
+            maxR = right;
+        }
+        res = max(f, res);
+    }
+    cout<<"left "<<maxL<<endl;
+    cout<<"right "<<maxR<<endl;
+    cout<<"max "<< res<<endl;
+    return res;
+}
+
+
+//13.3
+void Detect(vector<vector<bool>>& tracker, int n, string s)
+{
+    for(int i = n-1;i>=0;i--)
+    {
+        for(int j = i;j <n;j++)
+        {
+            if(i==j)
+            {
+                tracker[i][j] = true;
+            }
+            else
+            {
+                if(s[i] == s[j] && (j-i ==1 || tracker[i+1][j-1]))
+                {
+                    tracker[i][j] = true;
+                }
+                else
+                {
+                    tracker[i][j] = false;
+                }
+                
+            }
+        }
+    }
+}
+
+int minCut(string s) {
+    int n = (int)s.length();
+    vector<vector<bool> > tracker(n, vector<bool>(n, false));
+    Detect(tracker,n,s);
+    for(int i = 0;i<n;i++)
+    {
+        for(int j = 0;j<n;j++)
+        {
+            cout<< tracker[i][j] << " ";
+        }
+        cout<<endl;
+    }
+    int tmp[n];
+    fill_n(&tmp[0], n, INT_MAX);
+    
+    for(int i =0;i<n;i++)
+    {
+        for(int j = i;j>=0;j--)
+        {
+            if(tracker[j][i])
+            {
+                tmp[i] = min(tmp[i], j == 0 ? 0: tmp[j-1]+1);
+                cout<< "tmp["<<i<<"]= "<<tmp[i]<<endl;
+            }
+        }
+    }
+    return tmp[n-1];
+    
+}
+
+//13.4
+int maxHistogram(vector<int> input)
+{
+    input.push_back(0);
+    int res = INT_MIN;
+    stack<int> s;
+    for(int i = 0;i<input.size();i++)
+    {
+        while(!s.empty() && input[s.top()] > input[i])
+        {
+            int height = input[s.top()];
+            s.pop();
+            int length = s.empty()? i: i- s.top()-1;
+            res = max(res, height* length);
+        }
+        s.push(i);
+    }
+    return res;
+}
+
+int maximalRectangleII(vector<vector<char> > &matrix)
+{
+    vector<int> tracker(matrix[0].size(), 0);
+    int res = 0;
+    if(matrix.size() == 0 || matrix[0].size() == 0)
+        return 0;
+    for(int i = 0;i< matrix.size();i++)
+    {
+        for(int j = 0;j< matrix[i].size();j++)
+        {
+            if(matrix[i][j] == '0')
+            {
+                tracker[j] = 0;
+            }
+            else
+            {
+                tracker[j] ++;
+            }
+        }
+        res = max(res, maxHistogram(tracker));
+    }
+    return res;
+}
+
+//13.5
+int maxProfitIII(vector<int> &prices) {
+    int n = (int)prices.size();
+    if(n ==0) return 0;
+    vector<int> f(n,0);
+    vector<int> g(n,0);
+    int profit = 0;
+    for(int i = 1;i<n;i++)
+    {
+        profit = max(profit+prices[i]-prices[i-1], prices[i]-prices[i-1]);
+        f[i] = max(f[i-1], profit);
+    }
+    
+    profit = 0;
+    for(int i = n-2;i>0;i--)
+    {
+        profit = max(profit+prices[i+1]-prices[i], prices[i+1]-prices[i]);
+        g[i] = max(i == n-1? 0: g[i+1], profit);
+    }
+    int res = 0;
+    for(int i = 1;i<n;i++)
+    {
+        res = max(res, f[i]+g[i]);
+    }
+    return res;
+}
+
+//15.13
+int divideIII(int dividend, int divisor) {
+    // 当 dividend = INT_MIN 时,-dividend 会溢出,所以用 long long
+    long long a = dividend >= 0 ? dividend : -(long long)dividend;
+    long long b = divisor >= 0 ? divisor : -(long long)divisor;
+    // 当 dividend = INT_MIN 时,divisor = -1 时,结果会溢出,所以用 long long
+    long long result = 0;
+    while (a >= b) {
+        long long c = b;
+        for (int i = 0; a >= c; ++i, c <<= 1) {
+            a -= c;
+            result += 1 << i;
+        }
+    }
+    return ((dividend^divisor) >> 31) ? (-result) : (result);
+}
 
 int main(int argc, const char * argv[])
 {
@@ -4287,10 +5584,90 @@ int main(int argc, const char * argv[])
     int B[] ={2,0};
     sortColorsII(B, 2);
      */
+    /*
     vector<vector<int>> input(1,vector<int>(1,1));
     bool res = searchMatrix(input, 0);
     cout<<res<<endl;
+    */
     
+    /**
+     vector<int> input = {1,2,2,4,4};
+    vector<vector<int>> res = permuteUniqueII(input);
+    for(auto i: res)
+    {
+        for(auto j : i)
+        {
+            cout<<j<< " ";
+        }
+        cout<<endl;
+    }
+    cout<<res.size()<<endl;
+     */
+    
+    /*
+     vector<string> res = letterCombinations("2");
+    cout<<res.size()<<endl;
+     */
+    /*
+    vector<string> res = getString("a");
+    cout<<res.size()<<endl;
+    for(auto i : res)
+    {
+        //if(i == "miss")
+            cout<<i<<endl;
+    }
+    */
+    
+   /*
+    unordered_set<string> dict;
+    dict.insert("most");
+    dict.insert("mist");
+    dict.insert("miss");
+    dict.insert("lost");
+    dict.insert("fist");
+    dict.insert("fish");
+    int res = ladderLength("lost", "miss", dict);
+    cout<< res<<endl;
+     */
+    /*
+    vector<vector<string>> res = partition("aab");
+    cout<<res.size()<<endl;
+     */
+    /*
+    int res = minCut("aa");
+    cout<<res<<endl;
+     */
+    /*
+    vector<vector<int>> input (2, vector<int>(2,0));
+    int res = uniquePathsWithObstacles(input);
+    cout<<res;
+     */
+    /**
+    vector<string> res = restoreIpAddresses("0000");
+    cout<<res.size()<<endl;
+     */
+    
+    /*vector<int> input = {1,1,1,3,3, 5};
+    vector<vector<int>> res = combinationSum2(input, 8);
+    cout<<res.size()<<endl;
+    */
+    //int res = divideII(-1010369383, -2147483648);
+    //cout<<res<<endl;
+    //int res = sqrt(1);
+    //cout<<res<<endl;
+    //int A[] = {-2,1,-3,4,-1,2,1,-5,4};
+    //int res = maxSubArray(A, 9);
+    //cout<<res<<endl;
+    
+    //vector<int> input = {2,4};
+    //int res = maxHistogram(input);
+    //cout<<res<<endl;
+    
+    //int res = lengthOfLongestSubstring("wlrbbmqbhcdarzowkkyhiddqscdxrjmowfrxsjybldbefsarcbynecdyggxxpklorellnmpapqfwkhopkmco");
+    //cout<<res<<endl;
+    vector<int> input = {1,2,4};
+    int res = maxProfitIII(input);
+    cout<<res<<endl;
     // insert code here...
     //std::cout << "Hello, World!\n";
     return 0;
