@@ -5342,6 +5342,537 @@ int maxProfitIII(vector<int> &prices) {
     return res;
 }
 
+//13.6
+template<typename InIt>
+bool isInterleave(InIt first1, InIt last1, InIt first2, InIt last2, InIt first3, InIt last3)
+{
+    if(*first3 == *last3)
+    {
+        return first1 == last1 && first2 == last2;
+    }
+    else
+    {
+        bool success = false;
+        
+        if(*first1 == * first3)
+        {
+            success = success || isInterleave(next(first1), last1, first2, last2, next(first3), last3);
+        }
+        if(*first2 == *first3)
+        {
+            success = success || isInterleave(first1, last1, next(first2), last2, next(first3), last3);
+        }
+        return success;
+    }
+}
+
+bool isInterleaveII(string s1, string s2, string s3)
+{
+    return isInterleave(s1.begin(), s1.end(), s2.begin(), s2.end(), s3.begin(), s3.end());
+}
+
+bool isInterleaveDpII(string s1, string s2, string s3)
+{
+    int m = (int)s1.size();
+    int n = (int)s2.size();
+    vector<vector<bool>> tracker (m+1, vector<bool>(n+1, false));
+    tracker[0][0] = true;
+    for(int j = 1;j<n+1;j++)
+    {
+        tracker[0][j] = tracker[0][j-1] && s2[j-1] == s3[j-1];
+    }
+    for(int i = 1;i<m+1;i++)
+    {
+        tracker[i][0] = tracker[i-1][0] && s1[i-1] == s3[i-1];
+    }
+    
+    for(int i = 1;i<m+1;i++)
+    {
+        for(int j = 1;j<n+1;j++)
+        {
+            tracker[i][j] = (s1[i-1] == s3[i+j-1] && tracker[i-1][j]) ||
+            (s2[j-1] == s3[i+j-1] && tracker[i][j-1]);
+        }
+    }
+    return tracker[m][n];
+        
+}
+
+//13.7
+bool isScramble(string s1, string s2) {
+    const int N = (int)s1.size();
+    if (N != s2.size()) return false;
+    bool f[N + 1][N][N];
+    fill_n(&f[0][0][0], (N + 1) * N * N, false);
+    for (int i = 0; i < N; i++)
+    for (int j = 0; j < N; j++)
+    f[1][i][j] = s1[i] == s2[j];
+    for (int n = 1; n <= N; ++n) {
+        for (int i = 0; i + n <= N; ++i) {
+            for (int j = 0; j + n <= N; ++j) {
+                for (int k = 1; k < n; ++k) {
+                    if ((f[k][i][j] && f[n - k][i + k][j + k]) ||
+                        (f[k][i][j + n - k] && f[n - k][i + k][j])) {
+                        f[n][i][j] = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return f[N][0][0];
+}
+
+//13.8
+int minPathSum(vector<vector<int>> &grid) {
+    int n = (int)grid.size();
+    int m = (int)grid[0].size();
+    vector<vector<int>> tracker(n, vector<int>(m, INT_MAX));
+    for(int i =0;i<n;i++)
+    {
+        for(int j = 0;j<m;j++)
+        {
+            if(i ==0 && j ==0)
+            {
+                tracker[i][j] = grid[0][0];
+            }
+            else
+            {
+                tracker[i][j] = min( i== 0? INT_MAX : tracker[i-1][j] , j== 0? INT_MAX : tracker[i][j-1])
+                + grid[i][j];
+            }
+        }
+    }
+    return tracker[n-1][m-1];
+}
+
+//13.9
+int minDistanceII(string word1, string word2) {
+    int m = (int)word1.size();
+    int n = (int)word2.size();
+    vector<vector<int>> tracker(m+1,vector<int>(n+1, 0));
+    for(int i = 1; i<=n;i++)
+    {
+        tracker[0][i] = i;
+    }
+    
+    for(int j = 1; j<=m;j++)
+    {
+        tracker[j][0] = j;
+    }
+    
+    for(int i = 1;i<=m;i++)
+    {
+        for(int j = 1;j<=n;j++)
+        {
+            int tmp = min(tracker[i-1][j], tracker[i][j-1]);
+            tmp = min(tmp+1, word1[i-1] == word2[j-1]? tracker[i-1][j-1]: tracker[i-1][j-1] +1);
+            tracker[i][j] = tmp;
+        }
+    }
+    return tracker[m][n];
+}
+
+//13.10
+int numDecodings(string s) {
+    if(s.length() == 0) return 0;
+    if(s[0] == '0') return 0;
+    if(s.length() == 1) return 1;
+    if(s[0] > '2')
+    {
+        return numDecodings(s.substr(1, s.length()-1));
+    }
+    else
+    {
+        if(s[0] == '1' || (s[0] =='2' && s[1] <= '6'))
+        {
+            return numDecodings(s.substr(1, s.length()-1)) +
+            numDecodings(s.substr(2, s.length()-2));
+        }
+        else
+        {
+            return numDecodings(s.substr(1, s.length()-1));
+        }
+    }
+}
+
+int numDecodingsDP(string s) {
+    if(s.length() == 0) return 0;
+    int prev = 0;
+    int cur = 1;
+    for(int i = 0;i<s.length();i++)
+    {
+        if(s[i] == '0')
+            cur = 0;
+        if(i< 1 || !(s[i-1] == '1' || (s[i-1] =='2' && s[i] <= '6')))
+        {
+            prev = 0;
+        }
+        int tmp = prev;
+        prev = cur;
+        cur = prev + tmp;
+
+    }
+    return cur;
+}
+
+//13.11
+int numDistinctII(string S, string T) {
+    int m = (int)S.size();
+    int n = (int)T.size();
+
+    if(m<n) return 0;
+    int f[m];
+    fill_n(&f[0], m, 0);
+    if(S[0] == T[0]) f[0] = 1;
+    for(int i = 1;i<m;i++)
+    {
+        if(S[i] == T[0])
+            f[i] = f[i-1] + 1;
+        else
+            f[i] = f[i-1];
+    }
+    
+    for(int i = 1;i<n;i++)
+    {
+        for(int j = m;j>i;j--)
+        {
+            if(T[i] == S[j])
+            {
+                f[j] = f[j-1] + f[j];
+            }
+        }
+    }
+
+    return f[m-1];
+}
+
+int numDistinctOld(string S, string T) {
+    int n = (int)S.length();
+    int m = (int)T.length();
+    if(m>n) return 0;
+    vector<vector<int>> tracker(m, vector<int>(n, 0));
+    
+    if(T[0] == S[0]) tracker[0][0] = 1;
+    else tracker[0][0] = 0;
+    
+    for(int i = 1;i<n;i++)
+    {
+        if(T[0] == S[i])
+        {
+            tracker[0][i] = tracker[0][i-1]+1;
+        }
+        else
+        {
+            tracker[0][i] = tracker[0][i-1];
+        }
+    }
+    
+    for(int i = 1;i<m;i++)
+    {
+        for(int j = i;j<n;j++)
+        {
+            tracker[i][j] = tracker[i][j-1] + (T[i] == S[j] ? tracker[i-1][j-1] : 0);
+        }
+    }
+    return tracker[m-1][n-1];
+}
+
+//13.12
+bool wordBreak(string s, unordered_set<string> &dict) {
+    int n = (int) s.size();
+    bool f[n];
+    fill_n(&f[0], n, false);
+    for(int i = 0;i<n;i++)
+    {
+        for(int j= 0;j<=i;j++)
+        {
+            bool tmp = j == 0? true: f[j-1];
+            string sub = s.substr(j, i-j+1);
+            bool found = dict.find(sub) != dict.end();
+            if(tmp && found)
+            {
+                f[i] = true;
+                break;
+            }
+        }
+    }
+    return f[n-1];
+}
+
+//13.13
+string constructStr(string s, vector<int> tracker)
+{
+    int n = (int)tracker.size();
+    if(tracker[tracker.size()-1] != s.length()-1)
+    {
+        return "";
+    }
+    tracker.pop_back();
+    for(int i = n-2;i>=0;i--)
+    {
+        s.insert(tracker[i]+1, " ");
+    }
+    cout<<s<<endl;
+    return s;
+}
+
+void worker(string s, vector<int>& tracker, unordered_set<string>& dict, vector<string>& res)
+{
+    int n = (int)s.length();
+    if(tracker.size() > 0 && tracker[tracker.size()-1] == n-1)
+    {
+        res.push_back(constructStr(s, tracker));
+    }
+    else
+    {
+        int k = tracker.size() == 0? -1 : tracker[tracker.size()-1];
+        for(int i = k+1;i<n;i++)
+        {
+            if(dict.find(s.substr(k+1, i- (k+1)+1)) != dict.end())
+            {
+                tracker.push_back(i);
+                worker(s, tracker, dict, res);
+                tracker.pop_back();
+            }
+        }
+    }
+    
+}
+
+vector<string> wordBreakII(string s, unordered_set<string> &dict) {
+    vector<string> res;
+    vector<int> tracker;
+    worker(s, tracker, dict, res);
+    return res;
+    
+}
+
+//13.13
+void gen_path(const string &s, const vector<vector<bool> > &prev,
+              int cur, vector<string> &path, vector<string> &result) {
+    if (cur == 0) {
+        string tmp;
+        for (auto iter = path.crbegin(); iter != path.crend(); ++iter)
+            tmp += *iter + " ";
+        tmp.erase(tmp.end() - 1);
+        result.push_back(tmp);
+    }
+    for (size_t i = 0; i < s.size(); ++i) {
+        if (prev[cur][i]) {
+            path.push_back(s.substr(i, cur - i));
+            gen_path(s, prev, (int)i, path, result);
+            path.pop_back();
+        } }
+}
+
+vector<string> wordBreakIII(string s, unordered_set<string> &dict) {
+    // 长度为 n 的字符串有 n+1 个隔板
+    vector<bool> f(s.length() + 1, false);
+    // prev[i][j] 为 true,表示 s[j, i) 是一个合法单词,可以从 j 处切开 // 第一行未用
+    vector<vector<bool> > prev(s.length() + 1, vector<bool>(s.length()));
+    f[0] = true;
+    for (size_t i = 1; i <= s.length(); ++i) {
+        for (int j = i - 1; j >= 0; --j) {
+            if (f[j] && dict.find(s.substr(j, i - j)) != dict.end()) {
+                f[i] = true;
+                prev[i][j] = true;
+            }
+        } }
+    vector<string> result;
+    vector<string> path;
+    gen_path(s, prev, s.length(), path, result);
+    return result;
+}
+
+//15.1
+int reverse(int x) {
+    long long a = x;
+    int sign = x>=0? 1: -1;
+    long long res = 0;
+    while(a>0)
+    {
+        res = res * 10 + a % 10;
+        a = a/10;
+    }
+    return (int)(sign*res);
+    
+}
+
+//15.2
+bool isPalindrome(int a) {
+    
+    long long x = abs((long long)a);
+    int i = 0;
+    while(pow(10, i)<= x)
+    {
+        i++;
+    }
+    i --;
+    while(x>0)
+    {
+        int left = x/pow(10,i);
+        int right = x%10;
+        if(left != right) return false;
+        x = x- right;
+        x = x- left * pow(10,i);
+        x = x/10;
+        i = i-2;
+    }
+    return true;
+        
+}
+
+//15.3
+vector<Interval> insertII(vector<Interval> &intervals, Interval newInterval) {
+    auto it = intervals.begin();
+    while(it != intervals.end())
+    {
+        if(newInterval.end < it->start)
+        {
+            intervals.insert(it, newInterval);
+            return intervals;
+        }
+        else if(it->end < newInterval.start)
+        {
+            it ++;
+        }
+        else
+        {
+            newInterval.start = min(it->start, newInterval.start);
+            newInterval.end = max(it->end, newInterval.end);
+            it = intervals.erase(it);
+        }
+    }
+    intervals.push_back(newInterval);
+    return intervals;
+}
+
+vector<Interval> insertDC(vector<Interval> &intervals, Interval newInterval) {
+    int first = -1;
+    int left = 0;
+    int right = intervals.size()-1;
+    while(left<=right)
+    {
+        int mid = left + (right-left)/2;
+        if(newInterval.start <=intervals[mid].end && newInterval.start >= intervals[mid].end)
+        {
+            newInterval.start = min(intervals[mid].start, newInterval.start);
+            newInterval.end = max(intervals[mid].end, newInterval.end);
+            first = mid;
+            break;
+        }
+        else if(newInterval.start < intervals[mid].start)
+        {
+            right = mid-1;
+        }
+        else
+        {
+            left = mid+1;
+        }
+    }
+    if(first == -1) first = left == intervals.size()? left -1: left;
+    int last = -1;
+    left = 0;
+    right = intervals.size()-1;
+    while(left<=right)
+    {
+        int mid = left + (right-left)/2;
+        if(newInterval.end >= intervals[mid].start && newInterval.end <= intervals[mid].end)
+        {
+            newInterval.start = min(intervals[mid].start, newInterval.start);
+            newInterval.end = max(intervals[mid].end, newInterval.end);
+            last = mid;
+            break;
+        }
+        else if(newInterval.end < intervals[mid].start)
+        {
+            right = mid -1;
+        }
+        else
+        {
+            left = mid+1;
+        }
+    }
+    if(last == -1) last = right <0 ? 0: right;
+    intervals.erase(intervals.begin()+ left, intervals.begin()+ right);
+    intervals.insert(intervals.begin() + left, newInterval);
+    return intervals;
+}
+
+//15.4
+
+bool sortIntervalFunctionsII(Interval i1, Interval i2){
+    return (i1.start < i2.start);
+}
+
+vector<Interval> mergeII(vector<Interval> &intervals) {
+    sort(intervals.begin(), intervals.end(), sortIntervalFunctionsII);
+    vector<Interval> res;
+    Interval cur;
+    if(intervals.size() ==0)
+    {
+        return res;
+    }
+    else
+    {
+        cur = intervals[0];
+    }
+    for(int i = 1;i<intervals.size();i++)
+    {
+        if(cur.end < intervals[i].start)
+        {
+            res.push_back(cur);
+            cur = intervals[i];
+        }
+        else
+        {
+            cur.end = max(cur.end, intervals[i].end);
+        }
+    }
+    res.push_back(cur);
+    return res;
+}
+
+
+//15.5
+string minWindow(string S, string T) {
+    int TAlphaStat[260];
+    fill_n(TAlphaStat, 260, 0);
+    for (char& c : T)
+    {
+        TAlphaStat[c]++;
+    }
+    int currentAlphaStat[260];
+    fill_n(currentAlphaStat, 260, 0);
+    int head = 0, tail = 0;
+    int containNum = 0;
+    int minWidth = INT_MAX, left = -1;
+    while (tail < S.length())
+    {
+        char& tc = S[tail];
+        if (TAlphaStat[tc] > 0){
+            if (currentAlphaStat[tc] < TAlphaStat[tc]){
+                containNum++;
+            }
+            currentAlphaStat[tc]++;
+        }
+        if (containNum == T.length()){
+            while (head < tail && (currentAlphaStat[S[head]] > TAlphaStat[S[head]]
+                                   || TAlphaStat[S[head]] == 0))
+            {
+                currentAlphaStat[S[head]]--;
+                head++;
+            }
+            if (minWidth > tail - head + 1){
+                minWidth = tail - head + 1;
+                left = head;
+            }
+        }
+        tail++;
+    }
+    return left == -1 ? "" : S.substr(left, minWidth);
+}
 //15.13
 int divideIII(int dividend, int divisor) {
     // 当 dividend = INT_MIN 时,-dividend 会溢出,所以用 long long
@@ -5356,7 +5887,7 @@ int divideIII(int dividend, int divisor) {
             result += 1 << i;
         }
     }
-    return ((dividend^divisor) >> 31) ? (-result) : (result);
+    return ((dividend^divisor) >> 31) ? (int)(-result) : (int)(result);
 }
 
 int main(int argc, const char * argv[])
@@ -5665,9 +6196,51 @@ int main(int argc, const char * argv[])
     
     //int res = lengthOfLongestSubstring("wlrbbmqbhcdarzowkkyhiddqscdxrjmowfrxsjybldbefsarcbynecdyggxxpklorellnmpapqfwkhopkmco");
     //cout<<res<<endl;
-    vector<int> input = {1,2,4};
-    int res = maxProfitIII(input);
+    //vector<int> input = {1,2,4};
+    //int res = maxProfitIII(input);
+    //cout<<res<<endl;
+    /*
+    bool res;
+    string s1 = "aabcc";
+    string s2 = "dbbca";
+    string s3 = "aadbbcbcac";
+    string s4 = "aadbbbaccc";
+    res = isInterleaveII(s1, s2, s3);
     cout<<res<<endl;
+    res = isInterleaveII(s1, s2, s4);
+    cout<<res<<endl;
+    res = isInterleaveDpII(s1, s2, s3);
+    cout<<res<<endl;
+    res = isInterleaveDpII(s1, s2, s4);
+    cout<<res<<endl;
+    */
+    /*vector<int> firstRow = {1,2};
+    vector<int> secondRow = {1,1};
+    vector<vector<int>> input = {firstRow, secondRow};
+    int res = minPathSum(input);
+    cout<<res;
+     */
+    //int res = minDistanceII("a", "b");
+    //cout<<res<<endl;
+    //int res = numDecodings("10");
+    //cout<<res<<endl;
+    //int res = numDistinctII("ccc", "cc");
+    //cout<<res<<endl;
+    //res = numDistinctOld("ccc", "cc");
+    //cout<<res<<endl;
+    /*
+    vector<string> res;
+    unordered_set<string> dict = {"cat", "cats", "and", "sand", "dog"};
+    res = wordBreakII("catsanddog",dict);
+    cout<< res.size()<<endl;
+    for(int i = 0;i< res.size();i++)
+    {
+        cout<<res[i]<<endl;
+    }
+    */
+    bool res = isPalindrome(1);
+    cout<<res<<endl;
+    
     // insert code here...
     //std::cout << "Hello, World!\n";
     return 0;
