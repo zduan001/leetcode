@@ -68,6 +68,15 @@ struct DoubleLinkedListNode{
     DoubleLinkedListNode(int x, int y) : key(x), val(y), next(NULL), prev(NULL) {}
 };
 
+struct GraphNode{
+    int val;
+    vector<GraphNode*> neighbors;
+    bool visited;
+    bool inTree;
+    GraphNode* parent;
+    GraphNode(int x) : val(x), visited(false), inTree(false), parent(NULL) {}
+};
+
 struct TrieNode{
     TrieNode* val[256];
     int count[256];
@@ -2632,7 +2641,7 @@ bool isPalindrome(string s) {
 //3.2
 char *strStrII(char *haystack, char *needle) {
     int m = (int)strlen(needle);
-    int n = (int) strlen(haystack);
+    int n = (int)strlen(haystack);
     if(m>n) return NULL;
     if(m==0  && n==0) return haystack;
     if(m==0) return haystack;
@@ -2640,12 +2649,16 @@ char *strStrII(char *haystack, char *needle) {
     int tracker[m];
     tracker[0] = -1;
     int j = tracker[0];
-    for(int i = 1;i< strlen(needle);i++)
+    for(int i = 1;i < strlen(needle);i++)
     {
         while(j > -1 && needle[j+1] != needle[i] )
-        j = tracker[j];
+        {
+            j = tracker[j];
+        }
         if(needle[j+1] == needle[i])
-        j++;
+        {
+            j++;
+        }
         tracker[i] = j;
     }
     
@@ -2654,11 +2667,17 @@ char *strStrII(char *haystack, char *needle) {
     while(i<n)
     {
         while(j != -1 && needle[j+1] != haystack[i])
-        j = tracker[j];
+        {
+            j = tracker[j];
+        }
         if(needle[j+1] == haystack[i])
-        j++;
+        {
+            j++;
+        }
         if(j == m-1)
-        return haystack+i-j;
+        {
+            return haystack+i-j;
+        }
         i++;
     }
     return NULL;
@@ -5663,7 +5682,8 @@ void gen_path(const string &s, const vector<vector<bool> > &prev,
             path.push_back(s.substr(i, cur - i));
             gen_path(s, prev, (int)i, path, result);
             path.pop_back();
-        } }
+        }
+    }
 }
 
 vector<string> wordBreakIII(string s, unordered_set<string> &dict) {
@@ -5720,7 +5740,6 @@ bool isPalindrome(int a) {
         i = i-2;
     }
     return true;
-        
 }
 
 //15.3
@@ -5745,6 +5764,74 @@ vector<Interval> insertII(vector<Interval> &intervals, Interval newInterval) {
         }
     }
     intervals.push_back(newInterval);
+    return intervals;
+}
+
+vector<Interval> insertDCII(vector<Interval> &intervals, Interval newInterval)
+{
+    if(intervals.size() ==0)
+    {
+        intervals.push_back(newInterval);
+        return intervals;
+    }
+    int start = -1;
+    int left = 0;
+    int right = (int)intervals.size()-1;
+    while(left<=right)
+    {
+        int mid = left + (right-left)/2;
+        if(newInterval.start < intervals[mid].start)
+        {
+            right = mid - 1;
+        }
+        else if(newInterval.start > intervals[mid].end)
+        {
+            left = mid + 1;
+        }
+        else
+        {
+            newInterval.start = min(newInterval.start, intervals[mid].start);
+            newInterval.end = max(newInterval.end, intervals[mid].end);
+            start = mid;
+            break;
+        }
+    }
+    start = start==-1? right+1:start;
+
+    int end = -1;
+    left = 0;
+    right = (int)intervals.size() -1;
+    while(left<=right)
+    {
+        int mid = left +(right-left)/2;
+        if(newInterval.end < intervals[mid].start)
+        {
+            right = mid -1;
+        }
+        else if(newInterval.end > intervals[mid].end)
+        {
+            left = mid +1;
+        }
+        else
+        {
+            newInterval.start = min(newInterval.start, intervals[mid].start);
+            newInterval.end = max(newInterval.end, intervals[mid].end);
+            end = mid;
+            break;
+        }
+    }
+    
+    end = end == -1? left-1: end;
+    if(start > end)
+    {
+        intervals.insert(intervals.begin() + start, newInterval);
+    }
+    else
+    {
+        intervals.erase(intervals.begin()+ start, intervals.begin()+ end +1);
+        intervals.insert(intervals.begin() + start, newInterval);
+    }
+    
     return intervals;
 }
 
@@ -5873,6 +5960,378 @@ string minWindow(string S, string T) {
     }
     return left == -1 ? "" : S.substr(left, minWidth);
 }
+
+//15.6
+string multiplyII(string num1, string num2) {
+    if(num1 == "0" || num2 == "0") return "0";
+    vector<int> n1;
+    vector<int> n2;
+    for(int i = (int)num1.size()-1;i>=0;i--)
+    {
+        n1.push_back(num1[i]-'0');
+    }
+    for(int i = (int)num2.size()-1;i>=0;i--)
+    {
+        n2.push_back(num2[i]-'0');
+    }
+    vector<int> res(n1.size() + n2.size() + 1, 0);
+    int carry = 0;
+    for(int i = 0;i<n1.size();i++)
+    {
+        carry = 0;
+        for(int j = 0;j<n2.size();j++)
+        {
+            int tmp = carry + n1[i] * n2[j] + res[i+j];
+            carry = tmp /10;
+            res[i+j] = tmp %10;
+        }
+        res[i+n2.size()] += carry;
+    }
+    while (res[res.size()-1] ==0) {
+        res.pop_back();
+    }
+    reverse(res.begin(), res.end());
+    string s;
+    for(int i = 0;i<res.size();i++)
+    {
+        s.append(1, '0' + res[i]);
+    }
+    return s;
+}
+
+//15.7
+vector<int> findSubstring(string S, vector<string> &L) {
+    vector<int> res;
+    int length = (int)L[0].size();
+    int totalwords = (int)L.size();
+    if(S.size() % length != 0) return res;
+    if(S.size() < length * L.size()) return res;
+    
+    unordered_map<string, int> dict;
+    
+    for(int i = 0;i < L.size() ;i++)
+    {
+        if(dict.find(L[i]) == dict.end())
+        {
+            dict[L[i]] = 1;
+        }
+        else
+        {
+            dict[L[i]] +=1;
+        }
+    }
+    
+    unordered_map<string, int> tracker;
+    int startIndex = -1;
+    int curCount= 0;
+    for(int j = 0;j<= S.size() - length*totalwords;j++)
+    {
+        for(int i = j;i<= S.size() -length;i += length)
+        {
+            if(startIndex <0)
+            {
+                startIndex = i;
+            }
+            if(dict.find(S.substr(i, length))!= dict.end())
+            {
+                curCount++;
+                if(tracker.find(S.substr(i, length)) == tracker.end())
+                {
+                    tracker[S.substr(i, length)] = 1;
+                }
+                else
+                {
+                    tracker[S.substr(i, length)]++;
+                }
+                if(tracker[S.substr(i, length)] > dict[S.substr(i, length)])
+                {
+                    tracker.clear();
+                    tracker[S.substr(i, length)] = 1;
+                    curCount = 1;
+                    startIndex = i;
+                }else if (curCount == totalwords) {
+                    res.push_back(startIndex);
+                    tracker.clear();
+                    curCount = 0;
+                    startIndex = -1;
+                }
+            }
+            else if (dict.find(S.substr(i, length))== dict.end())
+            {
+                startIndex = -1;
+                curCount = 0;
+                tracker.clear();
+            }
+        }
+    }
+    return res;
+}
+
+vector<int> findSubstringIII(string s, vector<string>& dict) {
+    size_t wordLength = dict.front().length();
+    size_t catLength = wordLength * dict.size();
+    vector<int> result;
+    if (s.length() < catLength) return result;
+    unordered_map<string, int> wordCount;
+    
+    for (auto const& word : dict) ++wordCount[word];
+    
+    for (auto i = begin(s); i <= prev(end(s), catLength); ++i)
+    {
+        unordered_map<string, int> unused(wordCount);
+        for (auto j = i; j != next(i, catLength); j += wordLength)
+        {
+            auto pos = unused.find(string(j, next(j, wordLength)));
+            if (pos == unused.end() || pos->second == 0)
+                break;
+            if (--pos->second == 0)
+                unused.erase(pos);
+        }
+        if (unused.size() == 0)
+            result.push_back(distance(begin(s), i));
+    }
+    return result;
+}
+
+//15.8
+vector<vector<int> > generate(int numRows) {
+    vector<vector<int>> res;
+    if(numRows == 0) return res;
+    vector<int> tmp = {1};
+    res.push_back(tmp);
+    for(int i = 1;i<numRows;i++)
+    {
+        vector<int> cur;
+        for(int j = 0;j<=tmp.size();j++)
+        {
+            int n = ((j-1) >= 0? tmp[j-1]: 0) + (j<tmp.size()? tmp[j]:0);
+            cur.push_back(n);
+        }
+        res.push_back(cur);
+        swap(tmp, cur);
+        cur.clear();
+    }
+    return res;
+}
+
+
+//15.9
+vector<int> getRow(int rowIndex) {
+    vector<int> tmp = {1};
+    for(int i = 1;i<=rowIndex;i++)
+    {
+        vector<int> cur;
+        for(int j = 0;j<=tmp.size();j++)
+        {
+            int n = ((j-1) >= 0? tmp[j-1]: 0) + (j<tmp.size()? tmp[j]:0);
+            cur.push_back(n);
+        }
+        swap(tmp, cur);
+        cur.clear();
+    }
+    return tmp;
+}
+
+//15.10
+vector<int> spiralOrderII(vector<vector<int> > &matrix) {
+    vector<int> res;
+    int m = (int)matrix.size();
+    if(m == 0) return res;
+    int n = (int)matrix[0].size();
+    if(n == 0) return res;
+    int top = 0;
+    int right = n-1;
+    int bottom = m-1;
+    int left = 0;
+    
+    int direction = 0;
+    while(top<=bottom && left <= right)
+    {
+        if(direction == 0)
+        {
+            for(int j = left; j<=right;j++)
+            {
+                res.push_back(matrix[top][j]);
+            }
+            top ++;
+        }
+        else if(direction == 1)
+        {
+            for(int i = top;i<=bottom;i++)
+            {
+                res.push_back(matrix[i][right]);
+            }
+            right--;
+        }
+        else if(direction == 2)
+        {
+            for(int j = right;j>=left;j--)
+            {
+                res.push_back(matrix[bottom][j]);
+            }
+            bottom --;
+        }
+        else if(direction == 3)
+        {
+            for(int i = bottom;i>=top;i--)
+            {
+                res.push_back(matrix[i][left]);
+            }
+            left ++;
+        }
+        direction = (direction + 1) % 4;
+    }
+    return res;
+}
+
+//15.11
+vector<vector<int> > generateMatrix(int n) {
+    vector<vector<int>> res (n, vector<int>(n,0));
+    if(n ==0) return res;
+    int top = 0;
+    int right = n-1;
+    int bottom = n-1;
+    int left = 0;
+    int direction = 0;
+    int tmp = 1;
+    while(top <= bottom && left <= right)
+    {
+        if(direction == 0)
+        {
+            for(int j = left; j<=right;j++)
+            {
+                res[top][j] = tmp++;
+            }
+            top ++;
+        }
+        else if(direction == 1)
+        {
+            for(int i = top;i<=bottom;i++)
+            {
+                res[i][right] = tmp++;
+            }
+            right--;
+        }
+        else if(direction == 2)
+        {
+            for(int j = right;j>=left;j--)
+            {
+                res[bottom][j] = tmp ++;
+            }
+            bottom --;
+        }
+        else if(direction == 3)
+        {
+            for(int i = bottom;i>=top;i--)
+            {
+                res[i][left] = tmp++;
+            }
+            left ++;
+        }
+        direction = (direction + 1) % 4;
+        
+    }
+    return res;
+}
+
+//15.12
+string worker(int L, int curLen, vector<string> tracker, bool lastline)
+{
+    int spaces = L - curLen;
+    int averspace = 0;
+    int extra;
+    if( tracker.size() > 1)
+    {
+        averspace = spaces / (tracker.size()-1);
+        extra = spaces - averspace * ((int)tracker.size() -1);
+    }
+    else
+    {
+        averspace = spaces;
+        extra = 0;
+    }
+    string s = "";
+    if(lastline)
+    {
+        for(int i= 0; i< tracker.size();i++)
+        {
+            s += tracker[i];
+            if( i != tracker.size() -1)
+            {
+                s += " ";
+            }
+        }
+        
+        while(s.length() < L)
+        {
+            s += " ";
+        }
+        
+    }
+    else
+    {
+        if(tracker.size() == 1)
+        {
+            s += tracker[0];
+            for(int j = 0;j< averspace;j++)
+            {
+                s += " ";
+            }
+        }
+        else
+        {
+            for(int j = 0;j< tracker.size();j++)
+            {
+                s += tracker[j];
+                if(j < (tracker.size() - 1))
+                {
+                    for(int j = 0;j< averspace;j++)
+                    {
+                        s += " ";
+                    }
+                    if(extra >0)
+                    {
+                        s += " ";
+                        extra --;
+                    }
+                }
+            }
+        }
+    }
+    return s;
+}
+
+vector<string> fullJustifyII(vector<string> &words, int L) {
+    vector<string> res;
+    if(words.size() == 0 ) return res;
+    
+    vector<string> tracker;
+    int curLen = 0;
+    for(int i = 0;i< words.size();i++)
+    {
+        if(( curLen + words[i].length() + (int)tracker.size() > L) && tracker.size() != 0)
+        {
+            string s = worker(L, curLen, tracker, false);
+            res.push_back(s);
+            curLen = 0;
+            tracker.clear();
+        }
+        
+        curLen = curLen + (int)words[i].length();
+        tracker.push_back(words[i]);
+        
+    }
+    if(tracker.size() >0)
+    {
+        string s = worker(L, curLen, tracker, true);
+        res.push_back(s);
+        curLen = 0;
+        tracker.clear();
+    }
+    return res;
+}
+
+
 //15.13
 int divideIII(int dividend, int divisor) {
     // 当 dividend = INT_MIN 时,-dividend 会溢出,所以用 long long
@@ -5888,6 +6347,149 @@ int divideIII(int dividend, int divisor) {
         }
     }
     return ((dividend^divisor) >> 31) ? (int)(-result) : (int)(result);
+}
+
+//15.15
+int maxPoints(vector<Point> &points) {
+    unordered_map<float, int> tracker;
+    if(points.size() == 0) return 0;
+    int res = 1;
+    int samepoint = 0;
+    for(int i = 0;i< points.size();i++)
+    {
+        for(int j = 0;j< points.size();j++)
+        {
+            if(i != j)
+            {
+                if(points[i].x == points[j].x && points[i].y == points[j].y)
+                {
+                    samepoint++;
+                }
+                else
+                {
+                    if(points[i].x == points[j].x)
+                    {
+                        tracker[INT_MAX] ++;
+                        res = max(res, tracker[INT_MAX]+1 + samepoint);
+                    }
+                }
+                
+                float sl =(float)(points[i].y - points[j].y) / (float)(points[i].x - points[j].x);
+                tracker[sl] ++;
+                res = max(res, tracker[sl]+1 + samepoint);
+            }
+        }
+        tracker.clear();
+        samepoint = 0;
+    }
+    return res;
+}
+
+//16.1
+void reverse_wordWorker(string& s, int left, int right)
+{
+    while(left <= right)
+    {
+        char tmp = s[left];
+        s[left] = s[right];
+        s[right] = tmp;
+        left ++;
+        right --;
+    }
+    
+}
+
+
+void reverseWords(string &s) {
+    int startIndex = -1;
+    for(int i = 0;i<s.length();i++)
+    {
+        if(s[i] != ' ')
+        {
+            startIndex = i;
+            break;
+        }
+    }
+    if(startIndex == -1)
+    {
+        s = "";
+    }
+    else
+    {
+        s = s.substr(startIndex, s.length() - startIndex);
+    }
+    
+    reverse_wordWorker(s, 0, (int)s.length()-1);
+    int left = -1;
+    int right = -1;
+    for(int i = 0;i<s.length();i++)
+    {
+        if((i == 0 || s[i-1] == ' ') && s[i] != ' ')
+        {
+            left = i;
+        }
+        else if((i == s.length() -1 || s[i + 1] == ' ') && s[i] != ' ')
+        {
+            right = i;
+        }
+        
+        if(left != -1 && right != -1)
+        {
+            reverse_wordWorker(s, left, right);
+        }
+    }
+    
+    startIndex = -1;
+    for(int i = 0;i<s.length();i++)
+    {
+        if(s[i] != ' ')
+        {
+            startIndex = i;
+            break;
+        }
+    }
+    if(startIndex == -1)
+    {
+        s = "";
+    }
+    else
+    {
+        s = s.substr(startIndex, s.length() - startIndex);
+    }
+    
+    
+}
+
+//16.2
+int findMin(vector<int>& num)
+{
+    int size = (int)num.size();
+    if(size == 0) return 0;
+    int left = 0;
+    int right =  size-1;
+    while(left <=right)
+    {
+        int mid = left + (right-left)/2;
+        
+        if((num[mid] < num[mid-1] || mid == 0) &&
+           (num[mid] < num[mid+1] || mid == size -1))
+        {
+            return num[mid];
+        }
+        else if(num[left] < num[mid] && num[mid] < num[right])
+        {
+            return num[left];
+        }
+        else if(num[left] > num[mid])
+        {
+            right = mid - 1;
+        }
+        else if(num[mid] > num[right])
+        {
+            left = mid + 1;
+        }
+    }
+    return num[left-1];
 }
 
 int main(int argc, const char * argv[])
@@ -6238,7 +6840,52 @@ int main(int argc, const char * argv[])
         cout<<res[i]<<endl;
     }
     */
-    bool res = isPalindrome(1);
+    //bool res = isPalindrome(1);
+    //cout<<res<<endl;
+    
+    /*string s = "aaa";
+    vector<string> L = {"a", "a"};
+    vector<int> res = findSubstring(s, L);
+    for(int i = 0;i<res.size();i++)
+    {
+        cout<< res[i]<<endl;
+    }
+    */
+    
+    //vector<vector<int>> res = generate(3);
+    //cout<<res.size()<<endl;
+    /*
+    Interval newInterval(6,8);
+    Interval input1(1,5);
+    vector<Interval> input {input1};
+    vector<Interval> res = insertDCII(input, newInterval);
+    cout<< res.size()<<endl;
+    */
+    
+    /*
+     vector<int> a1 = {1,2};
+    vector<int> a2 = {3,4};
+    vector<vector<int>> input = { a1,a2};
+    vector<int> res = spiralOrderII(input);
+    for(auto a : res)
+    {
+        cout<<a<<endl;
+    }
+     */
+    //vector<string> input = {"This", "is", "an", "example", "of", "text", "justification."};
+
+    /*vector<string> input = {""};
+    vector<string> res = fullJustifyII(input,2);
+    for(auto s : res)
+    {
+        cout << s<<endl;
+    }
+    */
+    //string s = " ";
+    //reverseWords(s);
+    //cout<<s<<endl;
+    vector<int> input = {2,3,1};
+    int res = findMin(input);
     cout<<res<<endl;
     
     // insert code here...
