@@ -10,29 +10,29 @@
 	<string>threadxcode</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>E9600D59-5383-45A2-BE67-0CE2577F58E9</key>
+		<key>A0231ACAF5DEB7934F292264D747EE541020AB07</key>
 		<string>https://github.com/zduan001/leetcode.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>threadxcode/threadxcode.xcodeproj/project.xcworkspace</string>
+	<string>threadxcode/threadxcode.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>E9600D59-5383-45A2-BE67-0CE2577F58E9</key>
+		<key>A0231ACAF5DEB7934F292264D747EE541020AB07</key>
 		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/zduan001/leetcode.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>E9600D59-5383-45A2-BE67-0CE2577F58E9</string>
+	<string>A0231ACAF5DEB7934F292264D747EE541020AB07</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>E9600D59-5383-45A2-BE67-0CE2577F58E9</string>
+			<string>A0231ACAF5DEB7934F292264D747EE541020AB07</string>
 			<key>IDESourceControlWCCName</key>
 			<string>LeetCode</string>
 		</dict>

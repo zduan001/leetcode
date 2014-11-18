@@ -1553,16 +1553,16 @@ int searchInRotateArray(int A[], int n, int target)
     return -1;
 }
 
+//2.1.5
 int findKthElement(int A[], int m, int B[], int n, int k)
 {
     if(m > n)
     {
         return findKthElement(B, n, A, m, k);
     }
-    if(m == 0)
-        return B[k-1];
-    if(k ==1)
-        return min(A[0], B[0]);
+    
+    if(m == 0) return B[k-1];
+    if(k ==1) return min(A[0], B[0]);
     
     int ia = min(k/2, m);
     int ib = k -ia;
@@ -1581,7 +1581,7 @@ int findKthElement(int A[], int m, int B[], int n, int k)
     }
 }
 
-//2.1.5
+
 double findMedianSortedArraysII(int A[], int m, int B[], int n) {
     if((n+m) & 1)
     {
@@ -4102,7 +4102,6 @@ vector<vector<int>> subsets(vector<int> &S) {
 }
 
 //8.2
-
 void worker(vector<int> &S, int level, vector<int>& tmp, vector<vector<int>>& res)
 {
     res.push_back(tmp);
@@ -4193,11 +4192,14 @@ void combineWorker(int n, int k, int level, vector<vector<int>>& res, vector<int
         }
         return;
     }
-    for(int i = level;i<=n;i++)
+    for(int i = level+1;i<=n;i++)
     {
-        tracker.push_back(i);
-        combineWorker(n, k, level+1, res, tracker);
-        tracker.pop_back();
+        if(tracker.size() == 0 || i > tracker[tracker.size()-1])
+        {
+            tracker.push_back(i);
+            combineWorker(n, k, level+1, res, tracker);
+            tracker.pop_back();
+        }
     }
 }
 
@@ -6884,9 +6886,11 @@ int main(int argc, const char * argv[])
     //string s = " ";
     //reverseWords(s);
     //cout<<s<<endl;
-    vector<int> input = {2,3,1};
-    int res = findMin(input);
-    cout<<res<<endl;
+    //vector<int> input = {2,3,1};
+    //int res = findMin(input);
+    //cout<<res<<endl;
+    
+    vector<vector<int>> res = combine(3,2);
     
     // insert code here...
     //std::cout << "Hello, World!\n";
