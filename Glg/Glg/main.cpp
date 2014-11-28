@@ -162,12 +162,38 @@ void insert_intoMaxHeap(vector<int>& heap, int n, int value)
 /*
  1. 一个bit的stream， 每次读取6个bit。转化成char。
  */
+
 void readerStream(istream& stream)
 {
     char* buf;
     int index = 0;
     int j = 0;
     char res[8];
+    int charIndex = 0;
+    int buffIndex = 0;
+    int readedlength = 0;
+    while(true)
+    {
+        while(charIndex<8 && buffIndex<readedlength)
+        {
+            res[charIndex++] = buf[buffIndex++];
+        }
+        if(charIndex == 8)
+        {
+            cout<<res;
+            charIndex = 0;
+        }
+        if(buffIndex == readedlength)
+        {
+            stream.read(buf, 6);
+            //readedlength = stream.getchar();// pretend this line will return the size of the
+            buffIndex = 0;
+        }
+    }
+}
+
+/*
+    
     while(stream.read(buf,6))
     {
         j = 0;
@@ -201,6 +227,7 @@ void readerStream(istream& stream)
         }
     }
 }
+ */
 
 int reader4096(char* buf)
 {
@@ -232,14 +259,15 @@ char* readRandomStream(int n)
  */
 string creatRotate(string s, bool odd)
 {
-    int i = (int)s.length();
+    int length = (int)s.length();
+    int i;
     if(odd)
     {
-        i = i -2;
+        i = length - 2;
     }
     else
     {
-        i = i-1;
+        i = length - 1;
     }
     for(int j = i; j>=0;j-- )
     {
@@ -248,8 +276,8 @@ string creatRotate(string s, bool odd)
         else if(s[j] == '6') s.push_back('9');
     }
     return s;
-        
 }
+
 void worker(int n, string& s, vector<string>& res, bool odd)
 {
     if(s.length() == n)

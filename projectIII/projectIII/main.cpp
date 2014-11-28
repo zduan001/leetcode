@@ -80,10 +80,12 @@ struct GraphNode{
 struct TrieNode{
     TrieNode* val[256];
     int count[256];
+    bool end[256];
     TrieNode()
     {
         fill_n(&count[0], 256, 0);
         fill_n(&val[0], 256, nullptr);
+        fill_n(&end[0], 256, false);
     }
 };
 
@@ -976,6 +978,7 @@ vector<int> spiralOrder(vector<vector<int> > &matrix)
 bool sortIntervalFunctions(Interval i1, Interval i2){
     return (i1.start < i2.start);
 }
+
 vector<Interval> merge(vector<Interval> &intervals) {
     sort(intervals.begin(), intervals.end(), sortIntervalFunctions);
     vector<Interval> res;
@@ -5032,7 +5035,7 @@ double pow(double x, int n) {
 }
 
 //11.1
-int sqrt(int x) {
+int sqrtLocal(int x) {
     if(x < 0) return -1;
     if( x ==1) return 1;
     double left = 0;
@@ -5500,18 +5503,18 @@ int numDecodings(string s) {
     if(s.length() == 1) return 1;
     if(s[0] > '2')
     {
-        return numDecodings(s.substr(1, s.length()-1));
+        return 1 + numDecodings(s.substr(1, s.length()-1));
     }
     else
     {
         if(s[0] == '1' || (s[0] =='2' && s[1] <= '6'))
         {
-            return numDecodings(s.substr(1, s.length()-1)) +
+            return 1+ numDecodings(s.substr(1, s.length()-1)) +
             numDecodings(s.substr(2, s.length()-2));
         }
         else
         {
-            return numDecodings(s.substr(1, s.length()-1));
+            return 1 + numDecodings(s.substr(1, s.length()-1));
         }
     }
 }
@@ -6561,7 +6564,7 @@ NaryNode* deserializeNary()
 }
 
 // print all factors
-void findfactor(int target,int start, vector<vector<int> > &result, vector<int> &group)
+void findfactor(int target,int start, vector<vector<int>>& result, vector<int> &group)
 {
     if(target == 1)
     {
@@ -6590,6 +6593,701 @@ vector<vector<int>> printAllFactor(int n)
     findfactor(n,2, res, tracker);
     return res;
 }
+
+/*
+ 一个数组，保证前半部递增，后半部递减，求数组最大值。二分查找，没写出来。大家有近期面的，练一下。
+ */
+int findMax(vector<int> input)
+{
+    if(input.size() <1) return -1;
+    if(input.size() == 1) return input[0];
+    int left = 0;
+    int right = (int)input.size()-1;
+    while(left<=right)
+    {
+        int mid = left + (right-left)/2;
+        if(mid == 0 and input[0] > input[1])
+        {
+            return input[0];
+        }
+        else if(mid == input.size()-1 && input[mid] > input[mid-1])
+        {
+            return input[mid];
+        }
+        else if (input[mid] > input[mid-1] && input[mid] > input[mid+1])
+        {
+            return input[mid];
+        }
+        else if(input[mid] < input[mid+1])
+        {
+            left = mid+1;
+        }
+        else
+        {
+            right = mid -1;
+        }
+    }
+    return -1;
+}
+
+/*
+ 输入是一个自然数T， 输出是(a_1,a_2,...,a_k)使得a_1^2+a_2^2+...+a_k^2=T， 并且k尽可能小
+ */
+bool isSqaure(int n)
+{
+    return (sqrt(n) - (int)sqrt(n)) == 0.0;
+}
+vector<int> findSumOfPerfectSqaure(int t)
+{
+    vector<vector<int>> res(t+1);
+    res[1].push_back(1);
+    int minCount = INT_MAX;
+    vector<int> tmp;
+    for(int i = 2;i<=t;i++)
+    {
+        minCount = INT_MAX;
+        tmp.clear();
+        for(int j = 0;j<i;j++)
+        {
+            if(isSqaure(i-j))
+            {
+                if(minCount > (res[j].size() + 1))
+                {
+                    minCount = (int)res[j].size() + 1;
+                    tmp = res[j];
+                    tmp.push_back(sqrt(i-j));
+                }
+            }
+        }
+        res[i] = tmp;
+    }
+    return res[t];
+}
+
+/*
+ 1.1. Tokenize a string to words. Ignore any space and punctuator
+ */
+bool isDelimitor(char c)
+{
+    if(c == ' ') return true;
+    return false;
+}
+vector<string> tokenize(string s)
+{
+    vector<string> res;
+    if(s.length() ==0) return res;
+    string tmp = "";
+    for(int i = 0;i< s.length();i++)
+    {
+        if(!isDelimitor(s[i]))
+        {
+            tmp = tmp + s[i];
+        }
+        else if(tmp != "")
+        {
+            res.push_back(tmp);
+            tmp = "";
+        }
+    }
+    if(tmp != "")
+    {
+        res.push_back(tmp);
+    }
+    return res;
+}
+
+/*
+ 输入是一个 N*N的矩阵，代表地势高度（elevation）。然后如果下雨，水流只能流去比他矮或者一样高的地势。矩阵上边和左边是太平洋，下边和右边是大西洋。求出所有的能同时流到两个大洋的点
+ */
+struct Elevation{
+    int val;
+    bool visited;
+    Elevation(int n): val(n), visited(false) {}
+};
+bool up = false;
+bool down = false;
+bool upset = false;
+bool downset = false;
+
+void worker(vector<vector<Elevation>>& input, int i, int j)
+{
+    if(upset && downset)
+    {
+        return;
+    }
+    else
+    {
+        if(!input[i][j].visited)
+        {
+            input[i][j].visited = true;
+            if (i == 0 || j == 0)
+            {
+                up = true;
+                upset = true;
+            }
+            if( i == input.size()-1 || j == input.size()-1)
+            {
+                down = true;
+                downset= true;
+            }
+
+            if(i - 1 >=0 && input[i][j].val > input[i-1][j].val)
+            {
+                worker(input, i-1, j);
+            }
+            if(i + 1 < (int)input.size() && input[i][j].val > input[i+1][j].val)
+            {
+                worker(input, i+1, j);
+            }
+            if(j - 1 >=0 && input[i][j].val > input[i][j-1].val)
+            {
+                worker(input, i, j-1);
+            }
+            if(j + 1 < (int)input.size() && input[i][j].val > input[i][j+1].val)
+            {
+                worker(input, i, j+1);
+            }
+            
+        }
+    }
+}
+
+void cleanVisited(vector<vector<Elevation>>& input)
+{
+    int n = (int)input.size();
+    for(int i = 0;i< n;i++)
+        for(int j = 0;j<n;j++)
+            input[i][j].visited = false;
+
+}
+
+vector<Elevation> canFlowinto(vector<vector<Elevation>>& input)
+{
+    vector<Elevation> res;
+    int n = (int)input.size();
+    for(int i = 0;i< n;i++)
+    {
+        for(int j = 0;j<n;j++)
+        {
+            cleanVisited(input);
+            up = false;
+            down = false;
+            upset = false;
+            downset = false;
+            
+            worker(input, i, j);
+            if(up && down)
+            {
+                res.push_back(input[i][j]);
+            }
+        }
+    }
+    return res;
+}
+
+/*
+ 求一个unsorted数组的前k大数字，要求O(n)，这题被烙印坑了。给了个O(n)算法非
+ 说我是O(nlogn)，最后说服了他，不过时间不够了
+ */
+void findFirstk(vector<int>& input, int start, int end, int k)
+{
+    if(start>=end) return;
+    int index = rand() % (end- start);
+    swap(input, start, start+index);
+    int runner = start + 1;
+    int right = end;
+    while(runner<right)
+    {
+        if(input[runner]<= input[start]) runner++;
+        else swap(input, runner, right--);
+    }
+
+    swap(input, start, runner-1);
+    if(runner == k) return;
+    else if(runner >k) findFirstk(input, start, runner-1, k);
+    else findFirstk(input, runner, end, k-runner-1);
+}
+
+/*
+ 二维Matrix字符里面找word，所有字符必须相邻，比如microsoft 是否出现，相邻字符必须是neighbor关系，貌似career up上别人post 过。
+ */
+/*
+bool worker(vector<vector<char>>& input, unordered_set<pair<int,int>>& visited, int i, int j, string& tracker, string target)
+{
+    if(tracker == target)
+    {
+        return true;
+    }
+    else
+    {
+        if(visited.find(make_pair(i, j)) == visited.end())
+        {
+            visited.insert(make_pair(i, j));
+            tracker = tracker + input[i][j];
+            if(i-1>=0)
+            {
+                if(worker(input, visited, i-1, j, tracker, target))
+                {
+                    return true;
+                }
+            }
+            if(i+1 < input.size())
+            {
+                if(worker(input, visited, i+1, j, tracker, target))
+                {
+                    return true;
+                }
+            }
+            if(j-1>0)
+            {
+                if(worker(input, visited, i, j-1, tracker, target))
+                {
+                    return true;
+                }
+            }
+            if(j+1<input.size())
+            {
+                if(worker(input, visited, i, j+1, tracker, target))
+                {
+                    return true;
+                }
+            }
+        }
+        tracker.erase(tracker.size()-1);
+    }
+    return false;
+}
+
+
+bool findWord(vector<vector<char>>& input, string target)
+{
+    unordered_set<pair<int,int>> visited;
+    for(int i = 0;i< input.size();i++)
+    {
+        for(int j = 0;j<input.size();j++)
+        {
+            visited.clear();
+            string tracker= "";
+            if(worker(input, visited, i, j, tracker, target))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+*/
+
+void quickSort(int input[], int n)
+{
+    if(n <=1) return;
+    int index = rand() % n;
+    swap(input, 0, index);
+    int left = 1;
+    int right = n-1;
+    while(left<=right)
+    {
+        if(input[left] <= input[0]) left++;
+        else swap(input, left, right--);
+    }
+
+    swap(input, 0, left-1);
+    quickSort(input, left-1);
+    quickSort(input + left, n - left);
+}
+
+/*
+ 一个class {int a,  bool c, int b} 里面每个variable所占的空间都不同
+ ，比如a,b是int 所以分别占4byte. bool的c只占1byte。还有其他变量，可能占8bytes
+ 或者16bytes。都是2的次方就是。
+ 问题是写一个程序让他们可以很好的被放到8byte为单位的block里面去然后空间不会浪
+ 费。
+ 比如如果是 就按照a, c, b的话它一共要占12个byte。因为当把a和c放到一个block的
+ 时候就会浪费一些空间。
+ 所以最好摆成a，b，c这样的话更合理。占9个byte。剩下的空间还可以放一些小的
+ object。
+ 其实这个就是用排序，然后从大的变量依次放进block。
+ 有个followup的问题就是：因为我不想过多移动这些变量，所以怎么才能设计一个算法
+ 所需要移动的object最少。
+ 比如如果变量的size一次是4, 4, 1, 1, 8, 8, 1, 1最好的排法是4, 4, 8, 8, 1, 1,
+ 1, 1.而不是8 8 4 4 1 1 1 1因为前一种所需要移动的cost最小。这个没想出来了。。
+ 应该用divide and conquer？
+ */
+void quickArrange(int input[], int n)
+{
+    int left = 0;
+    int right = n-1;
+    while(left<=right)
+    {
+        if(input[left] >=4) left++;
+        else swap(input, left, right--);
+    }
+}
+/*
+ give an array [1, 3, 4, 6, 9] and 10 return [2,5,7-8,10]
+ */
+vector<string> complementry(vector<int> input, int n)
+{
+    vector<string> res;
+    int startnumber = 1;
+    for(int i = 0;i < (int)input.size();i++)
+    {
+        if(input[i] == startnumber)
+        {
+            startnumber = input[i] +1;
+        }
+        else if(input[i] > startnumber && input[i] < n)
+        {
+            string tmp = "";
+            tmp += to_string(startnumber);
+            if(input[i] -1 > startnumber)
+            {
+                tmp += "-";
+                tmp += to_string(input[i] - 1);
+            }
+            res.push_back(tmp);
+            startnumber = input[i] +1;
+        }
+        else
+        {
+            break;
+        }
+    }
+    
+    if(startnumber <= n)
+    {
+        string tmp = "";
+        tmp += to_string(startnumber);
+        if(n > startnumber)
+        {
+            tmp += "-";
+            tmp += to_string(n);
+        }
+        res.push_back(tmp);
+    }
+    return res;
+}
+/*
+去除string中的空白
+*/
+string removeSpace(string s)
+{
+    int index = 0;
+    for(int i = 0;i< s.length();i++)
+    {
+        if(s[i] != ' ')
+        {
+            s[index++] = s[i];
+        }
+        if(s[i] == '\0')
+        {
+            break;
+        }
+    }
+    return s;
+}
+
+/*
+ 把regular expression tree 转换成表达式string最后一题没写完就到只剩下五分钟了。小哥让我停下来跟我介绍了他的组，并且问问我有什么问题之类。然后就结束了。题目都没答完肯 定是没戏了。move on准备下一场。祝各位找工作的都顺利！
+ */
+struct ExpressionTreeNode
+{
+    string val;
+    ExpressionTreeNode* left;
+    ExpressionTreeNode* right;
+    ExpressionTreeNode(string input) : val(input), left(NULL), right(NULL) {}
+};
+
+string convert(ExpressionTreeNode * root)
+{
+    string res ="";
+    if(!root) return res;
+    if(root->val != "*" &&
+       root->val != "/" &&
+       root->val != "+" &&
+       root->val != "-")
+    {
+        return root->val;
+    }
+    else
+    {
+        string res = "";
+        if(root->val == "+" ||
+           root->val == "-")
+        {
+            res += "(";
+        }
+        // assume this is a perfect format expression tree.
+        // if a node is *,/,+,- it must has left and right
+        // child as numbers.
+        res += convert(root->left);
+        res += root->val;
+        res += convert(root->right);
+        if(root->val == "+" ||
+           root->val == "-")
+        {
+            res += ")";
+        }
+        
+    }
+    return res;
+}
+
+/*
+ 有很多 字串， 经常要作的操作有 ， 插入， 删除， 清空，查询以某前缀字串开头的所有的字串查询以某前缀字串开头的所有的字串的个数查询前缀字串开头的字串的所有 可能的下一个字母例如
+ 
+ [abc, abd, abe]
+ input ab
+ 
+ return [c, d, e]
+ 
+ 要求使3个查寻操作的时间上最优, 插入, 删除, 清空, 的性能表现可以牺牲
+ */
+void worker(vector<string>& res, string& tmp, TrieNode* root, bool isEnd)
+{
+    if(isEnd)
+    {
+        res.push_back(tmp);
+    }
+    
+    for(int i = 0;i< 256;i++)
+    {
+        if(root->val[i])
+        {
+            tmp += (char)i;
+            worker(res, tmp, root->val[i], root->end[i]);
+            tmp.pop_back();
+        }
+    }
+}
+
+vector<string> search(string preFix, TrieNode* root)
+{
+    TrieNode* tmp = root;
+    for(int i = 0;i<preFix.length();i++)
+    {
+        tmp = tmp->val[preFix[i]];
+    }
+    vector<string> res;
+    string s = "";
+    worker(res, s, tmp, false);
+    return res;
+}
+
+/*
+ 要顺序打印 power(2,x) * power(3,y) * power(5,z).  x, y, z >= 0.
+ print {1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16...}
+ */
+vector<int> printMultiples(int n)
+{
+    vector<int> x = {2,3,5};
+    vector<int> res;
+    res.push_back(1);
+    for(int i = 1;i< n;i++)
+    {
+        int minVal = INT_MAX;
+        for(int j = 0;j<res.size();j++)
+        {
+            for(int k = 0;k<x.size();k++)
+            {
+                if(x[k] * res[j] > res[res.size()-1])
+                {
+                    minVal = min (minVal, x[k] * res[j]);
+                }
+            }
+        }
+        res.push_back(minVal);
+    }
+    return res;
+}
+
+/*
+12. binary search tree deletion node
+*/
+TreeNode* deleteNote(TreeNode*& root, TreeNode* node)
+{
+    if(!root) return root;
+    if(root == node)
+    {
+        if(!root->left && !root->right) return NULL;
+        if(!root->left && root->right) return root->right;
+        if(root->left && !root->right) return root->left;
+        if(root->left && root->right)
+        {
+            TreeNode* left = root->left;
+            TreeNode* right = root->right;
+            while(left->right) left = left->right;
+            left->right = right;
+            return left;
+        }
+    }
+    else if(node->val < root->val)
+    {
+        root->left = deleteNote(root->left, node);
+    }
+    else if(node->val > root->val)
+    {
+        root->right = deleteNote(root->right, node);
+    }
+    return root;
+}
+
+/*
+ 第一个是两个单词最短距离，在版上看到很多人都说过这个题目，应该是L家经常面的。
+ */
+int findMinDis(vector<string> input, string s1, string s2)
+{
+    unordered_map<string, vector<int>> tracker;
+    for(int i = 0;i< (int)input.size();i++)
+    {
+        tracker[input[i]].push_back(i);
+    }
+    
+    vector<int> first;
+    vector<int> second;
+    if(tracker.find(s1) != tracker.end())
+    {
+        first = tracker[s1];
+    }
+    else
+    {
+        return INT_MAX;
+    }
+    
+    if(tracker.find(s2) != tracker.end())
+    {
+        second = tracker[s2];
+    }
+    else
+    {
+        return INT_MAX;
+    }
+    
+    int res = INT_MAX;
+    int i = 0;
+    int j = 0;
+    while(i< (int) first.size() && j < second.size())
+    {
+        res = min(res, abs(first[i] - second[j]));
+        if(first[i] < second[j])
+        {
+            i++;
+        }
+        else
+        {
+            j++;
+        }
+    }
+    return res;
+}
+
+bool isMatch4(const char *s, const char *p) {
+    if( *s == '\0' && *p == '\0') return true;
+    
+    if(*(p+1) == '*')
+    {
+        if(*p == *s || (*p == '.' && *s != '\0'))
+        {
+            return  isMatch4(s+1, p) || isMatch4(s, p+2);
+        }
+        else
+        {
+            return isMatch4(s, p+2);
+        }
+       
+    }
+    else if(*p == *s || (*p == '.' && *s != '\0'))
+    {
+        return isMatch4(s+1, p+1);
+    }
+    
+    return false;
+}
+
+
+double sqrt (double value, double tolerance)
+{
+    double left;
+    double right;
+    
+    if(value >1)
+    {
+        left = 0;
+        right = value;
+    }
+    else
+    {
+        left = value;
+        right = 1;
+    }
+    
+    while(abs(right-left) > tolerance)
+    {
+        double mid = (left+right)/2.0;
+        if(mid* mid > value)
+        {
+            right = mid;
+        }
+        else
+        {
+            left = mid;
+        }
+    }
+    return left;
+}
+
+/*
+ 9. sort strings like "TADTTTTBDB", fixed length of 10, made up by only four characters: T A D B want linear time.
+ */
+void swap(string& s, int i , int j)
+{
+    char c = s[i];
+    s[i] = s[j];
+    s[j] = c;
+}
+void sort(string& s, int left, int right)
+{
+
+    while(left<=right)
+    {
+        if(s[left] == 'D')
+        {
+            left++;
+        }
+        else
+        {
+            swap(s, left, right--);
+        }
+    }
+}
+string sort(string& s)
+{
+    int n = (int)s.length();
+    int left = 0;
+    int mid = 0;
+    int right = n-1;
+    while(mid <=right)
+    {
+        if(s[mid] == 'A')
+        {
+            swap(s, left++, mid++);
+        }
+        else if(s[mid] == 'B')
+        {
+            mid++;
+        }
+        else if(s[mid] == 'T' || s[mid] == 'D')
+        {
+            swap(s, mid, right--);
+        }
+    }
+    sort(s, mid, n-1);
+    return s;
+}
+
+/*
+ 20: largest sum of value at certain time point, with given: [t0, t1, value1], [t2, t3, value2], [t3, t4, value3]…
+ */
 
 int main(int argc, const char * argv[])
 {
@@ -7003,10 +7701,100 @@ int main(int argc, const char * argv[])
     TreeNode* res = deserialize();
     cout<<res->val<<endl;
     */
-    vector<vector<int>> res = printAllFactor(8);
+    //vector<vector<int>> res = printAllFactor(8);
+    //vector<int> input = {1,2,3,4,5,6,7,8,5,4,2};
+    //int res = findMax(input);
+    //cout<<res<<endl;
+    
+    /*
+    vector<int> res = findSumOfPerfectSqaure(41);
+    for(auto item:res)
+    {
+        cout<<item<<endl;
+    }
+    */
+
+    /*
+    vector<string> res = tokenize("abc     bbb ccc");
+    for(auto item : res)
+    {
+        cout<<item<<endl;
+    }
+    */
+    
+    /*
+    vector<Elevation> p1 = {Elevation(3), Elevation(2), Elevation(1)};
+    vector<Elevation> p2 = {Elevation(4), Elevation(5), Elevation(1)};
+    vector<Elevation> p3 = {Elevation(5), Elevation(6), Elevation(1)};
+    vector<vector<Elevation>> input = {p1,p2,p3};
+    
+    vector<Elevation> res = canFlowinto(input);
+    for(auto item : res)
+    {
+        cout<<item.val<<endl;
+    }
+    */
+    /*
+    vector<int> input = {1,8,10,4,5,6,7,3,9,2};
+    findFirstk(input, 0, (int)input.size()-1, 6);
+    */
+    
+//    int input[] = {1,8,10,4,5,6,7,3,9,2};
+    //int input[] = {10,4,8,2,1,6,5,3,7,9};
+    //quickSort(input, 10);
+    /*
+    vector<int> input = {1,3,50,75};
+    vector<string> res = complementry(input, 99);
+    for(auto item : res)
+    {
+        cout<<item<<", ";
+    }
+    */
+    /*
+    string input = "ab cd ef  g   hij  ";
+    string res = removeSpace(input);
+    cout<<res<<endl;
+     */
+    /*
+    vector<int> res = printMultiples(20);
+    for(auto item : res)
+    {
+        cout<<item<<endl;
+    }
+     */
     
     // insert code here...
     //std::cout << "Hello, World!\n";
+/*
+    vector<int> input = {1,8,10,4,5,6,7,3,9,2,-1,-4,-3};
+    findFirstk(input, 0, (int)input.size()-1, 6);
+
+    for(int i = 0;i<input.size();i++)
+    {
+        //cout<<input[i] <<endl;
+    }
+  */
+    /*
+    int res = numDecodings("10");
+    cout<<numDecodings("10")<<endl;
+    cout<<numDecodings("90")<<endl;
+    cout<<numDecodingsDP("10")<<endl;
+    cout<<numDecodingsDP("90")<<endl;
+    */
+    
+    //cout<<sqrt(2.0, 0.001) <<endl;
+    //cout<<sqrt(0.5, 0.001) <<endl;
+    string s = "TADTTTTBDB";
+    s = sort(s);
+    cout<<s<<endl;
+    /*
+    int A[] = {1,8,10,4,5,6,7,3,9,2,-1,-4,-3};
+    quickSort(A, 13);
+    for(int i = 0;i<13; i++)
+    {
+        cout<<A[i] <<endl;
+    }
+     */
     return 0;
 }
 
