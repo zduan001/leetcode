@@ -1000,6 +1000,8 @@ vector<Interval> merge(vector<Interval> &intervals) {
     return res;
 }
 
+
+
 vector<Interval> insert(vector<Interval> &intervals, Interval newInterval) {
     vector<Interval> res;
     
@@ -6796,16 +6798,16 @@ void findFirstk(vector<int>& input, int start, int end, int k)
     swap(input, start, start+index);
     int runner = start + 1;
     int right = end;
-    while(runner<right)
+    while(runner<=right)
     {
         if(input[runner]<= input[start]) runner++;
         else swap(input, runner, right--);
     }
 
     swap(input, start, runner-1);
-    if(runner == k) return;
-    else if(runner >k) findFirstk(input, start, runner-1, k);
-    else findFirstk(input, runner, end, k-runner-1);
+    if(runner - start == k) return;
+    else if(runner-start >k) findFirstk(input, start, runner-1, k);
+    else findFirstk(input, runner, end, k-runner+start);
 }
 
 /*
@@ -7288,6 +7290,376 @@ string sort(string& s)
 /*
  20: largest sum of value at certain time point, with given: [t0, t1, value1], [t2, t3, value2], [t3, t4, value3]…
  */
+struct workItem{
+    int start;
+    int end;
+    int val;
+    workItem(int s, int e, int v): start(s), end(e), val(v) {}
+};
+
+struct pointEntry{
+    int endPoint;
+    bool isStart;
+    int val;
+    pointEntry(int e, bool b, int v): endPoint(e), isStart(b), val(v) {}
+};
+
+bool sortPointEntry(pointEntry* p1, pointEntry* p2)
+{
+    if(p1->endPoint != p2->endPoint)
+    {
+        return p1->endPoint < p2->endPoint;
+    }
+    else
+    {
+        if(!p1->isStart)
+            return true;
+        else
+            return false;
+    }
+    
+}
+
+int findMax(vector<workItem> input)
+{
+    vector<pointEntry*> tracker;
+    for(auto item: input)
+    {
+        pointEntry* start = new pointEntry(item.start, true, item.val);
+        pointEntry* end = new pointEntry(item.end, false, item.val);
+        tracker.push_back(start);
+        tracker.push_back(end);
+    }
+    sort(tracker.begin(), tracker.end(), sortPointEntry);
+    int maxVal = INT_MIN;
+    int cur = 0;
+    for(auto item: tracker)
+    {
+        if(item->isStart) cur += item->val;
+        else cur -= item->val;
+        
+        maxVal = max(maxVal, cur);
+    }
+    return maxVal;
+}
+
+/*
+ Check if the given unsigned char * is a valid utf-8 sequence.
+ 
+ Return value :
+ If the string is valid utf-8, 0 is returned.
+ Else the position, starting from 0, is returned.
+ 
+ Valid utf-8 sequences look like this :
+ 0xxxxxxx
+ 110xxxxx 10xxxxxx
+ 1110xxxx 10xxxxxx 10xxxxxx
+ 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+ 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+ 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+ */
+int is_utf8(unsigned char *str, size_t len, size_t* first_invalid_pos)
+{
+    size_t i = 0;
+    size_t j = 0;
+    size_t continuation_bytes = 0;
+    
+    while (i < len)
+    {
+        j = i;
+        if (str[i] <= 0x7F)
+            continuation_bytes = 0;
+        else if (str[i] >= 0xC0 /*11000000*/ && str[i] <= 0xDF /*11011111*/)
+            continuation_bytes = 1;
+        else if (str[i] >= 0xE0 /*11100000*/ && str[i] <= 0xEF /*11101111*/)
+            continuation_bytes = 2;
+        else if (str[i] >= 0xF0 /*11110000*/ && str[i] <= 0xF4 /* Cause of RFC 3629 */)
+            continuation_bytes = 3;
+        else
+        {
+            if (first_invalid_pos) *first_invalid_pos = j;
+            return (int)i+1;
+        }
+        i += 1;
+        while (i < len && continuation_bytes > 0
+               && str[i] >= 0x80
+               && str[i] <= 0xBF)
+        {
+            i += 1;
+            continuation_bytes -= 1;
+        }
+        if (continuation_bytes != 0)
+        {
+            if (first_invalid_pos) *first_invalid_pos = j;
+            return (int)i+1;
+        }
+    }
+    return 0;
+}
+
+/*
+1. Given a sorted array of floats, find the index of the number closest to x:
+Example: {1.2, 2.5, 9.3}  x = 5,    return 1
+*/
+int findClosest(vector<float> input, int target)
+{
+    if(input.size() == 0) return 0;
+    int left = 0;
+    int right = (int)input.size()-1;
+    while(left<=right)
+    {
+        int mid = left + (right-left)/2;
+        if(input[mid] < target)
+        {
+            if(mid == input.size()-1)
+            {
+                return mid;
+            }
+            else if(input[mid+1]> target)
+            {
+                if(abs(target-input[mid]) < abs(target-input[mid+1]))
+                {
+                    return mid;
+                }
+                else
+                {
+                    return mid+1;
+                }
+            }
+            else
+            {
+                left = mid+1;
+            }
+        }
+        else
+        {
+            if(mid == 0)
+            {
+                return 0;
+            }
+            else if(input[mid-1] < target)
+            {
+                if(abs(target-input[mid-1]) < abs(target-input[mid]))
+                {
+                    return mid-1;
+                }
+                else
+                {
+                    return mid;
+                }
+            }
+            else
+            {
+                right = mid -1;
+            }
+        }
+    }
+    return -1;
+}
+
+struct NestedInteger
+{
+    bool isInteger;
+    int getInteger;
+    vector<NestedInteger> getList;
+};
+
+int calculateSum(NestedInteger s, int level)
+{
+    if(s.isInteger)
+    {
+        return s.getInteger * level;
+    }
+    else
+    {
+        int sum = 0;
+        for(auto item: s.getList)
+        {
+            sum += calculateSum(item, level+1);
+        }
+        return sum;
+    }
+}
+
+int depSum(vector<NestedInteger> input)
+{
+    int sum = 0;
+    for(auto item: input)
+    {
+        sum += calculateSum(item, 1);
+    }
+    return sum;
+}
+
+vector<vector<int>> threeSumIII(vector<int>& num) {
+    vector<vector<int>> result;
+    if (num.size() < 3) return result;
+    sort(num.begin(), num.end());
+    const int target = 0;
+    auto last = num.end();
+    for (auto a = num.begin(); a < prev(last, 2); ++a) {
+        auto b = next(a);
+        auto c = prev(last);
+        while (b < c) {
+            if (*a + *b + *c < target) {
+                ++b;
+            } else if (*a + *b + *c > target) {
+                --c;
+            } else {
+                result.push_back({ *a, *b, *c });
+                ++b;
+                --c;
+            }
+        }
+    }
+    sort(result.begin(), result.end());
+    result.erase(unique(result.begin(), result.end()), result.end());
+    return result;
+}
+
+
+/*
+ Heap operations
+ */
+/*
+int getParentIndex(int nodeIndex) {
+    return (nodeIndex - 1) / 2;
+}
+
+int getLeftChildIndex(int nodeIndex) {
+    return 2 * nodeIndex + 1;
+}
+
+int getRightChildIndex(int nodeIndex) {
+    return 2 * nodeIndex + 2;
+}
+
+int heapSize;
+int data[100];
+int arraySize;
+
+void siftUp(int nodeIndex) {
+    int parentIndex, tmp;
+    if (nodeIndex != 0) {
+        parentIndex = getParentIndex(nodeIndex);
+        if (data[parentIndex] > data[nodeIndex]) {
+            tmp = data[parentIndex];
+            data[parentIndex] = data[nodeIndex];
+            data[nodeIndex] = tmp;
+            siftUp(parentIndex);
+        }
+    }
+}
+
+void insert(int value) {
+    if (heapSize == arraySize)
+        throw string("Heap's underlying storage is overflow");
+    else {
+        heapSize++;
+        data[heapSize - 1] = value;
+        siftUp(heapSize - 1);
+    }
+}
+
+void siftDown(int nodeIndex) {
+    int leftChildIndex, rightChildIndex, minIndex, tmp;
+    leftChildIndex = getLeftChildIndex(nodeIndex);
+    rightChildIndex = getRightChildIndex(nodeIndex);
+    if (rightChildIndex >= heapSize)
+    {
+        if (leftChildIndex >= heapSize)
+            return;
+        else
+            minIndex = leftChildIndex;
+    } else {
+        if (data[leftChildIndex] <= data[rightChildIndex])
+            minIndex = leftChildIndex;
+        else
+            minIndex = rightChildIndex;
+    }
+    
+    if (data[nodeIndex] > data[minIndex])
+    {
+        tmp = data[minIndex];
+        data[minIndex] = data[nodeIndex];
+        data[nodeIndex] = tmp;
+        siftDown(minIndex);
+    }
+}
+
+void removeMin() {
+    if (heapSize == 0)
+        throw string("Heap is empty");
+    else {
+        data[0] = data[heapSize - 1];
+        heapSize--;
+        if (heapSize > 0)
+            siftDown(0);
+    }
+}
+*/
+
+vector<int> x;
+int heapSize = 0;
+
+void siftDown(vector<int>& d, int k)
+{
+    int parentIndex = (k-1)/2;
+    if(parentIndex == k) return;
+    if(d[parentIndex] > d[k])
+    {
+        swap(d, parentIndex, k);
+        siftDown(d, parentIndex);
+    }
+}
+
+void insert(int input)
+{
+    x.push_back(input);
+    heapSize++;
+    siftDown(x, (int)x.size()-1);
+}
+
+void siftUp(vector<int>& d, int k)
+{
+    int leftChildIndex = 2*k +1;
+    int rightChildIndex = 2*k + 2;
+    if(leftChildIndex >= d.size()) return;
+    if(rightChildIndex >= d.size())
+    {
+        if(d[k] > d[leftChildIndex])
+        {
+            swap(d, k, leftChildIndex);
+        }
+    }
+    else
+    {
+        if(d[leftChildIndex] > d[rightChildIndex])
+        {
+            swap(d, leftChildIndex, rightChildIndex);
+        }
+        if(d[k] > d[leftChildIndex])
+        {
+            swap(d, k, leftChildIndex);
+            siftUp(d, leftChildIndex);
+        }
+    }
+}
+
+
+int get()
+{
+    if(x.size() >0)
+    {
+        int res = x[0];
+        x[0] = x[x.size()-1];
+        x.pop_back();
+        siftUp(x, 0);
+        return res;
+    }
+    return INT_MIN;
+}
+
 
 int main(int argc, const char * argv[])
 {
@@ -7734,10 +8106,6 @@ int main(int argc, const char * argv[])
         cout<<item.val<<endl;
     }
     */
-    /*
-    vector<int> input = {1,8,10,4,5,6,7,3,9,2};
-    findFirstk(input, 0, (int)input.size()-1, 6);
-    */
     
 //    int input[] = {1,8,10,4,5,6,7,3,9,2};
     //int input[] = {10,4,8,2,1,6,5,3,7,9};
@@ -7765,15 +8133,15 @@ int main(int argc, const char * argv[])
     
     // insert code here...
     //std::cout << "Hello, World!\n";
-/*
+
     vector<int> input = {1,8,10,4,5,6,7,3,9,2,-1,-4,-3};
-    findFirstk(input, 0, (int)input.size()-1, 6);
+    findFirstk(input, 0, (int)input.size()-1, 7);
 
     for(int i = 0;i<input.size();i++)
     {
-        //cout<<input[i] <<endl;
+        cout<<input[i] <<endl;
     }
-  */
+  
     /*
     int res = numDecodings("10");
     cout<<numDecodings("10")<<endl;
@@ -7784,9 +8152,73 @@ int main(int argc, const char * argv[])
     
     //cout<<sqrt(2.0, 0.001) <<endl;
     //cout<<sqrt(0.5, 0.001) <<endl;
-    string s = "TADTTTTBDB";
-    s = sort(s);
-    cout<<s<<endl;
+    //string s = "TADTTTTBDB";
+    //s = sort(s);
+    //cout<<s<<endl;
+    /*
+    workItem w1(1,10,2);
+    workItem w2(9,20,3);
+    workItem w3(10,25,3);
+    workItem w4(26,30,2);
+    
+    vector<workItem> input = {w1, w2, w3,w4};
+    int res = findMax(input);
+    cout<<res<<endl;
+    */
+
+    /*vector<float> input = {1.2, 2.5, 9.3};
+    int res = findClosest(input, 5);
+    cout<<res<<endl;
+    res = findClosest(input, 1);
+    cout<<res<<endl;
+    res = findClosest(input, 10);
+    cout<<res<<endl;
+    input = {1.2};
+    res = findClosest(input, 1);
+    cout<<res<<endl;
+    res = findClosest(input, 10);
+    cout<<res<<endl;
+    */
+    /*
+    vector<int> input = {1,8,10,4,5,6,7,3,9,2};
+    findFirstk(input, 0, (int)input.size()-1, 8);
+    for(auto item : input)
+    {
+        cout<<item<<endl;
+    }
+     */
+    /*
+    vector<int> input = {1,2,3,4};
+    vector<vector<int>> res = permute(input);
+    int sum = 0;
+    for(auto item: res)
+    {
+        int tmp = 0;
+        for(int j = 0;j<item.size();j++)
+        {
+            tmp = tmp* 10 + item[j];
+        }
+        sum += tmp;
+    }
+    
+    cout<<sum<<endl;
+    */
+    /*
+    insert(1);
+    insert(6);
+    insert(4);
+    insert(2);
+    insert(5);
+    insert(3);
+
+    cout<<get()<<endl;
+    cout<<get()<<endl;
+    cout<<get()<<endl;
+    cout<<get()<<endl;
+    cout<<get()<<endl;
+    cout<<get()<<endl;
+    cout<<get()<<endl;
+    */
     /*
     int A[] = {1,8,10,4,5,6,7,3,9,2,-1,-4,-3};
     quickSort(A, 13);
