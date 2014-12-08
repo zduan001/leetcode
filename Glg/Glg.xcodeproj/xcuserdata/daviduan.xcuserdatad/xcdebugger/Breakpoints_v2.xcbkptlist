@@ -14,9 +14,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "221"
-            endingLineNumber = "221"
-            landmarkName = "readRandomStream(int n)"
-            landmarkType = "7">
+            endingLineNumber = "221">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -31,7 +29,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "284"
             endingLineNumber = "284"
-            landmarkName = "findAllRotate(int n)"
+            landmarkName = "worker(int n, string&amp; s, vector&lt;string&gt;&amp; res, bool odd)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -47,7 +45,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "578"
             endingLineNumber = "578"
-            landmarkName = "mult(vector&lt;int&gt; v1, vector&lt;int&gt; v2)"
+            landmarkName = "match(int bolt[], int nut[] , int n)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -63,7 +61,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "651"
             endingLineNumber = "651"
-            landmarkName = "push(int i)"
+            landmarkName = "multiply(vector&lt;int&gt; v1, vector&lt;int&gt; v2)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -79,7 +77,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "827"
             endingLineNumber = "827"
-            landmarkName = "main(int argc, const char * argv[])"
+            landmarkName = "allFactors(int n)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -95,7 +93,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "826"
             endingLineNumber = "826"
-            landmarkName = "main(int argc, const char * argv[])"
+            landmarkName = "allFactors(int n)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -111,7 +109,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "833"
             endingLineNumber = "833"
-            landmarkName = "main(int argc, const char * argv[])"
+            landmarkName = "allFactors(int n)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

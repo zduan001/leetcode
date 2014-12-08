@@ -254,6 +254,9 @@ char* readRandomStream(int n)
     return res;
 }
 
+
+ 
+
 /*
  写出长度小于N的所有旋转对称数. 例子 689 顺时针旋转180度还是689递归。也可以dp。
  */

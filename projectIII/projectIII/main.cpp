@@ -7660,6 +7660,1543 @@ int get()
     return INT_MIN;
 }
 
+string findSub(string s, int n)
+{
+    int count = 0;
+    if(n ==0) return "";
+    int longestLength = 0;
+    int startIndex = -1;
+    int endIndex = -1;
+    unordered_map<char, vector<int>> tracker;
+    int left = 0;
+    int right = 0;
+    while(right < s.length())
+    {
+        if(tracker.find(s[right]) == tracker.end())
+        {
+            count++;
+        }
+        tracker[s[right]].push_back(right);
+        
+        if(count==n)
+        {
+            if(right - left + 1>longestLength)
+            {
+                startIndex = left;
+                endIndex = right;
+                longestLength = right - left;
+            }
+            
+        }
+        while(count >n)
+        {
+            tracker[s[left]].erase(tracker[s[left]].begin());
+            if(tracker[s[left]].size() == 0)
+            {
+                count--;
+            }
+            left++;
+        }
+        right ++;
+    }
+    return s.substr(startIndex, endIndex - startIndex + 1);
+}
+
+/*
+ 2. a) 给你棵二叉树，节点上有权值，问从一个叶子走到另外一个叶子的路里面权值最大的那条是什么。
+ */
+// this method assme the tree have both n1 and n2,
+TreeNode* findLCA(TreeNode* root, TreeNode* n1, TreeNode* n2, int& maxWeight)
+{
+    if(!root) return NULL;
+    if(root == n1)
+    {
+        maxWeight = max(maxWeight, root->val);
+        return root;
+    }
+    if(root == n2) return root;
+    TreeNode* leftNode = findLCA(root->left, n1, n2, maxWeight);
+    TreeNode* rightNode = findLCA(root->right, n1, n2, maxWeight);
+    if(leftNode && rightNode)
+    {
+        maxWeight = max( maxWeight, root->val);
+        return root;
+    }
+    else
+    {
+        if(leftNode)
+        {
+            maxWeight = max(maxWeight, leftNode->val);
+        }
+        else if(rightNode)
+        {
+            maxWeight = max(maxWeight, rightNode->val);
+        }
+        return leftNode? leftNode: rightNode;
+    }
+}
+
+int findMax(TreeNode* root, TreeNode* n1, TreeNode* n2)
+{
+    int res = 0;
+    TreeNode* lca = findLCA(root, n1, n2, res);
+    return res;
+    
+}
+
+/*
+ b) 给你数组a1,a2,...,an。输出数组a2*a3*...*an, a1*a3*a4*...*an, ..., a1*
+ a2*...*an-1.
+ */
+vector<int> multiresult(vector<int> a)
+{
+    int n = (int)a.size();
+    vector<int> left(n,0);
+    vector<int> right(n,0);
+    vector<int> res(n, 0);
+    left[0] = 1;
+    for(int i = 1;i< n;i++)
+    {
+        left[i] = left[i-1] * a[i-1];
+    }
+    right[n-1] = 1;
+    for(int i = n-2;i>=0;i--)
+    {
+        right[i] = right[i+1] * a[i+1];
+    }
+    for(int i =0;i<n;i++)
+    {
+        res[i] = left[i] * right[i];
+    }
+    return res;
+}
+
+
+/*
+ isOneEditDistance 判断两个string是不是只差一个编辑距离
+ */
+bool isOneEditDistance(string s1, string s2)
+{
+    int l1 = (int)s1.length();
+    int l2 = (int)s2.length();
+    if(abs(l1 - l2) > 1) return false;
+    int diff = 0;
+    int first = 0;
+    int second = 0;
+
+    
+    while(first < l1 && second < l2)
+    {
+        if(s1[first] != s2[second])
+        {
+            if(diff >0) return false;
+            else if (l1 > l2)
+            {
+                diff = 1;
+                first ++;
+            }
+            else if(l2 > l1)
+            {
+                diff = 1;
+                second ++;
+            }
+            else
+            {
+                diff = 1;
+                first ++;
+                second ++;
+            }
+            
+        }
+        else
+        {
+            first++;
+            second++;
+        }
+    }
+    
+    if( diff == 1)
+    {
+        if( first == l1 && second == l2) return true;
+        else return false;
+    }
+    else
+    {
+        if(l1>l2)
+        {
+            if(first == l1-1 && second == l2) return true;
+            else return false;
+        }
+        else if(l2 > l1)
+        {
+            if(first== l1 && second == l2-1) return true;
+            else return false;
+        }
+        else
+        {
+            return diff == 1;
+        }
+    }
+}
+
+bool isOneEditDistanceII(string s1, string s2)
+{
+    int l1 = (int)s1.length();
+    int l2 = (int)s2.length();
+    int diff = 0;
+    int first = 0;
+    int second = 0;
+    if(l1 == l2)
+    {
+        while(first <l1 && second<l2)
+        {
+            if(s1[first] != s2[second])
+            {
+                if( diff == 0) diff = 1;
+                else return false;
+            }
+            first ++;
+            second ++;
+        }
+        return diff == 1;
+    }
+    else
+    {
+        if(abs(l1-l2)>1) return false;
+        string longstr;
+        string shortstr;
+        if(l1>l2)
+        {
+            longstr = s1;
+            shortstr = s2;
+        }
+        else
+        {
+            longstr = s2;
+            shortstr = s1;
+            int tmp = l1;
+            l1 = l2;
+            l2 = tmp;
+        }
+        
+        while(first < l1 && second< l2)
+        {
+            if(longstr[first] != shortstr[second])
+            {
+                diff = 1;
+                first ++;
+            }
+            else
+            {
+                first++;
+                second++;
+            }
+        }
+        
+        if(diff == 1)
+        {
+            return first == l1 && second == l2;
+        }
+        else
+        {
+            return first == l1-1;
+        }
+    }
+}
+
+
+/*
+ http://www.mitbbs.com/article_t/JobHunting/32748027.html
+ 有个followup的问题就是：因为我不想过多移动这些变量，所以怎么才能设计一个算法
+ 所需要移动的object最少。
+ 比如如果变量的size一次是4, 4, 1, 1, 8, 8, 1, 1最好的排法是4, 4, 8, 8, 1, 1,
+ 1, 1.而不是8 8 4 4 1 1 1 1因为前一种所需要移动的cost最小。这个没想出来了。。
+ 应该用divide and conquer？
+ 
+ [Quick sort to bring 4, 8 byte element to the front]
+ */
+
+void sort(vector<int>& input)
+{
+    if(input.size() == 0) return;
+    int left = 0;
+    int right = (int)input.size()-1;
+    while(left<=right)
+    {
+        if(input[left] == 4 || input[left] == 8)
+        {
+            left ++;
+        }
+        else
+        {
+            swap(input, left, right);
+            right--;
+        }
+    }
+}
+
+/*
+ 1. 设计算法找出平面上点的convex hull 不用写code
+ */
+vector<Point> convexHull(vector<Point>& input)
+{
+    // 1. sort input base on the x of each point increasing order.
+    // 2. for left most point find the SMALLEST angle can formed by
+    //    left most point and any other points which are not
+    //    selected.
+    // 3. pick the point which form the SMALLEST angle in selected.
+    //    this point is one point on the covex hull.
+    // 4. continue until find the first point.
+    // 5. then the convex hull is found.
+    return input;
+}
+
+/*
+ 2. code 插入元素到max heap。
+ */
+void insert_intoMaxHeap(vector<int>& heap, int n, int value)
+{
+    heap.push_back(value);
+    int i = (int)heap.size()-1;
+    while(i>0)
+    {
+        if(heap[i/2] > heap[i])
+        {
+            break;
+        }
+        else
+        {
+            swap(heap, i, i/2);
+            i = i/2;
+        }
+    }
+}
+/*
+ 1. 一个bit的stream， 每次读取6个bit。转化成char。
+ */
+
+void readerStream(istream& stream)
+{
+    char* buf;
+    int index = 0;
+    int j = 0;
+    char res[8];
+    int charIndex = 0;
+    int buffIndex = 0;
+    int readedlength = 0;
+    while(true)
+    {
+        while(charIndex<8 && buffIndex<readedlength)
+        {
+            res[charIndex++] = buf[buffIndex++];
+        }
+        if(charIndex == 8)
+        {
+            cout<<res;
+            charIndex = 0;
+        }
+        if(buffIndex == readedlength)
+        {
+            stream.read(buf, 6);
+            //readedlength = stream.getchar();// pretend this line will return the size of the
+            buffIndex = 0;
+        }
+    }
+}
+
+/*
+ 
+ while(stream.read(buf,6))
+ {
+ j = 0;
+ for( int i = index; i< 8;i++)
+ {
+ if(j<6)
+ {
+ res[i] = buf[j++];
+ }
+ else
+ {
+ break;
+ }
+ index = i;
+ 
+ }
+ 
+ if(index == 7)
+ {
+ // read this res is done.
+ cout<<res[0];
+ index = 0;
+ }
+ 
+ if(j <6 )
+ {
+ while(j<6)
+ {
+ res[index++] = buf[j++];
+ }
+ }
+ }
+ }
+ */
+
+int reader4096(char* buf)
+{
+    return 4096;
+}
+
+char buf[4096];
+int startIndex = 0;
+int totalread = 0;
+
+char* readRandomStream(int n)
+{
+    char res[n];
+    int i = 0;
+    while(i<n && startIndex < totalread)
+    {
+        res[i++] = buf[startIndex++];
+        if(startIndex == totalread)
+        {
+            totalread = reader4096(buf);
+            startIndex = 0;
+        }
+    }
+    return res;
+}
+
+
+
+
+/*
+ 写出长度小于N的所有旋转对称数. 例子 689 顺时针旋转180度还是689递归。也可以dp。
+ */
+string creatRotate(string s, bool odd)
+{
+    int length = (int)s.length();
+    int i;
+    if(odd)
+    {
+        i = length - 2;
+    }
+    else
+    {
+        i = length - 1;
+    }
+    for(int j = i; j>=0;j-- )
+    {
+        if(s[j] == '9') s.push_back('6');
+        else if(s[j] == '8') s.push_back('8');
+        else if(s[j] == '6') s.push_back('9');
+    }
+    return s;
+}
+
+void worker(int n, string& s, vector<string>& res, bool odd)
+{
+    if(s.length() == n)
+    {
+        if(odd)
+        {
+            s.push_back('8');
+        }
+        res.push_back(creatRotate(s, odd));
+        if(odd)
+        {
+            s.pop_back();
+        }
+        return;
+    }
+    else
+    {
+        s.push_back('6');
+        worker(n, s, res, odd);
+        s.pop_back();
+        s.push_back('8');
+        worker(n, s, res, odd);
+        s.pop_back();
+        s.push_back('9');
+        worker(n, s, res, odd);
+        s.pop_back();
+    }
+}
+
+vector<string> findAllRotate(int n)
+{
+    vector<string> res;
+    if(n ==0) return res;
+    res.push_back("8");
+    if(n ==1) return res;
+    string s = "";
+    for(int i = 2;i<=n;i++)
+    {
+        s = "";
+        worker(i/2, s, res, i%2 == 0? false:true);
+    }
+    return res;
+}
+
+
+
+/*
+ 
+ Write a function which, given two integers (a numerator and a denominator), prints the decimal representation of the rational number "numerator/denominator".
+ Since all rational numbers end with a repeating section, print the repeating section of digits inside parentheses; the decimal printout will be/must be
+ 
+ Example:
+ 1 , 3 = 0.(3)
+ 2 , 4 = 0.5(0)
+ 22, 7 = 3.(142857)
+ */
+string divideII(int a, int b)
+{
+    vector<int> tracker;
+    
+    int wholenumber = a/b;
+    int remainder = a%b;
+    while(true)
+    {
+        if(tracker.size() == 0 || find(tracker.begin(), tracker.end(), remainder) == tracker.end())
+        {
+            tracker.push_back(remainder);
+            remainder = (remainder*10%b);
+        }
+        else
+        {
+            break;
+        }
+    }
+    
+    string res = "";
+    res += to_string(wholenumber);
+    res += ".";
+    for(int i = 0;i< tracker.size();i++)
+    {
+        if(tracker[i] == remainder)
+        {
+            res+="(";
+        }
+        res += to_string(tracker[i] * 10 / b);
+    }
+    //if(remainder != 0)
+    //{
+    res += ")";
+    //}
+    
+    
+    return res;
+}
+
+/*
+ 
+ You have a binary tree where each node knows the number of nodes in its sub-tree (including itself).
+ 
+ Given a node n and an int k,
+ write a function to return the kth
+ node in an in order traversal.
+ Can you do this non recursively
+ */
+// in the method assume the val of node is the number of node in the tree.
+TreeNode* findkth(TreeNode* root, int k)
+{
+    int leftPatch = 0;
+    if(!root) return root;
+    if(root->val < k) return NULL;
+    while(leftPatch < k-1 && root)
+    {
+        if(root->left)
+        {
+            if(leftPatch + root->left->val == k - 1)
+            {
+                return root;
+            }
+            else if(leftPatch + root->left->val < k-1)
+            {
+                leftPatch += (root->left->val + 1);
+                root = root->right;
+            }
+            else
+            {
+                root = root->left;
+            }
+        }
+        else
+        {
+            leftPatch ++;
+            root = root->right;
+        }
+    }
+    return NULL;
+}
+
+/*
+ Given an array of integer, find the number of un-ordered pairs in that array, say given {1, 3, 2},
+ the answer is 1 because {3, 2} is un-ordered, and for array {3, 2, 1}, the answer is 3 because {3, 2}, {3, 1}, {2, 1}.
+ 
+ Obviously, this can be solved by brute force with O(n^2) running time, or permute all possible
+ pairs then eliminate those invalid pairs.
+ 
+ My question is does any body have any better solution and how would you do it because it seems
+ like a dynamic programming problem. A snippet of code would be helpful
+ */
+int totalcount;
+int* mergeII(int a[], int n, int b[], int m)
+{
+    int* res = (int*)malloc((n+m)* sizeof(int));
+    int i = 0;
+    int j = 0;
+    while(i<n && j<m)
+    {
+        if(a[i] <= b[j])
+        {
+            res[i+j] = a[i];
+            i++;
+        }
+        else
+        {
+            totalcount += (n - i);
+            res[i+j] = b[j];
+            j++;
+        }
+    }
+    if(i ==n)
+    {
+        for(int k = n-1+j;k< n+m;k++)
+        {
+            res[k] = b[j++];
+        }
+    }
+    if(j ==m)
+    {
+        for(int k = m-1+j;k<n+m;k++)
+        {
+            res[k] = a[i++];
+        }
+    }
+    return res;
+}
+
+int* mergeSort(int a[] , int n)
+{
+    if(n <= 1) return a;
+    int k = n/2;
+    int* left = mergeSort(a, k);
+    int* right = mergeSort(a+k, n-k);
+    int* res = mergeII(left, k, right, n-k);
+    return res;
+}
+
+
+
+int countInversion(int a[], int n)
+{
+    totalcount = 0;
+    mergeSort(a,n);
+    return totalcount;
+}
+
+/*
+ bolts and nuts
+ */
+
+int compare (int bolt , int nut)
+{
+    return bolt-nut;
+}
+
+void match(int bolt[], int nut[] , int n)
+{
+    if(n<=1) return;
+    int left = 0;
+    int right = n -1;
+    while(left<=right)
+    {
+        if(compare(bolt[0], nut[left]) <0 )
+        {
+            swap(nut, left, right--);
+        }
+        else if(compare(bolt[0], nut[left]) ==0)
+        {
+            //put the matching nut to 0 for now.
+            swap(nut, left++, 0);
+        }
+        else // nut is smaller than bolt.
+        {
+            left++;
+        }
+    }
+    swap(nut, left-1, 0);
+    int index = left-1;
+    left =1;
+    right = n -1;
+    while(left<=right)
+    {
+        if(compare(bolt[left], nut[index]) <0)
+        {
+            left++;
+        }
+        else if(compare(bolt[left], nut[index]) >0)
+        {
+            swap(bolt, left, right--);
+        }
+    }
+    swap(bolt, 0, index);
+    match(bolt, nut, index);
+    match(bolt+index+1, nut+index+1, n -index -1);
+    
+}
+
+/*
+ 1 + b + 2 = b + 3
+ 
+ 或者 （x ＋ 1）＊ 3 ＋ 2 *（2x + 5） 化简成7x + 13
+ */
+vector<int> mult(vector<int> v1, vector<int> v2)
+{
+    int l1 = (int)v1.size();
+    int l2 = (int)v2.size();
+    vector<int> res(l1+l2,0);
+    for(int i =0;i< l1 && i < l2;i++)
+    {
+        res[i] = v1[i]-v2[i];
+    }
+    if(l1>l2)
+    {
+        for(int i = l2;i< l1;i++)
+        {
+            res[i] = v1[i];
+        }
+    }
+    else if(l2>l1)
+    {
+        for(int i = l1;i<l2;i++)
+        {
+            res[i] = v2[i];
+        }
+    }
+    return res;
+}
+
+vector<int> sub(vector<int> v1, vector<int> v2)
+{
+    int l1 = (int)v1.size();
+    int l2 = (int)v2.size();
+    vector<int> res(l1+l2,0);
+    for(int i =0;i< l1 && i < l2;i++)
+    {
+        res[i] = v1[i]-v2[i];
+    }
+    if(l1>l2)
+    {
+        for(int i = l2;i< l1;i++)
+        {
+            res[i] = v1[i];
+        }
+    }
+    else if(l2>l1)
+    {
+        for(int i = l1;i<l2;i++)
+        {
+            res[i] = -v2[i];
+        }
+    }
+    return res;
+}
+
+vector<int> multiply(vector<int> v1, vector<int> v2)
+{
+    int l1 = (int)v1.size()-1;
+    int l2 = (int)v2.size()-1;
+    vector<int> res(l1+l2+1,0);
+    for(int i = 0;i<=l1;i++)
+    {
+        for(int j = 0;j<=l2;j++)
+        {
+            res[i+j] += v1[i] * v2[j];
+        }
+    }
+    return res;
+}
+
+string simplilfy(string s)
+{
+    return "";
+}
+
+/*
+ Linkedin
+ 写一个Stack的API，包括push, pop和findMiddle功能
+ */
+DoubleLinkedListNode* start = NULL;
+int ListCount = 0;
+DoubleLinkedListNode* mid = NULL;
+
+void push(int i)
+{
+    DoubleLinkedListNode* tmp = new DoubleLinkedListNode(i,0);
+    tmp->next = start;
+    if(start)
+    {
+        start->prev = tmp;
+    }
+    start = tmp;
+    ListCount ++;
+    if(ListCount == 1) mid = start;
+    else if(ListCount%2 ==0)
+    {
+        mid = mid->prev;
+    }
+    
+}
+
+int pop()
+{
+    int res = -1;
+    if(start)
+    {
+        
+        res = start->key;
+        DoubleLinkedListNode* tmp = start;
+        start = start->next;
+        start->prev = NULL;
+        delete tmp;
+        ListCount --;
+        if(ListCount%2 ==1) mid = mid->next;
+    }
+    return res;
+}
+
+int findMid()
+{
+    if(mid) return mid->key;
+    return -1;
+}
+
+/*
+ Linkedin
+ Given a list of child->parent relationships, build a binary tree out of it.
+ All the element Ids inside the tree are unique.
+ 
+ Example:
+ 
+ Given the following relationships:
+ 
+ Child   Parent  IsLeft
+ 15      20      true
+ 19      80      true
+ 17      20      false
+ 16      80      false
+ 80      50      false
+ 50      null    false
+ 20      50      true
+ 
+ 
+ You should return the following tree:
+ 50
+ /  \
+ 20   80
+ / \   /\
+ 15 17 19 16
+ */
+
+struct inputItem
+{
+    int child;
+    int parent;
+    bool isLeft;
+    inputItem(int c, int p, bool b) : child(c), parent(p), isLeft(b) {}
+};
+
+TreeNode* constructTree(vector<inputItem> input)
+{
+    unordered_map<int, vector<pair<int,bool>>> tracker;
+    TreeNode* root = NULL;
+    for(auto item:input)
+    {
+        if(item.parent <0)
+        {
+            root = new TreeNode(item.child);
+            continue;
+        }
+        tracker[item.parent].push_back(make_pair(item.child, item.isLeft));
+    }
+    
+    queue<TreeNode*> q;
+    q.push(root);
+    while(!q.empty())
+    {
+        TreeNode*tmp = q.front();
+        q.pop();
+        if(tracker.find(root->val) != tracker.end())
+        {
+            for(auto item : tracker[root->val])
+            {
+                TreeNode* c = new TreeNode(item.first);
+                q.push(c);
+                if(item.second)
+                {
+                    tmp->left = c;
+                }
+                else
+                {
+                    tmp->right = c;
+                }
+            }
+        }
+    }
+    
+    return root;
+}
+
+
+/*
+ Linkedin
+ 打印一个数组的所有乘数组合，从大到小，不要有重复
+ */
+void workerabc(vector<int> input, int level, vector<int> tmp, vector<vector<int>>& res )
+{
+    if(level == input.size())
+    {
+        res.push_back(tmp);
+        return;
+    }
+    else
+    {
+        workerabc(input, level+1, tmp, res);
+        tmp.push_back(input[level]);
+        workerabc(input, level+1, tmp, res);
+        tmp.pop_back();
+    }
+}
+
+vector<vector<int>> allMulti(vector<int> input)
+{
+    vector<vector<int>>res;
+    if(input.size() ==0) return res;
+    sort(input.begin(), input.end());
+    vector<int> tmp;
+    workerabc(input, 0, tmp, res);
+    return res;
+}
+
+/*
+ Linkedin
+ 打印一个数的所有乘数组合，从大到小，不要有重复
+ */
+vector<int> allFactors(int n)
+{
+    stack<int> secondHalf;
+    vector<int> res;
+    for(int i = 1;i<=sqrt(n);i++)
+    {
+        if(n%i ==0)
+        {
+            res.push_back(i);
+            secondHalf.push(n/i);
+        }
+    }
+    
+    while(!secondHalf.empty())
+    {
+        if(res[res.size()-1] == secondHalf.top())
+        {
+            secondHalf.pop();
+        }
+        if(!secondHalf.empty())
+        {
+            res.push_back(secondHalf.top());
+            secondHalf.pop();
+        }
+    }
+    return res;
+}
+
+TreeNode* findLCANoparent(TreeNode* root, TreeNode* n1, TreeNode* n2)
+{
+    if(!root) return NULL;
+    if(root == n1)
+    {
+        return root;
+    }
+    if(root == n2) return root;
+    TreeNode* leftNode = findLCANoparent(root->left, n1, n2);
+    TreeNode* rightNode = findLCANoparent(root->right, n1, n2);
+    if(leftNode && rightNode)
+    {
+        return root;
+    }
+    else
+    {
+        return leftNode? leftNode: rightNode;
+    }
+}
+
+/*
+ Given n intervals [si, fi], find the maximum number of overlapping intervals
+ */
+struct EndPoint{
+    int val;
+    int count;
+    EndPoint(int v, int c) : val(v), count(c) {}
+};
+
+bool sortEndPoint(EndPoint e1, EndPoint e2)
+{
+    if(e1.val < e2.val)
+    {
+        return true;
+    }
+    else if(e1.val == e2.val)
+    {
+        return e1.count < e2.count;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+int maxOverlap(vector<Interval> input)
+{
+    vector<EndPoint> tracker;
+    for(auto item : input)
+    {
+        EndPoint s(item.start, 1);
+        EndPoint e(item.end, -1);
+        tracker.push_back(s);
+        tracker.push_back(e);
+    }
+    
+    sort(tracker.begin(), tracker.end(), sortEndPoint);
+    int res = 0;
+    int tmp = 0;
+    for(auto item: tracker)
+    {
+        tmp += item.count;
+        res = max(res, tmp);
+    }
+    return res;
+}
+
+/*
+ 电面1：
+ expr ::= int | ‘(‘ op expr… ‘)’;
+ op ::= ‘+’ | ‘*’;
+ 
+ “( * 1 ( + 1 2 3 ) )” => 6
+ “( * ( + 1 1 ) 17 )” => 34
+ “7” => 7
+ ( * ( + 1 1 ) 17 )
+ ( * 17 ( + 1 1 ) )
+ operator: *+
+ oprands: (1 (1 2 3)
+ 
+ 这题特别要求一个运算符可以对应任意个数。
+ */
+int calculat(vector<string> input)
+{
+    stack<string> operators;
+    stack<string> operands;
+    
+    for(auto item : input)
+    {
+        if(item == "*" || item == "+")
+        {
+            operators.push(item);
+        }else
+        {
+            if(item != ")")
+            {
+                operands.push(item);
+            }
+            else
+            {
+                vector<int> tmp;
+                while(operands.top() != "(")
+                {
+                    tmp.push_back(atoi(operands.top().c_str()));
+                    operands.pop();
+                }
+                operands.pop();
+                int res;
+                if(operators.top() == "*")
+                {
+                    res = 1;
+                    for(auto i: tmp)
+                    {
+                        res *= i;
+                    }
+                }
+                else
+                {
+                    res = 0;
+                    for(auto i: tmp)
+                    {
+                        res += i;
+                    }
+                }
+                operators.pop();
+                operands.push(to_string(res));
+            }
+        }
+        
+    }
+    if(operands.size() == 1)
+    {
+        return atoi(operands.top().c_str());
+    }
+    return INT_MIN;
+}
+
+int longestCommonSubString(string s1, string s2)
+{
+    int n = (int)s1.length();
+    int m = (int)s2.length();
+    vector<vector<int>> tracker ( n+1, vector<int>(m+1, 0));
+    
+    for(int i = 0;i<=m;i++)
+    {
+        tracker[n][i] = 0;
+    }
+    
+    for(int i = 0;i<=n;i++)
+    {
+        tracker[i][m] = 0;
+    }
+    
+    int res = 0;
+    for(int i = n-1;i>=0;i--)
+    {
+        for(int j = m-1;j>=0;j--)
+        {
+            if(s1[i] == s2[j])
+            {
+                tracker[i][j] = tracker[i+1][j+1] + 1;
+                res = max(res, tracker[i][j]);
+            }
+            else
+            {
+                tracker[i][j] = 0;
+            }
+            
+        }
+    }
+    return res;
+}
+
+/*
+ 把一个iterator的iterator 转换成 iterator
+ */
+
+vector<vector<int>> backend;
+vector<vector<int>>::iterator currentParentIterator;
+vector<int> ::iterator currentChildIterator;
+
+bool hasNext()
+{
+    while(true)
+    {
+        if(currentChildIterator == (*currentParentIterator).end())
+        {
+            if(currentParentIterator == backend.end())
+            {
+                return false;
+            }
+            else
+            {
+                currentParentIterator++;
+                if(currentParentIterator == backend.end())
+                {
+                    currentChildIterator = (*currentParentIterator).end();
+                    return false;
+                }
+                currentChildIterator = (*currentParentIterator).begin();
+            }
+        }
+        else
+        {
+            return true;
+        }
+    }
+}
+
+int getNext()
+{
+    if(hasNext())
+    {
+        int res;
+        res = *currentChildIterator;
+        currentChildIterator++;
+        return res;
+    }
+    else
+    {
+        return INT_MIN;
+    }
+}
+
+
+
+/*
+ 2.  Given a binary tree where all the right nodes are leaf nodes, flip it upside down and turn it into a tree
+ with left leaf nodes.
+ */
+TreeNode* InverseATree(TreeNode* root)
+{
+    TreeNode* tmp = NULL;
+    TreeNode* newRoot = NULL;
+    TreeNode* currRight = NULL;
+    TreeNode* prevright = NULL;
+    
+    while(root)
+    {
+        currRight = root->right;
+        tmp = root;
+        root = root->left;
+        tmp->left = newRoot;
+        tmp->right = prevright;
+        
+
+        newRoot = tmp;
+        prevright = currRight;
+    }
+    return newRoot;
+}
+
+/*
+ search a number in rotated sorted array (leetcode)
+ */
+int search(vector<int> input, int target)
+{
+    int left = 0;
+    int right = (int)input.size()-1;
+    while(left<=right)
+    {
+        int mid = left + (right-left) / 2;
+        if(target == input[mid])
+        {
+            return mid;
+        }
+        
+        if(input[left] < input[mid])
+        {
+            if(target >= input[left] && target <=input[mid])
+            {
+                right = mid - 1;
+            }
+            else
+            {
+                left = mid + 1;
+            }
+        }
+        else if (input[left] > input[mid])
+        {
+            if(target >= input[mid] && target <= input[right])
+            {
+                left = mid + 1;
+            }
+            else
+            {
+                right = mid -1;
+            }
+        }
+        else
+        {
+            left++;
+        }
+        
+    }
+    return false;
+}
+
+/*
+ 2. Decide whether a target is covered by a list of intervals (类似merge intervals)
+ */
+struct IntervalTreeNode{
+    Interval val;
+    IntervalTreeNode* left;
+    IntervalTreeNode* right;
+    int max;
+    IntervalTreeNode(Interval input, int m): val(input), max(m) {}
+};
+
+bool isCovered(IntervalTreeNode* root, int target)
+{
+    if(!root || target > root->max) return false;
+    if(target >= root->val.start && target <= root->val.end)
+    {
+        return true;
+    }
+    if(root->left && target <= root->left->max)
+    {
+        return isCovered(root->left, target);
+    }
+    else
+    {
+        return isCovered(root->right, target);
+    }
+}
+
+/*
+ 2. 洗牌 要求in-place
+ */
+void shuffle(int input[], int n)
+{
+    for(int i = 0;i<n;i++)
+    {
+        int tmp = rand() % (n-i);
+        swap(input, i, i +tmp);
+    }
+}
+
+/*
+ * Return the smallest character that is strictly larger than the search
+ character,
+ * ['c', 'f', 'j', 'p', 'v'], 'a' => ‘c’
+ */
+char findStrictly(char input[], int n, char target)
+{
+    int left = 0;
+    int right = n-1;
+    while(left <= right)
+    {
+        int mid = left + (right - left) / 2;
+        if(input[mid] > target && (mid == 0 || target > input[mid-1]))
+        {
+           return input[mid];
+        }
+        else if(target > input[mid] && (mid <n-1 && target < input[mid + 1]))
+        {
+            return input[mid + 1];
+        }
+        else if( target < input[mid])
+        {
+            right = mid - 1;
+        }
+        else
+        {
+            left = mid + 1;
+        }
+    }
+    return '1';
+}
+
+/*
+ 2.binary tree, print all paths from root to leaf.
+ */
+vector<vector<int>> printAllpath(TreeNode* root)
+{
+    stack<TreeNode*> tracker;
+    vector<vector<int>> res;
+    TreeNode* prev = NULL;
+    tracker.push(root);
+    while(!tracker.empty())
+    {
+        TreeNode* tmp = tracker.top();
+        if(tmp->left &&
+           (prev == NULL || (prev != tmp->left && prev != tmp->right)))
+        {
+            tracker.push(tmp->left);
+        }
+        else if(prev == tmp->right || !(tmp->right))
+        {
+            tracker.pop();
+            prev = tmp;
+        }
+        else if(tmp->right)
+        {
+            tracker.push(tmp->right);
+        }
+        
+        tmp = tracker.top();
+        if(!(tmp->left) && !(tmp->right))
+        {
+            //insert the stack to res vector.
+        }
+    }
+    return res;
+}
+
+/*
+ Clone graph
+ */
+/*
+vector<GraphNode*> cloneGraph(vector<GraphNode*> input)
+{
+    unordered_map<GraphNode, GraphNode> tracker;
+    for(auto node : input)
+    {
+        tracker[node] = new GraphNode(node->val);
+    }
+    
+    for(auto node: input)
+    {
+        for(auto neighbor : node->neighbors)
+        {
+            tracker[node]->neighbors.push_back(tracker[neighbor]);
+        }
+    }
+    
+    vector<GraphNode*> res;
+    for(auto node : input)
+    {
+        res.push_back(tracker[node]);
+    }
+    
+    return res;
+}
+ */
+
+/*
+ 2. find the maximum number in an integer array. The numbers in the array increase first, then decreases. Maybe there’s only increase or decrease. 先说了直接扫一遍，是O(n), 然后用binary search 就是O(log n).最后时间不够，没写完，应该是挂了。
+ */
+int findMax(int input[], int n)
+{
+    if(n <2) return 0;
+    int left = 0;
+    int right = n-1;
+    while(left<=right)
+    {
+        int mid = left + (right-left)/2;
+        if((mid == 0 && input[mid] > input[mid+1]) ||
+           (mid == n-1 && input[mid] > input[mid-1]) ||
+           (input[mid] > input[mid-1] && input[mid] > input[mid+1]))
+        {
+           return mid;
+        }
+        else if(input[mid+1]> input[mid] )
+        {
+            left = mid + 1;
+        }
+        else if(input[mid+1] < input[mid])
+        {
+            right = mid-1;
+        }
+    }
+    return -1;
+}
+
+/*
+ string 有多少palindrome substring
+ */
+int countOfPalindrome(string s1)
+{
+    int res = 0;
+    int n = (int)s1.length();
+    for(int i = 0;i<n;i++)
+    {
+        int left = i-1;
+        int right = i+1;
+        while(left>=0 && right<n && s1[left] == s1[right])
+        {
+            res++;
+            left--;
+            right++;
+        }
+        left = i;
+        right = i+1;
+        while(left>=0 && right<n && s1[left] == s1[right])
+        {
+            res++;
+            left--;
+            right++;
+        }
+    }
+    return res+n;
+}
+
+/*
+ example tree
+ 
+ a
+ / \
+ b   c
+ / \   \
+ d   g   z
+ \     /
+ e   i
+ /
+ q
+ /
+ x
+ /
+ x1
+ /
+ x2
+ 
+ 
+ sample output
+ 
+ x2
+ d x1
+ b e x
+ a g q
+ c
+ z
+*/
+struct TreeNodeWithColumn{
+    TreeNode* node;
+    int column;
+    TreeNodeWithColumn(TreeNode* n, int c): node(n), column(c) {}
+};
+
+vector<vector<int>> printout(TreeNode* root)
+{
+    queue<TreeNodeWithColumn> tracker;
+    tracker.push(TreeNodeWithColumn(root,0));
+    unordered_map<int, vector<int>> container;
+    int mincolumn = INT_MAX;
+    int maxcolumn = INT_MIN;
+    while(!tracker.empty())
+    {
+        TreeNodeWithColumn tmp = tracker.front();
+        tracker.pop();
+        container[tmp.column].push_back((tmp.node)->val);
+        mincolumn = min (mincolumn, tmp.column);
+        maxcolumn = max (maxcolumn, tmp.column);
+        if(tmp.node->left)
+        {
+            tracker.push(TreeNodeWithColumn(tmp.node->left, tmp.column-1));
+        }
+        if(tmp.node->right)
+        {
+            tracker.push(TreeNodeWithColumn(tmp.node->right, tmp.column+1));
+        }
+    }
+    vector<vector<int>> res;
+    for(int i = mincolumn;i<=maxcolumn;i++)
+    {
+        res.push_back(container[i]);
+    }
+    return res;
+}
+/*
+1. is valid palindrome
+*/
+bool isValidPalindrome(string s)
+{
+    int left = 0;
+    int right = (int)s.length()-1;
+    while(left<=right)
+    {
+        if(s[left] == s[right])
+        {
+            left++;
+            right--;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
+/*
+ b) 有若干个盒子，每个盒子有length和width，不考虑高度。只要尺寸fit，大盒子就可以放小盒子，但是一层只能套一个，即便还有空余；但可以多层嵌套。求最小的面积放所有的盒子
+ 比如 7*7  5*5, 4*6, 3*3
+ */
+
 
 int main(int argc, const char * argv[])
 {
@@ -7672,7 +9209,7 @@ int main(int argc, const char * argv[])
 */
 /*    string a = "aa";
     string b = "aa";
-    
+ 
     bool res = isMatch(a.c_str(),b.c_str());
     cout << res<<endl;
 */
@@ -8133,7 +9670,7 @@ int main(int argc, const char * argv[])
     
     // insert code here...
     //std::cout << "Hello, World!\n";
-
+/*
     vector<int> input = {1,8,10,4,5,6,7,3,9,2,-1,-4,-3};
     findFirstk(input, 0, (int)input.size()-1, 7);
 
@@ -8141,6 +9678,7 @@ int main(int argc, const char * argv[])
     {
         cout<<input[i] <<endl;
     }
+*/
   
     /*
     int res = numDecodings("10");
@@ -8227,6 +9765,260 @@ int main(int argc, const char * argv[])
         cout<<A[i] <<endl;
     }
      */
-    return 0;
-}
+    
+    /*
+    TreeNode* n1 = new TreeNode(1);
+    TreeNode* n2 = new TreeNode(2);
+    TreeNode* n3 = new TreeNode(3);
+    TreeNode* n4 = new TreeNode(4);
+    TreeNode* n8 = new TreeNode(8);
+    TreeNode* n5 = new TreeNode(5);
+    TreeNode* n9 = new TreeNode(9);
+    TreeNode* n6 = new TreeNode(6);
+    TreeNode* n7 = new TreeNode(7);
+    
+    n1->left = n2;
+    n1->right = n3;
+    n2->left = n4;
+    n2->right = n5;
+    n3->left = n6;
+    n3->right = n7;
+    n4->left = n8;
+    n4->right = n9;
+    
+    
+    int res = findMax(n1, n2, n9);
+    cout<<res<<endl;
+    */
+    
+    /*
+    vector<int> a = {1,2,3,4,5};
+    vector<int> res = multiresult(a);
+    for(int i = 0;i< 5;i++)
+    {
+        cout<< res[i]<<endl;
+    }
+    */
+    
+    /*
+    bool res = isOneEditDistance("abcdefg", "abcdefgh");
+    cout<<res<<endl;
+    res = isOneEditDistance("abcdxfg", "abcdefg");
+    cout<<res<<endl;
+    res = isOneEditDistance("abcdefg", "abchdefg");
+    cout<<res<<endl;
+    res = isOneEditDistance("abcdefg", "axcoefg");
+    cout<<res<<endl;
+    res = isOneEditDistance("abcdefg", "abcdefg");
+    cout<<res<<endl;
+    
+    
+    res = isOneEditDistanceII("abcdefg", "abcdefgh");
+    cout<<res<<endl;
+    res = isOneEditDistanceII("abcdxfg", "abcdefg");
+    cout<<res<<endl;
+    res = isOneEditDistanceII("abcdefg", "abchdefg");
+    cout<<res<<endl;
+    res = isOneEditDistanceII("abcdefg", "axcoefg");
+    cout<<res<<endl;
+    res = isOneEditDistanceII("abcdefg", "abcdefg");
+    cout<<res<<endl;
+    */
+    
+    /*
+    Interval p1(1, 4);
+    Interval p2(2, 5);
+    Interval p3(3, 6);
+    Interval p4(4, 7);
+    vector<Interval> input = {p1,p2,p3,p4};
+    
+    int res = maxOverlap(input);
+    cout<<res<<endl;
+    */
+    
+    /*
+     “( * 1 ( + 1 2 3 ) )” => 6
+     “( * ( + 1 1 ) 17 )” => 34
+     “7” => 7
+     ( * ( + 1 1 ) 17 )
+     ( * 17 ( + 1 1 ) )
+     */
+    /*
+    int res;
+    vector<string> input = {"(",  "*",  "1",  "(",  "+", "1",  "2", "3", ")", ")"};
+    res = calculat(input);
+    cout<<res<<endl;
+    
+    input = {"(", "*", "(", "+", "1", "1", ")", "17", ")"};
+    res = calculat(input);
+    cout<<res<<endl;
+    
+    input = {"7"};
+    res = calculat(input);
+    cout<<res<<endl;
+    */
+    /*
+    string s1 = "OldSite:LeetCode.org";
+    string s2 = "NewSite:LeetCodeOj.com";
+    int res = longestCommonSubString(s1, s2);
+    cout<<res<<endl;
+    */
+    
+    /*
+    vector<int> n1 = {1,2,3,4};
+    vector<int> n2 = {};
+    vector<int> n3 = {5};
+    vector<int> n4 = {6,7,8};
+    
+    backend = {n1, n2, n3, n4};
+    currentParentIterator = backend.begin();
+    currentChildIterator = (*currentParentIterator).begin();
+    while(hasNext())
+    {
+        cout<<getNext()<<endl;
+    }
+    */
+    
+    
+    /*
+    TreeNode* n1 = new TreeNode(1);
+    TreeNode* n2 = new TreeNode(2);
+    TreeNode* n3 = new TreeNode(3);
+    TreeNode* n4 = new TreeNode(4);
+    TreeNode* n8 = new TreeNode(8);
+    TreeNode* n5 = new TreeNode(5);
+    TreeNode* n9 = new TreeNode(9);
+    TreeNode* n6 = new TreeNode(6);
+    TreeNode* n7 = new TreeNode(7);
+    
+    n1->left = n2;
+    n1->right = n3;
+    n2->left = n4;
+    n2->right = n5;
+    n4->left = n6;
+    n4->right = n7;
+    n6->left = n8;
+    n6->right = n9;
+    
+    TreeNode* res = InverseATree(n1);
+    cout<< res->val<<endl;
+    */
+    
+    /*
+    Interval n1(16,21);
+    Interval n2(8,9);
+    Interval n3(25,30);
+    Interval n4(5,8);
+    Interval n5(15,23);
+    Interval n6(0,3);
+    Interval n7(6,10);
+    Interval n8(17,19);
+    Interval n9(26,26);
+    Interval n10(19,20);
+    
+    IntervalTreeNode* it1 = new IntervalTreeNode(n1, 30);
+    IntervalTreeNode* it2 = new IntervalTreeNode(n2, 23);
+    IntervalTreeNode* it3 = new IntervalTreeNode(n3, 30);
+    IntervalTreeNode* it4 = new IntervalTreeNode(n4, 10);
+    IntervalTreeNode* it5 = new IntervalTreeNode(n5, 23);
+    IntervalTreeNode* it6 = new IntervalTreeNode(n6, 3);
+    IntervalTreeNode* it7 = new IntervalTreeNode(n7, 10);
+    IntervalTreeNode* it8 = new IntervalTreeNode(n8, 20);
+    IntervalTreeNode* it9 = new IntervalTreeNode(n9, 26);
+    IntervalTreeNode* it10 = new IntervalTreeNode(n10,20);
+    it1->left = it2;
+    it1->right = it3;
+    
+    it2->left = it4;
+    it2->right = it5;
+    
+    it4->left = it6;
+    it4->right = it7;
+    
+    it3->left = it8;
+    it3->right = it9;
+    
+    it8->right = it10;
+    
+    
 
+    //bool res;
+    cout<<isCovered(it1, 23)<<endl;
+    cout<<isCovered(it1, 24)<<endl;
+    */
+    
+    /*
+    char input[] = {'c', 'f', 'j', 'p', 'v'};
+    cout<<findStrictly(input, 5, 'a')<<endl;
+    cout<<findStrictly(input, 5, 'g')<<endl;
+    */
+    
+    /*
+    int input[] = {1,2};
+    int res;
+    res = findMax(input, 2);
+    cout<<res<<endl;
+    
+    int input2[] = {2,1};
+    res = findMax(input2, 2);
+    cout<<res<<endl;
+    
+    int input3[] = { 1, 2, 3};
+    res = findMax(input3, 3);
+    cout<<res<<endl;
+    
+    int input4[] = { 1, 2, 3, 7, 6, 0};
+    res = findMax(input4, 6);
+    cout<<res<<endl;
+    
+    int input5[] = { 1, 2, 3, 6, 7, 9};
+    res = findMax(input5, 6);
+    cout<<res<<endl;
+    */
+    
+    /*
+    int res = 0;
+    res = countOfPalindrome("aba");
+    cout<<res<<endl;
+    
+    res = countOfPalindrome("abba");
+    cout<<res<<endl;
+    */
+    
+    /*
+    TreeNode* n1 = new TreeNode(1);
+    TreeNode* n2 = new TreeNode(2);
+    TreeNode* n3 = new TreeNode(3);
+    TreeNode* n4 = new TreeNode(4);
+    TreeNode* n8 = new TreeNode(8);
+    TreeNode* n5 = new TreeNode(5);
+    TreeNode* n9 = new TreeNode(9);
+    TreeNode* n6 = new TreeNode(6);
+    TreeNode* n7 = new TreeNode(7);
+    
+    n1->left = n2;
+    n1->right = n3;
+    n2->left = n4;
+    n2->right = n5;
+    n4->left = n6;
+    n4->right = n7;
+    n6->left = n8;
+    n6->right = n9;
+    
+    vector<vector<int>> res = printout(n1);
+    for(auto item : res)
+    {
+        for(auto num: item)
+        {
+            cout<< num << " ";
+        }
+        cout<<endl;
+    }
+     */
+    
+    cout<<isValidPalindrome("aba")<<endl;
+    cout<<isValidPalindrome("abaccc")<<endl;
+    
+    return 0;
+    
+}
