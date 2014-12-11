@@ -9192,10 +9192,402 @@ bool isValidPalindrome(string s)
     }
     return true;
 }
+
+
 /*
- b) 有若干个盒子，每个盒子有length和width，不考虑高度。只要尺寸fit，大盒子就可以放小盒子，但是一层只能套一个，即便还有空余；但可以多层嵌套。求最小的面积放所有的盒子
+ 先说了说简历上的project，然后做题
+ 给一个set，里面是一堆pair，每个pair里是两个string，一个first，一个second，假设这堆pair能够构成一个树状结构，按照一定的格式打印这棵树
+ first-second关系类似paretnt-child关系
+ eg
+ set: (a, b) (b, c) (a, d) (d, e) (d, f) (d, g)
+ 树状结构是root = a, root.left = b, root.right = d blah blah
+ 打印结果：[space] 就是一个空格
+ a
+ [space]b
+ [space][space]c
+ [space]d
+ [space][space]e
+ [space][space]f-google 1point3acres
+ [space][space]g
+ */
+
+void printTree(TreeNode* root, int n)
+{
+    for(int i = 0;i<n;i++)
+    {
+        cout<<" ";
+    }
+    cout<<root->val;
+    cout<<endl;
+    if(root->left) printTree(root->left, n+1);
+    if(root->right) printTree(root->right, n+1);
+}
+
+void printTree(vector<Interval> input)
+{
+    unordered_map<int, vector<int>> tracker;
+    unordered_set<int> child;
+    for(auto item: input)
+    {
+        tracker[item.start].push_back(item.end);
+        child.insert(item.end);
+    }
+    int rootkey = -1;
+    for(auto root: tracker)
+    {
+        if(child.find(root.first) == child.end())
+        {
+            rootkey = root.first;
+            break;
+        }
+    }
+    
+    TreeNode* root = new TreeNode(rootkey);
+    queue<TreeNode*> q;
+    q.push(root);
+    while(!q.empty())
+    {
+        TreeNode* tmp = q.front();
+        q.pop();
+        vector<int> children = tracker[tmp->val];
+        TreeNode* left = NULL;
+        TreeNode* right = NULL;
+        if(children.size()>0)
+        {
+            left = new TreeNode(children[0]);
+        }
+        if(children.size() > 1)
+        {
+            right = new TreeNode(children[1]);
+        }
+        tmp->left = left;
+        tmp->right = right;
+        if(left) q.push(left);
+        if(right) q.push(right);
+    }
+    
+    printTree(root, 0);
+}
+
+/*
+pow(int x, int y)
+1<=x<=9
+1<=y<=99
+想了半天发现数太大了int或者long都装不下，只能返回string
+*/
+
+string multiplyStr(string num1, string num2) {
+    if(num1 == "0" || num2 == "0") return "0";
+    vector<int> n1;
+    vector<int> n2;
+    for(int i = (int)num1.size()-1;i>=0;i--)
+    {
+        n1.push_back(num1[i]-'0');
+    }
+    for(int i = (int)num2.size()-1;i>=0;i--)
+    {
+        n2.push_back(num2[i]-'0');
+    }
+    vector<int> res(n1.size() + n2.size() + 1, 0);
+    int carry = 0;
+    for(int i = 0;i<n1.size();i++)
+    {
+        carry = 0;
+        for(int j = 0;j<n2.size();j++)
+        {
+            int tmp = carry + n1[i] * n2[j] + res[i+j];
+            carry = tmp /10;
+            res[i+j] = tmp %10;
+        }
+        res[i+n2.size()] += carry;
+    }
+    while (res[res.size()-1] ==0) {
+        res.pop_back();
+    }
+    reverse(res.begin(), res.end());
+    string s;
+    for(int i = 0;i<res.size();i++)
+    {
+        s.append(1, '0' + res[i]);
+    }
+    return s;
+}
+
+string pow(int x,int y)
+{
+    if(y == 0) return "1";
+    if(y == 1) return to_string(x);
+    
+    string tmp = pow(x,y/2);
+    
+    if(y&1)
+    {
+        return multiplyStr(multiplyStr(tmp, tmp), to_string(x));
+    }
+    else
+    {
+        return multiplyStr(tmp, tmp);
+    }
+}
+
+/*
+ 给string a, string b,判断b里面是否存在子字符串是a的anagram。
+ */
+
+bool isEqual(unordered_map<char, vector<int>> map1, unordered_map<char, vector<int>> map2)
+{
+    if(map1.size() != map2.size()) return false;
+    for(auto item: map1)
+    {
+        vector<int> v1 = item.second;
+        vector<int> v2 = map2[item.first];
+        if(v1.size() != v2.size()) return false;
+        for(int i = 0;i< v1.size();i++)
+        {
+            if(v1[i] != v2[1]) return false;
+        }
+    }
+    return true;
+}
+
+bool isSubAnagram(string a, string b)
+{
+    if(b.length() < a.length()) return false;
+    unordered_map<char, vector<int>> amap;
+    unordered_map<char, vector<int>> bmap;
+    for(int i = 0;i<(int)a.length();i++)
+    {
+        amap[a[i]].push_back(i);
+        bmap[b[i]].push_back(i);
+    }
+    
+    int k = (int)a.length();
+    while(k<(int)b.length())
+    {
+        if(!isEqual(amap, bmap)) return false;
+        bmap[b[k-a.length()]].erase(bmap[b[k-a.length()]].begin());
+        bmap[b[k]].push_back(k);
+    }
+    return false;
+}
+
+
+
+
+vector<int> container;
+int k;
+vector<int> tracker;
+void setContainer(vector<int> input, int count)
+{
+    container = input;
+    k = count;
+
+    for(int i = 0;i<k;i++)
+    {
+        if(i != k-1)
+            tracker.push_back(i);
+        else
+            tracker.push_back(i-1);
+    }
+}
+
+bool hasNextPermutation()
+{
+    int n = (int)container.size();
+    for(int i = 0;i<k;i++)
+    {
+        if(tracker[k-1-i] != n-1-i)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void printNext()
+{
+    int n = (int)container.size();
+    if(hasNextPermutation())
+    {
+        for(int i = 0;i<k;i++)
+        {
+            int tmp = tracker[k-1-i] + 1;
+            if(tmp<(n-i))
+            {
+                tracker[k-1-i] = tmp;
+                for(int j = k-i;j<k;j++)
+                {
+                    tracker[j] = ++tmp;
+                }
+                break;
+            }
+        }
+    }
+    for(int i = 0;i<tracker.size();i++)
+    {
+        cout<< tracker[i]<<"  ";
+    }
+    cout<<endl;
+}
+
+
+/*
+ 是给一个int[] array, e.g {1,5,0,6}和一个int target，e.g. target = 21;
+ 问是否存在某种分法把array分成几部分，每部分看成一个int，这几部分加起来等于target。
+ e.g. {1,5}{0}{6},三部分加起来是21。{1,5}{0,6}也是21。target=25则false
+ should be able to do it in O(n^2).
+ tried: can not do O(n^2), but n!
+ */
+int construct(vector<int> input, int startIndex, int endIndex)
+{
+    int res = 0;
+    for(int i = startIndex;i<= endIndex;i++)
+    {
+        res = res*10 + input[i];
+    }
+    return res;
+}
+
+bool canSeparate(vector<int> input, int startIndex, int target)
+{
+    if(startIndex >= input.size()) return false;
+    if(construct(input, startIndex, (int)input.size()-1) == target) return true;
+    for(int i = startIndex + 1;i<input.size();i++)
+    {
+        int tmp = construct(input, startIndex, i);
+        if(canSeparate(input, i+1, target-tmp))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+bool canSeparate(vector<int> input, int target)
+{
+    return canSeparate(input, 0, target);
+}
+
+/*
+ 写一个shuffle数组的算法
+ 给一个数组A[]，里面的数是无序的，比如 A[]={1,2,3,7,3,2,5}
+ shuffle完之后，使之满足A[0]<=A[1]>=A[2]<=A[3]..
+ 比如一种可能的结果是 A[]={1,7,3,5,2,2,1}
+ 
+ void shuffle(int A[], int n)
+ {
+ }
+ 写出算法，并且证明其正确性。
+ */
+vector<int> shuffleSort(vector<int> input)
+{
+    if(input.size() <3) return input;
+    sort(input.begin(), input.end());
+    for(int i = 2;i< input.size();i = i+2)
+    {
+        swap(input, i, i-1);
+    }
+    return input;
+}
+
+void shuffleOn(int A[],int n)
+{
+    int increase=1;
+    for(int i=1;i<n;i++)
+    {
+        int local=A[i]>=A[i-1]?1:0;
+        if(increase!=local) swap(A[i],A[i-1]);
+        increase^=1;
+    }
+}
+
+/*
+ 1.将一个数组right rotate k次。要求O(N),in-place
+ */
+void mirror(int input[], int start, int end)
+{
+    while(start <=end)
+    {
+        swap(input, start, end);
+        start++;
+        end--;
+    }
+}
+
+void rightRotate(int input[], int n, int k)
+{
+    k = k%n;
+    mirror(input,0, n-1-k);
+    mirror(input,n-k,n-1);
+    mirror(input, 0, n-1);
+}
+
+/*
+ 2sum
+ 数字有重复，比如如果sum是10，{2,2,2,8,8}里面算两个(2,8)pair。求pair总数。
+ */
+int countPair(vector<int> input, int target)
+{
+    unordered_map<int, int> tracker;
+    for(auto item: input)
+    {
+        tracker[item]++;
+    }
+    int res = 0;
+    
+    for(auto item: input)
+    {
+        if(tracker[item]>0 &&
+           tracker.find(target -item) != tracker.end()
+           && tracker[target-item] > 0)
+        {
+            res ++;
+            tracker[item]--;
+            tracker[target-item] --;
+        }
+    }
+    return res;
+}
+
+/*
+ "1 3 4 5 6"
+ "3 4 5 6 3"
+ "4 5 6 3 3"
+ ...
+ 每行是一个包含数字的string。去除所有数字完全重复的strings.比如这里的第二和第三行数字完全相同，
+ 可以合并成一个。要求合并所有数字完全重复的strings。最后表示对我的优化结果不满意。
+*/
+vector<string> Reduce(vector<string> input)
+{
+    unordered_set<string> tracker;
+    vector<string> res;
+    for(auto s : input)
+    {
+        string tmp = s;
+        sort(tmp.begin(), tmp.end());
+        if(tracker.find(tmp) == tracker.end())
+        {
+            tracker.insert(tmp);
+            res.push_back(s);
+        }
+    }
+    return res;
+}
+
+/*
+ 写一个小游戏。MxN 的格子上有一条蛇，蛇头可以向前，左，右移动，撞到自己身体任何部位或者撞到边界就算死。
+ */
+
+
+
+/*
+ b) 有若干个盒子，每个盒子有length和width，不考虑高度。只要尺寸fit，大盒子就可以放小盒子，
+ 但是一层只能套一个，即便还有空余；但可以多层嵌套。求最小的面积放所有的盒子
  比如 7*7  5*5, 4*6, 3*3
  */
+
+
 
 
 int main(int argc, const char * argv[])
@@ -10016,9 +10408,74 @@ int main(int argc, const char * argv[])
     }
      */
     
+    /*
     cout<<isValidPalindrome("aba")<<endl;
     cout<<isValidPalindrome("abaccc")<<endl;
+    */
     
+    /*
+    Interval v1(1,2);
+    Interval v2(1,3);
+    Interval v3(2,4);
+    Interval v4(3,5);
+    Interval v5(3,6);
+    Interval v6(4,7);
+    Interval v7(5,8);
+    Interval v8(5,9);
+    vector<Interval> input = {v1,v2,v3,v4,v5,v6,v7,v8};
+    printTree(input);
+    
+    */
+    
+    /*
+    cout<< pow(9,99)<<endl;
+    */
+    
+    /*
+    vector<int> input = {1,2,3,4,5};
+    setContainer(input, 3);
+    while(hasNextPermutation())
+    {
+        printNext();
+    }
+    */
+    /*
+    vector<int> input = {1,5,0,6};
+    cout<<canSeparate(input, 21)<<endl;
+    cout<<canSeparate(input, 25)<<endl;
+    */
+    /*
+    vector<int> input = {1,2,3,4};
+    vector<int> res = shuffleSort(input);
+    for(int i = 0;i< (int)res.size();i++)
+    {
+        cout<<res[i]<<" ";
+    }
+    cout<<endl;
+    */
+    /*
+    int a[] = {7,2,7,3,2,5};
+    shuffleOn(a, 7);
+    for(int i = 0;i<7;i++)
+    {
+        cout<<a[i]<< " ";
+    }
+    cout<<endl;
+     */
+    
+    /*
+    int a[] = {7,2,8,7,3,2,5};
+    rightRotate(a, 7, 3);
+    for(int i = 0;i<7;i++)
+    {
+        cout<<a[i]<< " ";
+    }
+    cout<<endl;
+    */
+    
+    vector<int> input = {2,2,2,2,2,2,2,2,2,8,8,8};
+    int res = countPair(input, 10);
+    cout<<res<<endl;
     return 0;
     
 }
