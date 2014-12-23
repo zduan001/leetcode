@@ -5,16 +5,16 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>EB74CD9F-4067-4922-893B-3261F8D4EAB8</string>
+	<string>76114B9A-AF34-4BC8-8E38-8AD73A381735</string>
 	<key>IDESourceControlProjectName</key>
-	<string>test</string>
+	<string>lol</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>A0231ACAF5DEB7934F292264D747EE541020AB07</key>
 		<string>https://github.com/zduan001/leetcode.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>test/test.xcodeproj</string>
+	<string>lol/lol.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>A0231ACAF5DEB7934F292264D747EE541020AB07</key>

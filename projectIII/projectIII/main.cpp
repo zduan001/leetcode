@@ -4601,7 +4601,7 @@ int uniquePathsWithObstacles(vector<vector<int> > &obstacleGrid) {
 //10.4
 bool checkQueeens(vector<int> queens, int k)
 {
-    int n = queens.size();
+    int n = (int)queens.size();
     
     for(int i = 0;i< n;i++)
     {
@@ -5698,7 +5698,7 @@ vector<string> wordBreakIII(string s, unordered_set<string> &dict) {
     // prev[i][j] 为 true,表示 s[j, i) 是一个合法单词,可以从 j 处切开 // 第一行未用
     vector<vector<bool> > prev(s.length() + 1, vector<bool>(s.length()));
     f[0] = true;
-    for (size_t i = 1; i <= s.length(); ++i) {
+    for (int i = 1; i <= (int)s.length(); ++i) {
         for (int j = i - 1; j >= 0; --j) {
             if (f[j] && dict.find(s.substr(j, i - j)) != dict.end()) {
                 f[i] = true;
@@ -5707,7 +5707,7 @@ vector<string> wordBreakIII(string s, unordered_set<string> &dict) {
         } }
     vector<string> result;
     vector<string> path;
-    gen_path(s, prev, s.length(), path, result);
+    gen_path(s, prev, (int)s.length(), path, result);
     return result;
 }
 
@@ -5844,7 +5844,7 @@ vector<Interval> insertDCII(vector<Interval> &intervals, Interval newInterval)
 vector<Interval> insertDC(vector<Interval> &intervals, Interval newInterval) {
     int first = -1;
     int left = 0;
-    int right = intervals.size()-1;
+    int right = (int)intervals.size()-1;
     while(left<=right)
     {
         int mid = left + (right-left)/2;
@@ -5867,7 +5867,7 @@ vector<Interval> insertDC(vector<Interval> &intervals, Interval newInterval) {
     if(first == -1) first = left == intervals.size()? left -1: left;
     int last = -1;
     left = 0;
-    right = intervals.size()-1;
+    right = (int)intervals.size()-1;
     while(left<=right)
     {
         int mid = left + (right-left)/2;
@@ -6094,7 +6094,7 @@ vector<int> findSubstringIII(string s, vector<string>& dict) {
                 unused.erase(pos);
         }
         if (unused.size() == 0)
-            result.push_back(distance(begin(s), i));
+            result.push_back((int)distance(begin(s), i));
     }
     return result;
 }
@@ -7299,9 +7299,8 @@ struct workItem{
 
 struct pointEntry{
     int endPoint;
-    bool isStart;
     int val;
-    pointEntry(int e, bool b, int v): endPoint(e), isStart(b), val(v) {}
+    pointEntry(int e, int v): endPoint(e), val(v) {}
 };
 
 bool sortPointEntry(pointEntry* p1, pointEntry* p2)
@@ -7312,12 +7311,8 @@ bool sortPointEntry(pointEntry* p1, pointEntry* p2)
     }
     else
     {
-        if(!p1->isStart)
-            return true;
-        else
-            return false;
+        return p1->val < p2->val;
     }
-    
 }
 
 int findMax(vector<workItem> input)
@@ -7325,8 +7320,8 @@ int findMax(vector<workItem> input)
     vector<pointEntry*> tracker;
     for(auto item: input)
     {
-        pointEntry* start = new pointEntry(item.start, true, item.val);
-        pointEntry* end = new pointEntry(item.end, false, item.val);
+        pointEntry* start = new pointEntry(item.start, item.val);
+        pointEntry* end = new pointEntry(item.end, -item.val);
         tracker.push_back(start);
         tracker.push_back(end);
     }
@@ -7335,9 +7330,7 @@ int findMax(vector<workItem> input)
     int cur = 0;
     for(auto item: tracker)
     {
-        if(item->isStart) cur += item->val;
-        else cur -= item->val;
-        
+        cur += item->val;
         maxVal = max(maxVal, cur);
     }
     return maxVal;
@@ -7660,6 +7653,9 @@ int get()
     return INT_MIN;
 }
 
+/*
+ 1. find longest substring which contains n distinct characters.
+ */
 string findSub(string s, int n)
 {
     int count = 0;
@@ -7740,6 +7736,7 @@ int findMax(TreeNode* root, TreeNode* n1, TreeNode* n2)
 {
     int res = 0;
     TreeNode* lca = findLCA(root, n1, n2, res);
+    cout<<lca->val<<endl;
     return res;
     
 }
@@ -7978,8 +7975,6 @@ void insert_intoMaxHeap(vector<int>& heap, int n, int value)
 void readerStream(istream& stream)
 {
     char* buf;
-    int index = 0;
-    int j = 0;
     char res[8];
     int charIndex = 0;
     int buffIndex = 0;
@@ -8050,7 +8045,7 @@ char buf[4096];
 int startIndex = 0;
 int totalread = 0;
 
-char* readRandomStream(int n)
+void readRandomStream(int n)
 {
     char res[n];
     int i = 0;
@@ -8063,7 +8058,7 @@ char* readRandomStream(int n)
             startIndex = 0;
         }
     }
-    return res;
+    
 }
 
 
@@ -9575,9 +9570,785 @@ vector<string> Reduce(vector<string> input)
     return res;
 }
 
+string intToRoman(int num) {
+    const int radix[] = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+    const string symbol[] = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+    string roman;
+    for (size_t i = 0; num > 0; ++i)
+    {
+        int count = num / radix[i];
+        num %= radix[i];
+        for (; count > 0; --count) roman += symbol[i];
+    }
+    return roman;
+}
+
+/*
+ 2.给你一个很大的字典。一对词如果不share 任何字母，比如dog, cat不share字母，而dog, 
+ boy就share一个o，则是interesting pair.找出所以interesting pairs中长度乘积最大的pair.输出这个乘积。
+ */
+unordered_map<char,int> getChar()
+{
+    unordered_map<char, int> res;
+    for(char c = 'a'; c <= 'z'; c++)
+    {
+        int tmp = 1<<(c-'a');
+        res[c] = tmp;
+    }
+    return res;
+}
+
+
+int findMax(vector<string> input)
+{
+    unordered_map<char, int> map = getChar();
+    unordered_map<string, int> tracker;
+    for(auto item : input)
+    {
+        int tmp = 0;
+        for(auto c: item)
+        {
+            tmp = tmp | map[c];
+        }
+        tracker[item] = tmp;
+    }
+    
+    int res = INT_MIN;
+    for(int i = 0;i< input.size() -1;i++)
+    {
+        for(int j = i+1;i<input.size();i++)
+        {
+            if((tracker[input[i]] & tracker[input[j]]) == 0)
+            {
+                res = max(res, ((int)input[i].length() * (int)input[j].length()));
+            }
+        }
+    }
+    return res;
+}
+
+/*
+ 简单寒暄一下，然后问了一个找硬币的题，应该属于背包问题，首先给了一个贪心算法，
+ 然后他指出不是总能得到最优解，然后我也发现了，他就让我举例，举了个例子，然后开始想动态规划，
+ 然后想出来了，在板上写了code，分析了一下复杂度，然后一起讨论一下边边角角的问题，
+ 然后11:15的时候，第二个面试官到了，然后就冲冲结束了。
+ I guess this is the question of give a list of type of coins and a target
+ find the least count of coins can combine to target.
+ */
+int findChange(vector<int> input, int target)
+{
+    int res;
+    unordered_set<int> coins;
+    vector<int> tracker(target+1,0);
+    for(auto item: input)
+    {
+        coins.insert(item);
+        
+    }
+    for(int i = 1;i<=target;i++)
+    {
+        res = INT_MAX;
+        for(int j = i-1;j>=0;j--)
+        {
+            if(coins.find(i-j) != coins.end())
+            {
+                res = min(res, tracker[j]+1);
+            }
+        }
+        tracker[i] = res;
+    }
+    return tracker[target];
+}
+
+/*
+ 比如说常见的俄罗斯方块，每一个图案都是由4个block组成，现在给定一个N表示N个block，
+ 把所有有效的俄罗斯方块组合都输出出来，（有 效的是指block是横着或者竖着连接的，不是直接斜着连接）
+ I should start from top left cornor and only do top line and only go down
+ or go right, and j has to >= to i. other wise it will duplicate.
+ */
+void worker(vector<vector<vector<int>>>& res, vector<vector<int>>& tracker,int i, int j, int level, int target)
+{
+    if(i < j) return;
+    if(tracker[i][j]) return;
+
+    tracker[i][j] = 1;
+    if(level == target-1)
+    {
+        res.push_back(tracker);
+        tracker[i][j] = 0;
+        return;
+    }
+    if(i+1<target)
+    {
+        worker(res, tracker, i+1, j, level+1, target);
+    }
+    if(i-1>=0)
+    {
+        worker(res, tracker, i-1, j, level+1, target);
+    }
+    if(j+1<target)
+    {
+        worker(res, tracker, i, j+1, level+1, target);
+    }
+    if(j-1>=0)
+    {
+        worker(res, tracker,i, j-1, level+1, target);
+    }
+    tracker[i][j] =0;    
+}
+
+bool flip(vector<vector<int>> input, vector<vector<int>> output)
+{
+    vector<vector<int>> res = input;
+    // flip the piece and rotate it 180 degress make sure no dip.
+    // then return the new piece.
+    
+    if( res != input)
+    {
+        output = res;
+        return true;
+    }
+    return false;
+}
+
+vector<vector<vector<int>>> FindAllRussiaBlocks(int target)
+{
+    vector<vector<int>> tracker(target, vector<int>(target,0));
+    vector<vector<vector<int>>> res;
+    if(target <1) return res;
+    if(target == 1)
+    {
+        vector<vector<int>> tracker(1, vector<int>(1,1));
+        res.push_back(tracker);
+        return res;
+    }
+    worker(res, tracker, 0, 0, 0 , target);
+    vector<vector<vector<int>>> mirror;
+    for(auto item: res)
+    {
+        
+        vector<vector<int>> tmp(target, vector<int>(target, 0));
+        if(flip(item, tmp))
+        {
+            mirror.push_back(tmp);
+        }
+    }
+    for(auto item: mirror)
+    {
+        res.push_back(item);
+    }
+    
+    return res;
+}
+
+int matrixMult(vector<int> p)
+{
+    int n = (int)p.size();
+    vector<vector<int>> tracker(n-1, vector<int>(n-1, 0));
+    for(int l = 2;i< n;i++)
+    {
+        for(int i = 0;i<n-l+1;i++)
+        {
+            int j = i+l-1;
+            int tmp = INT_MAX;
+            for(int k = i;k<j;k++)
+            {
+                tmp = min (tmp, tracker[i][k] + tracker[k+1][j] + p[i]*p[k]*p[j]);
+            }
+            tracker[i][j] =tmp;
+            
+        }
+    }
+    return tracker[0][n-1];
+}
+
+/*
+ 一个array里面找最大的这样的h:有h个数大于等于h
+ */
+bool func(int i1, int i2)
+{
+    if(i1<i2)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+int findMaxH(vector<int> input)
+{
+    sort(input.begin(), input.end(), func);
+    int res = 0;
+    for(int i = 0;i<(int)input.size();i++)
+    {
+        if(input[i] == i)
+        {
+            res = i;
+        }
+        
+    }
+    return res;
+}
+
+/*
+ 二面：十进制十八进制转换，十八进制加法
+ */
+char covertto18(int n)
+{
+    if(n >=18) return ' ';
+    if(n<10) return '0' + n;
+    if(n>=10 && n< 18) return 'a' + (n-10);
+    else return ' ';
+}
+
+string convertFrom10To18(int input)
+{
+    string res ="";
+    while(input)
+    {
+        int tmp = input%18;
+        input = input/18;
+        res = res+covertto18(tmp);
+    }
+    reverse(res.begin(), res.end());
+    return res;
+}
+
+/*
+ 三面：majority element
+ */
+int findMajority(vector<int> input)
+{
+    int res=INT_MAX;
+    int count = 0;
+    for(int i = 0;i< (int)input.size();i++)
+    {
+        if(input[i] == res)
+        {
+            count ++;
+        }
+        if(input[i] != res)
+        {
+            
+            count--;
+            if(count<=0)
+            {
+                count = 0;
+                res = input[i];
+            }
+        }
+    }
+    if(count>0)
+    {
+        return res;
+    }
+    return INT_MIN;
+}
+
+/*
+一轮。 给定一个binary search tree， 知道到第k大的数。
+*/
+TreeNode* findKthTreeNode(TreeNode* root, int k)
+{
+    if(!root || k > root->val) return NULL;
+    
+    while(k>0 && root)
+    {
+        if(!(root->left))
+        {
+            if(k == 1) return root;
+            k--;
+            root = root->right;
+        }
+        else if(root->left->val == k-1)
+        {
+            return root;
+        }
+        else if(root->left->val >= k)
+        {
+            root = root->left;
+        }
+        else
+        {
+            k = k - root->left->val - 1;
+            root = root->right;
+        }
+    }
+    return NULL;
+}
+
+string get_decimal(int num, int den) {
+    string ret = to_string(num / den);
+    ret.push_back('.');
+    num %= den;
+    unordered_map<int,int> rems;
+    
+    while(num != 0 && rems.find(num) == rems.end()) {
+        rems[num] = (int)ret.size();
+        num *= 10;
+        int tmp = num/den;
+        ret.push_back(tmp + '0');
+        num %= den;
+    }
+    
+    if (num != 0) {
+        ret.insert(ret.begin() + rems[num], '(');
+        ret += ")";
+    } else {
+        ret += "(0)";
+    }
+    return ret;
+}
+
+/*
+ 1. 有这么个游戏，举个例子：给你5个空_ _ _ _ _, 每次猜一个字母，这里出题人想让你猜出来clock，
+ 假如你猜a，告诉你这里面没有。你又猜c，他把c全写出来，所以你有c _ _ c _。 让你最多猜10次。
+ 写一个程序去猜。输入是几个空，要考虑每次猜的反馈，尽量把词猜出来。
+ */
+// guessedWord can be "_c__c_" in this case c has already been guessed.
+
+bool isAmatch(string word, string guessedWord)
+{
+    if(word.length() != guessedWord.length()) return false;
+    for(int i = 0;i<word.length();i++)
+    {
+        if(guessedWord[i] != '_' &&
+           guessedWord[i] != word[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+char guess(vector<string> dict, string guessedWord, unordered_set<char> guessedChar)
+{
+    vector<string> res;
+    for(auto item :dict)
+    {
+        if(isAmatch(item, guessedWord))
+        {
+            res.push_back(item);
+        }
+    }
+    
+    vector<vector<int>> count(guessedWord.length(), vector<int>(26, 0));
+    for(auto item : res)
+    {
+        for(int i = 0;i< guessedWord.length();i++)
+        {
+            if(guessedWord[i] == '_')
+            {
+                count[i][item[i] - 'a']++;
+            }
+        }
+    }
+    
+    char c = '0';
+    int x = INT_MAX;
+    for(auto item: count)
+    {
+        for(int i = 0;i< 26;i++)
+        {
+            if(item[i] > x && guessedChar.find('a'+i) == guessedChar.end())
+            {
+                x = item[i];
+                c = 'a' + i;
+            }
+        }
+    }
+    
+    return c;
+}
+
+/*
+             1 2 2 3 (5)
+             3 2 3 (4) (4)
+ pacific     2 4 (5) 3 1              Atlantic
+             (6) (7) 1 4 5
+             (5) 1 1 2 4
+ 
+ 每个数字代表该地区的海拔，然后西边是太平洋，东边是大西洋，让我返回所有path，
+ 每个path能连通大西洋和太平洋，水只能从高处往低处走。
+ */
+
+// O(n^3)?
+struct altitude
+{
+    int val;
+    bool p;
+    bool a;
+    int x;
+    int y;
+    altitude(int v) : val(v), p(false), a(false) {}
+};
+
+/*
+void findAllpath(vector<vector<altitude>> input)
+{
+    queue<altitude> q;
+    for(int i = 0;i< input.size();i++)
+    {
+        queue<altitude>  empty;
+        unordered_set<altitude> visited;
+        swap(q, empty);
+        input[i][0].p = true;
+        q.push(input[i][0]);
+        while(!q.empty())
+        {
+            altitude tmp = q.front();
+            if(tmp.x -1 >=0 &&
+               input[tmp.x-1][tmp.y].p &&
+               input[tmp.x][tmp.y].val < input[tmp.x-1][tmp.y].val)
+            {
+                q.push(input[tmp.x-1][tmp.y]);
+                input[tmp.x-1][tmp.y].p = true;
+                
+            }
+            // do the same thing for other 3 directions.
+        }
+        
+    }
+    
+    // after we done with pacific
+    // do the same thing again for atlantic.
+    
+    //count all the element which has both
+    
+}
+*/
+
+/*
+ 第二题，给你一串正整数。1，2，3.。。。10， 11，12.。。。 给你一个int n，要你返回哪一位的数。比如 给你10，返回的就是1.给11，返回的就是0
+ */
+int findNthDigit(int n)
+{
+    int k = 0;
+    while(n> 9*(int)std::pow(10,k))
+    {
+        n = n-9*(int)std::pow(10,k);
+        k ++;
+    }
+    
+    int index = n/(k+1) -1 ;
+    int offset = n%(k+1);
+    
+    if(offset == 0)
+    {
+        int num = std::pow(10,k) + index;
+        return num%10;
+    }
+    else
+    {
+        int num = std::pow(10,k) + index + 1;
+        int formRight = k+2-offset;
+        int res = 0;
+        for(int i = 0;i< formRight;i++)
+        {
+            res = num%10;
+            num = num/10;
+        }
+        return res;
+    }
+    
+}
+
+/*
+ 拿着我简历进来，说有人跟你谈过你的简历吗，我说没有，他表示万分惊讶，然后在我
+ 简历上挑了一个research project让我说说，说完后用c++出了一个题，一个cipher类
+ ，有一个member function是对输入加密，加密方法为对input的每16个Byte和一个
+ increasing counter做xor，这个increasing counter也是有16Byte，从00..01（前
+ 15Byte都是0，最后1Byte是1）开始，还有一个要求，举例说：
+ 第一个input 有20个Byte，前16个Byte就和00..01做xor，后4个Byte和00..02的前
+ 4Byte做xor
+ 然后之后再对第二个input加密的时候，对这个input的前12Byte用00..02的后12Byte（
+ 即11个Byte 0，1个Byte 1）
+ */
+
+int offset = 0;
+char cipher[16];
+
+void initialize()
+{
+    for(int i = 0;i< 16;i++)
+    {
+        cipher[i] = 0;
+    }
+    cipher[15]=1;
+}
+
+void getNextCipher()
+{
+    // add 1 to cipher
+}
+
+void encrypt(char input[], int n)
+{
+    char res[n];
+    for(int i = 0;i<n;i++)
+    {
+        if(offset >= 16)
+        {
+            getNextCipher();
+        }
+        res[i] = input[i] ^ cipher[offset++];
+    }
+}
+
+/*
+1：print all path from root to leaf.
+*/
+void print(stack<TreeNode*> input)
+{
+    stack<TreeNode*> tmp;
+    while(!input.empty())
+    {
+        tmp.push(input.top());
+        input.pop();
+    }
+    
+    while(!tmp.empty())
+    {
+        cout<<tmp.top()->val<<" ";
+        tmp.pop();
+    }
+    
+    cout<<endl;
+}
+
+void printAllPath(TreeNode* root)
+{
+    stack<TreeNode*> s;
+    s.push(root);
+    TreeNode* prev = NULL;
+    while(!s.empty())
+    {
+        TreeNode* tmp = s.top();
+        if(tmp->left &&
+           prev != tmp->left &&
+           prev != tmp->right)
+        {
+            s.push(tmp->left);
+        }
+        else if (tmp->right &&
+                 tmp->right != prev)
+        {
+            s.push(tmp->right);
+        }
+        else
+        {
+            if(!tmp->left && !tmp->right)
+            {
+                print(s);
+            }
+            s.pop();
+            prev = tmp;
+            
+        }
+            
+    }
+}
+
+
+/*
+ 2:  power set.
+ */
+
+void powerSetWorker(int level, vector<int> input, vector<int>& tracker, vector<vector<int>>& res)
+{
+    if(level == (int)input.size())
+    {
+        res.push_back(tracker);
+        return;
+    }
+    powerSetWorker(level+1, input, tracker, res);
+    tracker.push_back(input[i]);
+    powerSetWorker(level+1, input, tracker, res);
+    tracker.pop_back();
+}
+
+vector<vector<int>> powerSet(vector<int> input)
+{
+    vector<vector<int>> res;
+    vector<int> tracker;
+    powerSetWorker(0, input, tracker, res);
+    return res;
+}
+
+/*
+ 3:  given a list of words, find palindrome pairs
+ */
+bool isPalindromeString(string s)
+{
+    int n = (int)s.length();
+    int left = 0;
+    int right = n-1;
+    while(left < right)
+    {
+        if(s[left++] != s[right--]) return false;
+    }
+    return false;
+}
+
+vector<pair<string, string>> findPalindrome(vector<string> input)
+{
+    vector<pair<string, string>> res;
+    for(int i = 0;i< input.size()-1;i++)
+    {
+        for(int j = i+1;j<input.size();j++)
+        {
+            string tmp = input[i] + input[j];
+            if(isPalindrome(tmp))
+            {
+                res.push_back(make_pair(input[i], input[j]));
+                continue;
+            }
+            else
+            {
+                tmp = input[j] + input[i];
+                if(isPalindrome(tmp))
+                {
+                    res.push_back(make_pair(input[i], input[j]));
+                    continue;
+                }
+            }
+        }
+    }
+    return res;
+}
+
+/*
+ 4:  implement BufferedReader
+ */
+int read4K(char** s)
+{
+    char tmp[10];
+    *s = tmp;
+    for(int i = 0;i< 9;i++)
+    {
+        tmp[i] = i + '0';
+        
+    }
+    tmp[9] = '\0';
+    return 10;
+}
+
+int totalLength = 0;
+int currentIndex = 0;
+int readedLength = 0;
+char* str;
+
+char* read(int n)
+{
+
+    //read4K(&x);
+    char* res = (char*)malloc(n);
+    readedLength = 0;
+    while(readedLength<n)
+    {
+        if(currentIndex < totalLength)
+        {
+            while(readedLength < n && currentIndex < totalLength)
+            {
+                res[readedLength++] = *(str+currentIndex++);
+            }
+        }
+        else
+        {
+            totalLength = read4K(&str);
+            currentIndex = 0;
+        }
+    }
+    return res;
+}
+
+string readLine()
+{
+    string res = ""; // talking in java this should stringbuilder....
+    readedLength = 0;
+    while(str[currentIndex] != '\n') // this can be changed to str
+    {
+        if(currentIndex < totalLength)
+        {
+            while(currentIndex < totalLength)
+            {
+                res += *(str+currentIndex++);
+            }
+        }
+        else
+        {
+            if(totalLength < 4096)
+            {
+                res += "EOF";
+                break;
+            }
+            totalLength = read4K(&str);
+            currentIndex = 0;
+        }
+    }
+    return res;
+}
+
+
+
+
+/*
+ Given two strings containing digits, return the one which 
+ represents the largest integer once the digits have been 
+ sorted in non-increasing order.
+ 
+ “245” -> 542
+ “178” -> 871
+ return 178
+ */
+string findLargest(string s1, string s2)
+{
+    vector<int> a1(10, 0);
+    vector<int> a2(10, 0);
+    for(int i = 0;i< s1.length();i++)
+    {
+        a1[s1[i] - '0'] ++;
+    }
+    
+    for(int i = 0;i<s2.length();i++)
+    {
+        a2[s2[i] - '0'] ++;
+    }
+    
+    int res = -1;
+    for(int i = 0;i<10;i++)
+    {
+        res = a1[i] > a2[i]? 1 : 2;
+    }
+    if(res==1) return s1;
+    else return s2;
+}
+
+/*
+ 2. We have N numbers 0 ~ N-1. A list contains k of the N numbers, e.g. 
+ [1, 3, 4, 6, 7, 9], N = 10, K = 6. The list is sorted. The program returns 
+ 1 of N-K missing numbers in the list with probability 1/(N-K)
+ */
+int getRandom(vector<int> input, int n)
+{
+    int count = n-(int)input.size();
+    int offset = rand() % count;
+    for(int i = 0;i<(int)input.size();i++)
+    {
+        if(offset >=input[i]) offset++;
+        else break;
+    }
+    return offset;
+}
+
+
 /*
  写一个小游戏。MxN 的格子上有一条蛇，蛇头可以向前，左，右移动，撞到自己身体任何部位或者撞到边界就算死。
  */
+
+
 
 
 
@@ -9587,6 +10358,205 @@ vector<string> Reduce(vector<string> input)
  比如 7*7  5*5, 4*6, 3*3
  */
 
+
+/*
+ Q1：一个文件里存着代码和注释，注释在/××/中间，要求print所有line除了注释
+ */
+void printx(string s)
+{
+    bool isComments = false;
+    int level = 0;
+    for(int i = 0;i< s.length();i++)
+    {
+        if(!isComments)
+        {
+            if(s[i] != '/')
+            {
+                cout<<s[i];
+            }
+            else
+            {
+                if(i == s.length()-1 || s[i+1] != '*')
+                {
+                    cout<<s[i];
+                }
+                else
+                {
+                    i++;
+                    isComments = true;
+                    level = 1;
+                }
+            }
+        }
+        else
+        {
+            if(s[i] == '/' && i < s.length()-1 && s[i+1] == '*')
+            {
+                level++;
+            }
+            else
+            {
+                if(s[i] == '*' &&
+                   (i<s.length() -1 && s[i+1] == '/'))
+               {
+                   i++;
+                   level --;
+                   if( level <=0)
+                   {
+                       isComments = false;
+                   }
+               }
+            }
+        }
+    }
+    
+    if(isComments)
+    {
+        cout<< endl;
+        cout<< "Wrong format, throw exception here"<<endl;
+    }
+}
+
+/*
+ 2.convert binary tree to double linked list
+ */
+
+void conertBSTtoDoubleLinkedList(TreeNode* root)
+{
+    TreeNode* tmp = root;
+    TreeNode* prev = NULL;
+    while(tmp)
+    {
+        if(tmp->right && tmp->left)
+        {
+            TreeNode* right = tmp->right;
+            TreeNode* left = tmp->left;
+            while(left->right) left = left->right;
+            left->right = right;
+            tmp->right = tmp->left;
+            tmp->left = NULL;
+        }
+        else if(tmp->left && !tmp->right)
+        {
+            tmp->right = tmp->left;
+            tmp->left = NULL;
+        }
+        tmp->left = prev;
+        prev = tmp;
+        tmp = tmp->right;
+    }
+}
+
+/*
+1.string serialize & deserialize
+
+serialize: 输入两个string，返回serialized stringdeserialize：输入serialized string，返回原来两个string
+*/
+char separator= '\y';
+string serialize2str(string s1, string s2)
+{
+    string res = s1 + '\y' + s2;
+    return res;
+}
+
+void deserialize(string s)
+{
+    string s1 = "";
+    string s2 = "";
+    int i = 0;
+    bool isFirstStr = true;
+    while(i<s.length())
+    {
+        
+        if(s[i]!= '\y')
+        {
+            if(isFirstStr)
+            {
+                s1 += s[i];
+            }
+            else
+            {
+                s2 += s[i];
+            }
+        }
+        else
+        {
+            isFirstStr = false;
+        }
+            
+        i++;
+    }
+    cout<<s1<<endl<<s2<<endl;
+    
+}
+
+/*
+ 2.integer divide without using divide/
+ */
+int divideAgain(int n1, int n2)
+{
+    long long res = 0;
+    long long a = n1>=0? n1: -(long long)n1;
+    long long b = n2>=0? n2: -(long long)n2;
+    while(a >= b)
+    {
+        long long c = b;
+        for(int i = 0;a>=c;i++, c<<=1)
+        {
+            a -= c;
+            res += 1<<i;
+        }
+    }
+    return ((n1^n2)>>31) ?-(int)res: (int)res;
+}
+
+int divideAccurate(int dividend, int divisor) {
+    // 当 dividend = INT_MIN 时,-dividend 会溢出,所以用 long long
+    long long a = dividend >= 0 ? dividend : -(long long)dividend;
+    long long b = divisor >= 0 ? divisor : -(long long)divisor;
+    // 当 dividend = INT_MIN 时,divisor = -1 时,结果会溢出,所以用 long long
+    long long result = 0;
+    while (a >= b) {
+        long long c = b;
+        for (int i = 0; a >= c; ++i, c <<= 1) {
+            a -= c;
+            result += 1 << i;
+        }
+    }
+    return ((dividend^divisor) >> 31) ? (-(int)result) : ((int)result);
+}
+
+/*
+ 3.会议室安排问题
+ given a list of meetings (intervals) find max num of 
+ meeting room we need.
+ */
+
+/*
+ 4.给一个string，比如UAXXBAUB，给一个pattern，比如AB，返回包含pattern的最短substring，结果是AUB
+ */
+string FindShortestPattern(string s, string p)
+{
+    int minLength = INT_MAX;
+    string res;
+    for(int i = 0;i<s.length()- p.length()+1;i++)
+    {
+        int k = i;
+        for(int j = 0;j< p.length();j++)
+        {
+            while(s[k]!= p[j] && k<s.length())
+            {
+                k++;
+            }
+        }
+        if(k<s.length() && k-i+1 < minLength)
+        {
+            minLength = k-i+1;
+            res = s.substr(i, k-i+1);
+        }
+    }
+    return res;
+}
 
 
 
@@ -10473,9 +11443,268 @@ int main(int argc, const char * argv[])
     cout<<endl;
     */
     
+    /*
     vector<int> input = {2,2,2,2,2,2,2,2,2,8,8,8};
     int res = countPair(input, 10);
     cout<<res<<endl;
-    return 0;
+    */
     
+    /*
+    vector<int> input = { 1,5,20,25};
+    int res = findChange(input, 40);
+    cout<<res<<endl;
+    */
+    
+    /*
+    int x,y,z;
+    vector<vector<vector<int>>> res;
+    
+    
+    res = FindAllRussiaBlocks(0);
+    cout<<res.size()<<endl;
+    
+    res = FindAllRussiaBlocks(1);
+    cout<<res.size()<<endl;
+    res = FindAllRussiaBlocks(2);
+    cout<<res.size()<<endl;
+    
+    res = FindAllRussiaBlocks(3);
+    cout<<res.size()<<endl;
+    z = (int)res.size();
+    y = (int)res[0].size();
+    x = (int)res[0][0].size();
+    for(int k = 0;k<z;k++)
+    {
+        for(int j = 0;j<y;j++)
+        {
+            for(int i = 0;i<x;i++)
+            {
+                cout<< res[k][j][i] << " ";
+            }
+            cout<<endl;
+        }
+        cout<<"-----------------------"<<endl;
+    }
+    cout<<endl;
+    
+    
+    
+    res = FindAllRussiaBlocks(4);
+    cout<<res.size()<<endl;
+    z = (int)res.size();
+    y = (int)res[0].size();
+    x = (int)res[0][0].size();
+    for(int k = 0;k<z;k++)
+    {
+        for(int j = 0;j<y;j++)
+        {
+            for(int i = 0;i<x;i++)
+            {
+                cout<< res[k][j][i] << " ";
+            }
+            cout<<endl;
+        }
+        cout<<"-----------------------"<<endl;
+    }
+    cout<<endl;
+    */
+    
+    /*
+    string res;
+    res = convertFrom10To18(29);
+    cout<<res<<endl;
+    */
+    
+    
+    /*
+    int res;
+    vector<int> input = {1,2,3,2,3,2,2};
+    res = findMajority(input);
+    cout<<res<<endl;
+    
+    vector<int> n2 = {1,2,3,2,3,2};
+    res = findMajority(n2);
+    cout<<res<<endl;;
+    */
+    
+    /*
+     TreeNode* n1 = new TreeNode(9);
+     TreeNode* n2 = new TreeNode(5);
+     TreeNode* n3 = new TreeNode(3);
+     TreeNode* n4 = new TreeNode(3);
+     TreeNode* n8 = new TreeNode(1);
+     TreeNode* n5 = new TreeNode(1);
+     TreeNode* n9 = new TreeNode(1);
+     TreeNode* n6 = new TreeNode(1);
+     TreeNode* n7 = new TreeNode(1);
+     
+     n1->left = n2;
+     n1->right = n3;
+     n2->left = n4;
+     n2->right = n5;
+     n3->left = n6;
+     n3->right = n7;
+     n4->left = n8;
+     n4->right = n9;
+    
+    
+    TreeNode* res = findKthTreeNode(n1, 10);
+    cout<<res->val<<endl;
+     */
+    
+    /*
+    string res;
+    //res = get_decimal(1,19);
+    //cout<<res<<endl;
+
+    res = divideII(20,200);
+    cout<<res<<endl;
+    */
+    /*
+    int res = 0;
+    res = findNthDigit(10);
+    cout<<res<<endl;
+    
+    res = findNthDigit(11);
+    cout<<res<<endl;
+    
+    res = findNthDigit(12);
+    cout<<res<<endl;
+    
+    res = findNthDigit(13);
+    cout<<res<<endl;
+    
+    res = findNthDigit(100);
+    cout<<res<<endl;
+    
+    res = findNthDigit(101);
+    cout<<res<<endl;
+    
+    res = findNthDigit(102);
+    cout<<res<<endl;
+    
+    res = findNthDigit(105);
+    cout<<res<<endl;
+    
+    res = findNthDigit(106);
+    cout<<res<<endl;
+    
+    res = findNthDigit(108);
+    cout<<res<<endl;
+    */
+    /*
+    vector<int> input = {1, 3, 4, 6, 7, 9};
+    for(int i = 0;i<100;i++)
+    {
+        int res = getRandom(input, 10);
+        if(find(input.begin(), input.end(), res) != input.end())
+        {
+            cout<<res<<endl;
+        }
+    }
+    cout<<"*************** done ***********************"<<endl;
+     */
+    /*
+    TreeNode* n1 = new TreeNode(9);
+    TreeNode* n2 = new TreeNode(6);
+    TreeNode* n3 = new TreeNode(12);
+    TreeNode* n4 = new TreeNode(3);
+    TreeNode* n8 = new TreeNode(2);
+    TreeNode* n5 = new TreeNode(7);
+    TreeNode* n9 = new TreeNode(5);
+    TreeNode* n6 = new TreeNode(10);
+    TreeNode* n7 = new TreeNode(14);
+    
+    n1->left = n2;
+    n1->right = n3;
+    n2->left = n4;
+    n2->right = n5;
+    n3->left = n6;
+    n3->right = n7;
+    n4->left = n8;
+    n4->right = n9;
+    */
+    /*
+    TreeNode* res = deleteNote(n1, n4);
+    */
+    /*
+    TreeNode* n1 = new TreeNode(9);
+    TreeNode* n2 = new TreeNode(6);
+    TreeNode* n3 = new TreeNode(12);
+    TreeNode* n4 = new TreeNode(3);
+    TreeNode* n8 = new TreeNode(2);
+    TreeNode* n5 = new TreeNode(7);
+    TreeNode* n9 = new TreeNode(5);
+    TreeNode* n6 = new TreeNode(10);
+    TreeNode* n7 = new TreeNode(14);
+    
+    n1->left = n2;
+    n1->right = n3;
+    n2->left = n4;
+    n2->right = n5;
+    n3->left = n6;
+    n3->right = n7;
+    n4->left = n8;
+    n4->right = n9;
+    printAllPath(n1);
+    */
+    
+    /*
+    char* a = read(5);
+    char* b = read(7);
+    for(int i = 0;i< 5;i++)
+    {
+        cout<<*(a++);
+    }
+    cout<<endl;
+    for(int i = 0;i< 7;i++)
+    {
+        cout<<*(b++);
+    }
+    cout<<endl;
+    */
+    
+
+    //printx(" char* a = read(5); char* b = read(7); for(int i = 0;i< 5;i++){ cout<<*(a++);} cout<<endl; /*for(int i = 0;i< 7;i++){ */
+    //cout<<*(b++); /*}cout<</*e*/*/ndl;*/");
+    
+    /*
+    TreeNode* n1 = new TreeNode(1);
+    TreeNode* n2 = new TreeNode(2);
+    TreeNode* n3 = new TreeNode(3);
+    TreeNode* n4 = new TreeNode(4);
+    TreeNode* n8 = new TreeNode(8);
+    TreeNode* n5 = new TreeNode(5);
+    TreeNode* n9 = new TreeNode(9);
+    TreeNode* n6 = new TreeNode(6);
+    TreeNode* n7 = new TreeNode(7);
+    
+    n1->left = n2;
+    n1->right = n3;
+    n2->left = n4;
+    n2->right = n5;
+    n4->left = n6;
+    n4->right = n7;
+    n6->left = n8;
+    n6->right = n9;
+    
+    conertBSTtoDoubleLinkedList(n1);
+    */
+    /*
+    string res = serialize2str("abc", "defg");
+    deserialize(res);
+    */
+    /*
+    int res;
+    res = divideAgain(-2147483648,-1);
+    cout<< res <<endl;
+    res = divideAccurate(-2147483648,-1);
+    cout<< res <<endl;
+    res =(-2147483648)/(-1);
+    cout<<res<<endl;
+     */
+    string res;
+    res = FindShortestPattern("UAXXBAUBA", "AB");
+    cout<<res<<endl;
+    return 0;
 }
