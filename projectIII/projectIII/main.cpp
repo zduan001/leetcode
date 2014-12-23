@@ -10526,11 +10526,6 @@ int divideAccurate(int dividend, int divisor) {
     return ((dividend^divisor) >> 31) ? (-(int)result) : ((int)result);
 }
 
-/*
- 3.会议室安排问题
- given a list of meetings (intervals) find max num of 
- meeting room we need.
- */
 
 /*
  4.给一个string，比如UAXXBAUB，给一个pattern，比如AB，返回包含pattern的最短substring，结果是AUB
@@ -10559,6 +10554,169 @@ string FindShortestPattern(string s, string p)
 }
 
 
+// isOneEditDistance 判断两个string是不是只差一个编辑距离
+
+bool isOneEditDistanceIII(string s1, string s2)
+{
+    int l1 = (int)s1.length();
+    int l2 = (int)s2.length();
+    if(abs(l1-l2) >1)return false;
+    if(l2> l1)
+    {
+        swap(s1, s2);
+        swap(l1, l2);
+    }
+    int first = 0;
+    int second = 0;
+    int diff = 0;
+    if( l1 == l2)
+    {
+        while(first < l1)
+        {
+            if(s1[first++] != s2[first++])
+            {
+                diff++;
+            }
+            if(diff >1) return false;
+        }
+    }
+    else
+    {
+        while(second < l2)
+        {
+            if(s1[first] != s2[second])
+            {
+                diff++;
+                first++;
+            }
+            else
+            {
+                first++;
+                second++;
+            }
+            if(diff>1) return false;
+        }
+    }
+    return true;
+}
+
+
+ // 1.    Find successor in BST
+ // a. assume there is no dup.
+TreeNode* findSuccessor(TreeNode* root, int target)
+{
+    TreeNode* res = NULL;
+    while(root)
+    {
+        if(root->val <= target)
+        {
+            root = root->right;
+        }
+        else
+        {
+            res = root;
+            root = root->left;
+        }
+    }
+    return res;
+}
+/*
+ implement memcpy.
+ */
+void mymemcpy2(void *dest, const void *source, size_t num) {
+    int i = 0;
+    // casting pointers
+    char *dest8 = (char *)dest;
+    char *source8 = (char *)source;
+    //printf("Copying memory %d byte(s) at a time\n", sizeof(char));
+    for (i = 0; i < num; i++) {
+        // make sure destination doesnt overwrite source
+        if (&dest8[i] == source8) {
+            printf("destination array address overwrites source address\n");
+            return;
+        }
+        dest8[i] = source8[i];
+    }
+    /* this is also a way to copy mem. it is a little bit neatter.
+    while(num--)
+    {
+        *dest8++=*source8++;
+    }
+    */
+}
+//write a function f(int x), so that f(x) returns true with x% probability。
+//assme 0<=x<=100 and integer
+bool f(int x)
+{
+    return random()%100 <= x;
+}
+//1. moving all 0s to the beginning of the array
+void moveZeroes(int a[], int n)
+{
+    int left = 0;
+    int right = n-1;
+    while(left<=right)
+    {
+        if(a[left] == 0) left++;
+        else swap(a, left, right--);
+    }
+}
+int strStrIII(char *haystack, char *needle) {
+    int l1 = (int)strlen(haystack);
+    int l2 = (int)strlen(needle);
+    if(l1<l2) return -1;
+    int next[l2];
+    next[0] = -1;
+    int j = next[0];
+    for(int i = 1;i< l2;i++)
+    {
+        while(j!= -1 && needle[i] != needle[j+1])
+            j = next[j];
+        if(needle[j+1] == needle[i])
+            j++;
+        next[i] = j;
+    }
+    j = next[0];
+    for(int i = 0;i< l1;i++)
+    {
+        while(j!= -1 && haystack[i] != needle[j+1])
+            j = next[j];
+        if(haystack[i] == needle[j+1])
+            j++;
+        if(j == l2-1)
+        {
+            return i - j;
+        }
+    }
+    return -1;
+}
+/*
+ 1) 给个数组seq， 和一个total，找 if there is a contiguous sequence in seq
+ which sums to total.都是正数， 第一次没注意contiguous，给了个back tracking的解法。然后说是
+ contiguous， 给了个维护窗口的解法，不过犯了个小错误。时间过去了半小时。。。
+ */
+bool findContigious(int a[], int n, int target)
+{
+    // couple assumptions: the sum array -> tracker all values are unique.
+    unordered_map<int, int> s;
+    int tracker[n];
+    int sum = 0;
+    for(int i = 0;i< n;i++)
+    {
+        tracker[i] = sum+ a[i];
+        s[tracker[i]]= i;
+    }
+    
+    for(int i=0;i<n;i++)
+    {
+        if(s.find(tracker[i] + target) != s.end() &&
+           s[tracker[i]+target] > i)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 int main(int argc, const char * argv[])
 {
@@ -11703,8 +11861,55 @@ int main(int argc, const char * argv[])
     res =(-2147483648)/(-1);
     cout<<res<<endl;
      */
+    /*
     string res;
     res = FindShortestPattern("UAXXBAUBA", "AB");
+    cout<<res<<endl;
+     */
+    
+    /*
+    bool res;
+    res = isOneEditDistanceIII("a", "");
+    cout<<res;
+    */
+    
+    /*
+    TreeNode* n1 = new TreeNode(9);
+    TreeNode* n2 = new TreeNode(6);
+    TreeNode* n3 = new TreeNode(12);
+    TreeNode* n4 = new TreeNode(3);
+    TreeNode* n8 = new TreeNode(2);
+    TreeNode* n5 = new TreeNode(7);
+    TreeNode* n9 = new TreeNode(5);
+    TreeNode* n6 = new TreeNode(10);
+    TreeNode* n7 = new TreeNode(14);
+    
+    n1->left = n2;
+    n1->right = n3;
+    n2->left = n4;
+    n2->right = n5;
+    n3->left = n6;
+    n3->right = n7;
+    n4->left = n8;
+    n4->right = n9;
+    TreeNode* res;
+    res = findSuccessor(n1, 13);
+    cout<<res->val<<endl;
+     */
+    /*
+    char res[100];
+    mymemcpy2(res, "0123456789", 5);
+    cout<<res<<endl;
+     */
+    /*
+    int a[] = {8,4,0,3,0,2,0};
+    moveZeroes(a, 7);
+    for(int i = 0;i<7;i++) cout<<a[i]<<endl;
+     */
+    char* a = "aaa";
+    char* b = "aaa";
+    int res;
+    res = strStrIII(a,b);
     cout<<res<<endl;
     return 0;
 }
