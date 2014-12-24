@@ -7036,7 +7036,9 @@ string convert(ExpressionTreeNode * root)
 }
 
 /*
- 有很多 字串， 经常要作的操作有 ， 插入， 删除， 清空，查询以某前缀字串开头的所有的字串查询以某前缀字串开头的所有的字串的个数查询前缀字串开头的字串的所有 可能的下一个字母例如
+ 有很多 字串， 经常要作的操作有 ， 插入， 删除， 清空，查询以某前缀字串开头
+ 的所有的字串查询以某前缀字串开头的所有的字串的个数查询前缀字串开头的字串的所有
+ 可能的下一个字母例如
  
  [abc, abd, abe]
  input ab
@@ -10644,13 +10646,19 @@ void mymemcpy2(void *dest, const void *source, size_t num) {
     }
     */
 }
+
+/*
 //write a function f(int x), so that f(x) returns true with x% probability。
 //assme 0<=x<=100 and integer
+ */
 bool f(int x)
 {
     return random()%100 <= x;
 }
+
+/*
 //1. moving all 0s to the beginning of the array
+*/
 void moveZeroes(int a[], int n)
 {
     int left = 0;
@@ -10661,6 +10669,10 @@ void moveZeroes(int a[], int n)
         else swap(a, left, right--);
     }
 }
+
+/*
+ implement strStr()
+ */
 int strStrIII(char *haystack, char *needle) {
     int l1 = (int)strlen(haystack);
     int l2 = (int)strlen(needle);
@@ -10690,6 +10702,8 @@ int strStrIII(char *haystack, char *needle) {
     }
     return -1;
 }
+
+
 /*
  1) 给个数组seq， 和一个total，找 if there is a contiguous sequence in seq
  which sums to total.都是正数， 第一次没注意contiguous，给了个back tracking的解法。然后说是
@@ -10717,6 +10731,368 @@ bool findContigious(int a[], int n, int target)
     }
     return false;
 }
+
+/*
+//先问怎么求submatrix的和
+ */
+int findSubMatrix(vector<vector<int>> input, int i1, int j1, int i2, int j2)
+{
+    int n = (int)input.size();
+    int m = (int)input[0].size();
+    //check i1, j1, i2, j2 must be smaller than n,m...
+    vector<vector<int>> tracker(n, vector<int>(m,0));
+    tracker[0][0] = input[0][0];
+    for(int i = 1;i<m;i++)
+    {
+        tracker[0][i] = input[0][i] + tracker[0][i-1];
+    }
+    for(int i = 1;i<n;i++)
+    {
+        tracker[i][0] = input[i][0] + tracker[i-1][0];
+    }
+    for(int i = 1;i<n;i++)
+    {
+        for(int j = 1;j<m;j++)
+        {
+            tracker[i][j] = tracker[i-1][j] + tracker[i][j-1] - tracker[i-1][j-1] + input[i][j];
+        }
+    }
+    
+    if(i2<i1) swap(i1, i2);
+    if(j2<j1) swap(j1, j2);
+    
+    int res = tracker[i2][j2] -
+    (i1 == 0? 0 : tracker[i1-1][j2]) -
+    (j1 == 0 ? 0 : tracker[i2][j1-1]) +
+    (i1==0 || j1==0 ? 0:tracker[i1-1][j1-1]);
+
+    return res;
+}
+
+//单链表k个k个分组，反转奇数组。比如 link = 0->1->2->3->4->5->6->7, k = 3返回 2->1->0->3->4->5->7->6
+ListNode* reverseList(ListNode * head)
+{
+    ListNode* newHead = NULL;
+    ListNode* tmp = head;
+    while(head)
+    {
+        tmp = head;
+        head = head->next;
+        tmp->next = newHead;
+        newHead = tmp;
+    }
+    return newHead;
+}
+
+ListNode* reverseLinkedList(ListNode* head, int k)
+{
+    if(k<2) return head;
+    bool shouldReverse = true;
+    ListNode* dummyHeader = new ListNode(-1);
+    dummyHeader->next = head;
+    
+    ListNode* thisEnd;
+    ListNode* secondStart;
+    ListNode* secondEnd;
+    ListNode* thirdStart;
+    
+    thisEnd = dummyHeader;
+    while(thisEnd)
+    {
+        secondStart = thisEnd->next;
+        ListNode* tmp = secondStart;
+        for(int i = 0;i<k-1;i++)
+        {
+            if(tmp)
+            {
+                tmp = tmp->next;
+            }else
+            {
+                break;
+            }
+        }
+        secondEnd = tmp;
+        thirdStart = tmp? tmp->next : NULL;
+
+        if(shouldReverse)
+        {
+            if(secondEnd)
+            {
+                secondEnd->next = NULL;
+            }
+            ListNode* newhead = reverseList(secondStart);
+            thisEnd->next = newhead;
+            
+            secondStart->next = thirdStart;
+            thisEnd = secondStart;
+        }
+        else
+        {
+            thisEnd = secondEnd;
+        }
+        shouldReverse = !shouldReverse;
+    }
+    head = dummyHeader->next;
+    delete dummyHeader;
+    delete thisEnd;
+    delete secondEnd;
+    delete thirdStart;
+    
+    return head;
+    
+}
+
+double mysqrt(double x)
+{
+    if(x<0) return -1;
+    double left = x<1? x: 0;
+    double right = x<1? 1.0: x;
+    while(abs(right-left) > 0.0001)
+    {
+        double mid = left + (right-left)/2.0;
+        if(mid*mid > x)
+        {
+            right = mid;
+        }
+        else
+        {
+            left = mid;
+        }
+    }
+    return left;
+}
+
+
+/*
+ wildcard matching.
+ */
+bool isMatch4(char* s, char* p)
+{
+    bool star = false;
+    char *str, *ptr;
+    for (str = s, ptr = p; *str != '\0'; str++, ptr++) {
+        switch (*ptr) {
+            case '?':
+                break;
+            case '*':
+                star = true;
+                s = str;
+                p = ptr;
+                while (*p == '*') p++; //skip continuous '*'
+                if (*p == '\0') return true;
+                str = s - 1;
+                ptr = p - 1;
+                break;
+            default:
+                if (*str != *ptr) {
+                    if (!star) return false;
+                    s++;
+                    str = s - 1;
+                    ptr = p - 1;
+                }
+        }
+    }
+    while (*ptr == '*') ptr++;
+    return (*ptr == '\0');
+}
+
+bool isMatchRecursive(char* s, char* p)
+{
+    if(*p =='*')
+    {
+        while(*p=='*') p++;
+        if(*p == '\0') return true;
+        while(*s!='\0' && !isMatchRecursive(s, p)) s++;
+        return *s != '\0';
+    }
+    else if(*p =='\0' || *s == '\0') return *p == *s;
+    else if(*p =='?' || *p == *s) return isMatchRecursive(++s, ++p);
+    else return false;
+}
+
+TreeNode* a;
+bool started = false;
+stack<TreeNode*> s;
+bool backTrack =false;
+void initializeTree(TreeNode* input)
+{
+    a = input;
+    started= false;
+}
+
+bool haveNextTreeNode()
+{
+    if(started && s.empty() && a)
+    {
+        return false;
+    }
+    if(s.empty())
+    {
+        s.push(a);
+    }
+    return true;
+}
+
+TreeNode* getNextNode()
+{
+    if(!haveNextTreeNode())
+        return NULL;
+    TreeNode* res = NULL;
+    started= true;
+    while(!s.empty())
+    {
+        TreeNode* tmp = s.top();
+        if(tmp->left && !backTrack)
+        {
+            s.push(tmp->left);
+            continue;
+        }
+        res = tmp;
+        s.pop();
+        backTrack = true;
+        if(tmp->right)
+        {
+            s.push(tmp->right);
+            backTrack = false;
+        }
+        if(res)
+        {
+            return res;
+        }
+    }
+    return NULL;
+}
+
+void inorderTraversalTreeNode(TreeNode* root)
+{
+    stack<TreeNode*> s;
+    bool backTrack = false;
+    s.push(root);
+    while(!s.empty())
+    {
+        TreeNode* tmp = s.top();
+        if(tmp->left && !backTrack)
+        {
+            s.push(tmp->left);
+            continue;
+        }
+        cout<<tmp->val<<endl;
+        s.pop();
+        backTrack = true;
+        if(tmp->right)
+        {
+            s.push(tmp->right);
+            backTrack = false;
+        }
+    }
+}
+
+string longestCommonSubStr(string s1, string s2)
+{
+    TrieNode* root = new TrieNode();
+    for(int i = 0;i<s1.length();i++)
+    {
+        string tmp = s1.substr(i, s1.length()-i);
+        TrieNode* t = root;
+        for(int j = 0;j<tmp.length();j++)
+        {
+            if(!t->val[tmp[j]]) t->val[tmp[j]] = new TrieNode();
+            t = t->val[tmp[j]];
+        }
+    }
+    
+    int longest = INT_MIN;
+    string res = "";
+    for(int i = 0;i<s2.length();i++)
+    {
+        string tmp = s2.substr(i, s2.length()-1);
+        TrieNode* t= root;
+        int curLength = 0;
+        for(int j = 0;j< tmp.length();j++)
+        {
+            if(t->val[tmp[j]])
+            {
+                curLength++;
+                t = t->val[tmp[j]];
+            }
+            else
+            {
+                break;
+            }
+            
+            if(longest < curLength)
+            {
+                longest = curLength;
+                res = tmp.substr(0, longest);
+            }
+
+        }
+    }
+    return res;
+}
+
+vector<vector<int>> input;
+vector<vector<int>>::iterator parentIterator;
+vector<int>::iterator item;
+int currenIndex = 0;
+void initializerVector(vector<vector<int>> x)
+{
+    x = input;
+    parentIterator = input.begin();
+    item = (*parentIterator).begin();
+}
+
+bool hasNextIterator()
+{
+    if(item != (*parentIterator).end())
+        return true;
+    else
+    {
+        parentIterator++;
+        if(parentIterator != input.end())
+        {
+            item = (*parentIterator).begin();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+}
+
+vector<int>::iterator getNextIterator()
+{
+    if(hasNextIterator())
+    {
+        vector<int>::iterator res = item;
+        item++;
+        return res;
+    }
+    return (*parentIterator).end();
+    /*
+    if(item != (*parentIterator).end())
+    {
+        item++;
+        return item;
+    }
+    else
+    {
+        parentIterator++;
+        if(parentIterator != input.end())
+        {
+            parentIterator++;
+            item = (*parentIterator).begin();
+            return item;
+        }
+        else
+        {
+            return item;
+        }
+    }
+    */
+}
+ 
 
 int main(int argc, const char * argv[])
 {
@@ -11906,10 +12282,94 @@ int main(int argc, const char * argv[])
     moveZeroes(a, 7);
     for(int i = 0;i<7;i++) cout<<a[i]<<endl;
      */
+    /*
     char* a = "aaa";
     char* b = "aaa";
     int res;
     res = strStrIII(a,b);
     cout<<res<<endl;
+     */
+    
+    /*
+    vector<vector<int>> input(4, vector<int>(4,1));
+    cout<<findSubMatrix(input, 0,0,2,2)<<endl;
+     */
+    
+    
+    /*
+    //0->1->2->3->4->5->6->7
+    //k = 3
+    //返回 2->1->0->3->4->5->7->6
+    ListNode* n0 = new ListNode(0);
+    ListNode* n1 = new ListNode(1);
+    ListNode* n2 = new ListNode(2);
+    ListNode* n3 = new ListNode(3);
+    ListNode* n4 = new ListNode(4);
+    ListNode* n5 = new ListNode(5);
+    ListNode* n6 = new ListNode(6);
+    ListNode* n7 = new ListNode(7);
+    n0->next = n1;
+    n1->next = n2;
+    n2->next = n3;
+    n3->next = n4;
+    n4->next = n5;
+    n5->next = n6;
+    n6->next = n7;
+    
+    ListNode* res;
+    res = reverseLinkedList(n0, 3);
+    while(res)
+    {
+        cout<<res->val<<"->";
+        res = res->next;
+    }
+     
+     */
+    
+    /*
+    double res;
+    res = mysqrt(0.4);
+    cout<<res<<endl;
+    */
+    
+    /*
+    TreeNode* n1 = new TreeNode(9);
+    TreeNode* n2 = new TreeNode(6);
+    TreeNode* n3 = new TreeNode(12);
+    TreeNode* n4 = new TreeNode(3);
+    TreeNode* n8 = new TreeNode(2);
+    TreeNode* n5 = new TreeNode(7);
+    TreeNode* n9 = new TreeNode(5);
+    TreeNode* n6 = new TreeNode(10);
+    TreeNode* n7 = new TreeNode(14);
+    
+    n1->left = n2;
+    n1->right = n3;
+    n2->left = n4;
+    n2->right = n5;
+    n3->left = n6;
+    n3->right = n7;
+    n4->left = n8;
+    n4->right = n9;
+    
+    //inorderTraversalTreeNode(n1);
+    
+    initializeTree(n1);
+    while(haveNextTreeNode())
+    {
+        TreeNode* res = getNextNode();
+        cout<<res->val<<endl;
+    }
+    */
+    
+    string str1 = "notnecessary to go to";
+    string str2 = "kind of you not a";
+    string res;
+    res = longestCommonSubStr(str1, str2);
+    cout<<res<<endl;
+    
+    int commonLength;
+    commonLength = longestCommonSubString(str1, str2);
+    cout<<commonLength<<endl;
     return 0;
 }
