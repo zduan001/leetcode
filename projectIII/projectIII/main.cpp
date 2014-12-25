@@ -11037,7 +11037,7 @@ vector<int>::iterator item;
 int currenIndex = 0;
 void initializerVector(vector<vector<int>> x)
 {
-    x = input;
+    input = x;
     parentIterator = input.begin();
     item = (*parentIterator).begin();
 }
@@ -11049,6 +11049,11 @@ bool hasNextIterator()
     else
     {
         parentIterator++;
+        while(parentIterator!= input.end() &&
+              (*parentIterator).begin() == (*parentIterator).end())
+        {
+            parentIterator++;
+        }
         if(parentIterator != input.end())
         {
             item = (*parentIterator).begin();
@@ -11092,7 +11097,129 @@ vector<int>::iterator getNextIterator()
     }
     */
 }
- 
+
+/*
+从矩阵一段走对角线多少种走法，然后用组合数写了，然后加入障碍，然后用动态规划写了
+ */
+int findHowManyWays(int n, int m)
+{
+    //check n or m
+    vector<vector<int>> tracker(n, vector<int>(m,1));
+    for(int i = 1;i<n;i++)
+    {
+        for(int j = 1;j<m;j++)
+        {
+            tracker[i][j] = tracker[i-1][j] + tracker[i][j-1];
+        }
+    }
+    return tracker[n-1][m-1];
+}
+
+int findHowManyWaysOneArray(int n, int m)
+{
+    vector<int> tracker (m, 1);
+    for(int i = 1;i<n;i++)
+    {
+        for(int j = 1;j<m;j++)
+        {
+            tracker[j] = tracker[j]+ tracker[j-1];
+        }
+    }
+    return tracker[m-1];
+}
+
+/*
+ 二面也很简单，问了一道一堆数据，从一个开始之后是另外一个类型，然后binary search轻松搞定
+ */
+int findChange(vector<int> input)
+{
+    int left = 0;
+    int right = (int)input.size()-1;
+    if( input[0] == input[input.size()-1]) return 0;
+    while(left<=right)
+    {
+        int mid = left + (right-left)/2;
+        if(mid > 0 && input[mid-1] != input[mid])
+        {
+            return mid;
+        }
+        else if(mid < input.size()-1 && input[mid] != input[mid+1])
+        {
+            return mid+1;
+        }
+        else if(input[left] == input[mid])
+        {
+            left = mid+1;
+        }
+        else
+        {
+            right = mid-1;
+        }
+    }
+    return -1;
+}
+
+/*
+ 一个美国小哥，树的遍历，当然顺序是反向的，然后要求用另外一种实现（空间换时间），还有直接打印树中第n个节点
+ */
+int printNth(TreeNode* root, int n)
+{
+    stack<TreeNode*> s;
+    s.push(root);
+    int count = 0;
+    bool backTrack= false;
+    while(!s.empty())
+    {
+        TreeNode* tmp = s.top();
+        if(tmp->left && !backTrack)
+        {
+            s.push(tmp->left);
+            continue;
+        }
+        
+        s.pop();
+        count++;
+        if(count == n) return tmp->val;
+        backTrack = true;
+        if(tmp->right)
+        {
+            s.push(tmp->right);
+            backTrack = false;
+        }
+            
+        
+    }
+    return -1;
+}
+
+/*
+还是一个美国小哥，打印所有树的path 使得sum为一个给定的数.
+*/
+
+
+int printNthWithNumber(TreeNode* root, int n)
+{
+    // that means n is larger than the count of the all nodes in the tree
+    if(n>root->val) return -1;
+    while(root)
+    {
+        int leftcount = (root->left)? root->left->val: 0;
+        if(n > leftcount+1)
+        {
+            root = root->right;
+            n = n-leftcount-1;
+        }
+        else if(n<leftcount+1)
+        {
+            root = root->left;
+        }
+        else
+        {
+            return root->val;
+        }
+    }
+    return -1;
+}
 
 int main(int argc, const char * argv[])
 {
@@ -12362,6 +12489,7 @@ int main(int argc, const char * argv[])
     }
     */
     
+    /*
     string str1 = "notnecessary to go to";
     string str2 = "kind of you not a";
     string res;
@@ -12371,5 +12499,138 @@ int main(int argc, const char * argv[])
     int commonLength;
     commonLength = longestCommonSubString(str1, str2);
     cout<<commonLength<<endl;
+     */
+    
+    /*
+    vector<int> v1 = {1,2,3,4};
+    vector<int> v2 = {5,6,7,8};
+    vector<int> v3 = {9,10};
+    vector<int> v4 = {};
+        vector<int> v6 = {};
+        vector<int> v7 = {};
+    vector<int> v5 = {11, 12};
+    
+    vector<vector<int>> input = {v1,v2,v3,v4,v6,v7,v5};
+    initializerVector(input);
+    
+    while( hasNextIterator())
+    {
+        auto item = getNextIterator();
+        cout<<*item<<endl;
+    }
+    */
+    
+    /*
+    int res;
+    res = findHowManyWays(3,3);
+    cout<<res<<endl;
+    res = findHowManyWaysOneArray(3,3);
+    cout<<res<<endl;
+    */
+    
+    /*
+    vector<int> input = {1,1,1,1,1,0,0,0,0};
+    int res;
+    res = findChange(input);
+    cout<<res<<endl;
+    
+    input = {0,1};
+    res = findChange(input);
+    cout<<res<<endl;
+    
+    input = {0,0,0,0};
+    res = findChange(input);
+    cout<<res<<endl;
+    */
+    /*
+    TreeNode* n1 = new TreeNode(9);
+    TreeNode* n2 = new TreeNode(6);
+    TreeNode* n3 = new TreeNode(12);
+    TreeNode* n4 = new TreeNode(3);
+    TreeNode* n8 = new TreeNode(2);
+    TreeNode* n5 = new TreeNode(7);
+    TreeNode* n9 = new TreeNode(5);
+    TreeNode* n6 = new TreeNode(10);
+    TreeNode* n7 = new TreeNode(14);
+    
+    n1->left = n2;
+    n1->right = n3;
+    n2->left = n4;
+    n2->right = n5;
+    n3->left = n6;
+    n3->right = n7;
+    n4->left = n8;
+    n4->right = n9;
+    
+    int res;
+    res = printNth(n1, 1);
+    cout<<res<<endl;
+    res = printNth(n1, 2);
+    cout<<res<<endl;
+    res = printNth(n1, 3);
+    cout<<res<<endl;
+    res = printNth(n1, 4);
+    cout<<res<<endl;
+    res = printNth(n1, 5);
+    cout<<res<<endl;
+    res = printNth(n1, 6);
+    cout<<res<<endl;
+    res = printNth(n1, 7);
+    cout<<res<<endl;
+    res = printNth(n1, 8);
+    cout<<res<<endl;
+    res = printNth(n1, 9);
+    cout<<res<<endl;
+    res = printNth(n1, 10);
+    cout<<res<<endl;
+    */
+    
+    
+    TreeNode* n1 = new TreeNode(9);
+    TreeNode* n2 = new TreeNode(5);
+    TreeNode* n3 = new TreeNode(3);
+    TreeNode* n4 = new TreeNode(3);
+    TreeNode* n8 = new TreeNode(1);
+    TreeNode* n5 = new TreeNode(1);
+    TreeNode* n9 = new TreeNode(1);
+    TreeNode* n6 = new TreeNode(1);
+    TreeNode* n7 = new TreeNode(1);
+    
+    n1->left = n2;
+    n1->right = n3;
+    n2->left = n4;
+    n2->right = n5;
+    n3->left = n6;
+    n3->right = n7;
+    n4->left = n8;
+    n4->right = n9;
+    
+    int res;
+    res = printNthWithNumber(n1, 1);
+    cout<<res<<endl;
+    res = printNthWithNumber(n1, 2);
+    cout<<res<<endl;
+    res = printNthWithNumber(n1, 3);
+    cout<<res<<endl;
+    res = printNthWithNumber(n1, 4);
+    cout<<res<<endl;
+    res = printNthWithNumber(n1, 5);
+    cout<<res<<endl;
+    res = printNthWithNumber(n1, 6);
+    cout<<res<<endl;
+    res = printNthWithNumber(n1, 7);
+    cout<<res<<endl;
+    res = printNthWithNumber(n1, 8);
+    cout<<res<<endl;
+    res = printNthWithNumber(n1, 9);
+    cout<<res<<endl;
+    res = printNthWithNumber(n1, 10);
+    cout<<res<<endl;
+    
+    
+    
+    
+    
+    
     return 0;
 }
