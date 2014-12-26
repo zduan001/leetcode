@@ -231,7 +231,7 @@
                   symbolName = "worker(int, std::__1::vector&lt;int, std::__1::allocator&lt;int&gt; &gt;&amp;, std::__1::vector&lt;std::__1::vector&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;, std::__1::allocator&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; &gt; &gt;, std::__1::allocator&lt;std::__1::vector&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;, std::__1::allocator&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; &gt; &gt; &gt; &gt;&amp;)"
                   moduleName = "projectIII"
                   urlString = "file:///Users/daviduan/Documents/prototype/multiT/LeetCode/projectIII/projectIII/main.cpp"
-                  timestampString = "441240444.517654"
+                  timestampString = "441321032.182331"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "4663"
@@ -245,7 +245,7 @@
                   symbolName = "worker(int, std::__1::vector&lt;int, std::__1::allocator&lt;int&gt; &gt;&amp;, std::__1::vector&lt;std::__1::vector&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;, std::__1::allocator&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; &gt; &gt;, std::__1::allocator&lt;std::__1::vector&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;, std::__1::allocator&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; &gt; &gt; &gt; &gt;&amp;)"
                   moduleName = "projectIII"
                   urlString = "file:///Users/daviduan/Documents/prototype/multiT/LeetCode/projectIII/projectIII/main.cpp"
-                  timestampString = "441240444.517982"
+                  timestampString = "441321032.182676"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "4663"
@@ -259,7 +259,7 @@
                   symbolName = "worker(int, std::__1::vector&lt;int, std::__1::allocator&lt;int&gt; &gt;&amp;, std::__1::vector&lt;std::__1::vector&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;, std::__1::allocator&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; &gt; &gt;, std::__1::allocator&lt;std::__1::vector&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;, std::__1::allocator&lt;std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt; &gt; &gt; &gt; &gt;&amp;)"
                   moduleName = "projectIII"
                   urlString = "file:///Users/daviduan/Documents/prototype/multiT/LeetCode/projectIII/projectIII/main.cpp"
-                  timestampString = "441240444.518246"
+                  timestampString = "441321032.182993"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "4663"
@@ -596,11 +596,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "projectIII/main.cpp"
-            timestampString = "441240378.581445"
+            timestampString = "441320562.434935"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "12449"
-            endingLineNumber = "12449"
+            startingLineNumber = "12636"
+            endingLineNumber = "12636"
             landmarkName = "main(int argc, const char * argv[])"
             landmarkType = "7">
          </BreakpointContent>
@@ -612,11 +612,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "projectIII/main.cpp"
-            timestampString = "441240378.581445"
+            timestampString = "441320562.434935"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "12425"
-            endingLineNumber = "12425"
+            startingLineNumber = "12612"
+            endingLineNumber = "12612"
             landmarkName = "main(int argc, const char * argv[])"
             landmarkType = "7">
          </BreakpointContent>
@@ -628,11 +628,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "projectIII/main.cpp"
-            timestampString = "441240378.581445"
+            timestampString = "441320562.434935"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "12508"
-            endingLineNumber = "12508"
+            startingLineNumber = "12695"
+            endingLineNumber = "12695"
             landmarkName = "main(int argc, const char * argv[])"
             landmarkType = "7">
          </BreakpointContent>
@@ -706,11 +706,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "projectIII/main.cpp"
-            timestampString = "441240378.581445"
+            timestampString = "441320562.434935"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "12867"
-            endingLineNumber = "12867"
+            startingLineNumber = "13054"
+            endingLineNumber = "13054"
             landmarkName = "main(int argc, const char * argv[])"
             landmarkType = "7">
          </BreakpointContent>
@@ -754,11 +754,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "projectIII/main.cpp"
-            timestampString = "441240378.581445"
+            timestampString = "441320562.434935"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "12934"
-            endingLineNumber = "12934"
+            startingLineNumber = "13121"
+            endingLineNumber = "13121"
             landmarkName = "main(int argc, const char * argv[])"
             landmarkType = "7">
          </BreakpointContent>
@@ -808,6 +808,38 @@
             startingLineNumber = "11229"
             endingLineNumber = "11229"
             landmarkName = "printPath(stack&lt;TreeNode*&gt; input, int target)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "projectIII/main.cpp"
+            timestampString = "441317260.841209"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "12224"
+            endingLineNumber = "12224"
+            landmarkName = "searchWordTrie(string s)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "projectIII/main.cpp"
+            timestampString = "441317592.262816"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "12196"
+            endingLineNumber = "12196"
+            landmarkName = "searchWordTrie(string s)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

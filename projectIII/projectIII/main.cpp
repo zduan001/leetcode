@@ -9,11 +9,11 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <unordered_set>
 #include <unordered_map>
 #include <stack>
 #include <assert.h>
 #include <numeric>
-#include <unordered_set>
 #include <queue>
 #include <math.h>
 #include <stdlib.h>
@@ -12104,6 +12104,193 @@ ListNode* shuffleList(ListNode* head)
     
 }
 
+/*
+ 2.    Design a data structure supporting two operations
+ 1）    void addWord(string)
+ 2）    bool search(string)
+ 
+ search(string) can search word and regular expression ( only consider “.”,
+ which means any one character)
+ 
+ 例如
+ addWord("rat")
+ addWord("cat")
+ addWord("bat")
+ search("dat") -> false
+ search("bat") -> true
+ search(".at") -> true
+ search("r.t") -> true
+ */
+unordered_set<string> containerx;
+void addWord(string s)
+{
+    containerx.insert(s);
+}
+
+
+bool searchWordWorker(string tmp, vector<int> index, int i)
+{
+    if(i == index.size())
+    {
+        return containerx.find(tmp) != containerx.end();
+    }
+    else
+    {
+        for(char c = 'a';c<='z';c++ )
+        {
+            tmp[index[i]] = c;
+            
+            if(searchWordWorker(tmp, index, i+1))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool searchWord(string s)
+{
+    vector<int> index;
+    for(int i = 0;i< s.length();i++)
+    {
+        if(s[i] == '.')
+        {
+            index.push_back(i);
+        }
+    }
+    return searchWordWorker(s, index, 0);
+}
+
+// use Trie to do this code.
+TrieNode* host;
+int SIZE = 256;
+void addWordTrie(string s)
+{
+    if(!host) host = new TrieNode();
+    TrieNode* tmp = host;
+    for(int i = 0;i<s.length();i++)
+    {
+        if(!tmp->val[s[i]])
+        {
+            tmp->val[s[i]] = new TrieNode();
+        }
+        if(i == s.length()-1)
+        {
+            tmp->end[s[i]] = true;
+        }
+        tmp = tmp->val[s[i]];
+    }
+}
+
+
+bool searchWordTrie(string s)
+{
+    queue<TrieNode*> q;
+    TrieNode* tmp = host;
+    q.push(tmp);
+    q.push(NULL);
+    int i = 0;
+    while(!q.empty())
+    {
+        tmp = q.front();
+        q.pop();
+        // taking care of the end of a level
+        if(!tmp)
+        {
+            i++;
+            q.push(NULL);
+            continue;
+        }
+        
+        if(s[i] != '.')
+        {
+            if(tmp->val[s[i]])
+            {
+                if(tmp->end[s[i]] && i == s.length()-1) return true;
+                else q.push(tmp->val[s[i]]);
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            for(int j = 0;j< SIZE;j++)
+            {
+                if(tmp->val[j])
+                {
+                    if((i == s.length()-1) && tmp->end[j]) return true;
+                    else q.push(tmp->val[j]);
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool searchWordTrieDFSWorker(int level, string s, TrieNode* root)
+{
+    if(level == s.length()-1)
+    {
+        if(s[level] == '.')
+        {
+            for(int i = 0;i<SIZE;i++)
+            {
+                if(root->val[i] && root->end[i]) return true;
+            }
+            return false;
+        }
+        else
+        {
+            if(root->val[s[level]] && root->end[s[level]])
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+    else
+    {
+        if(s[level] == '.')
+        {
+            for(int i = 0;i<SIZE;i++)
+            {
+                if(root->val[i])
+                {
+                    if(searchWordTrieDFSWorker(level+1, s, root->val[i]))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        else
+        {
+            if(root->val[s[level]])
+            {
+                return searchWordTrieDFSWorker(level+1, s, root->val[s[level]]);
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+}
+
+bool searchWordTrieDFS(string s)
+{
+    
+    return searchWordTrieDFSWorker(0, s, host);
+}
+
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -13558,6 +13745,7 @@ int main(int argc, const char * argv[])
     cout<<res<<endl;
     */
     
+    /*
     ListNode* l1 = new ListNode(1);
     ListNode* l2 = new ListNode(2);
     ListNode* l3 = new ListNode(3);
@@ -13575,7 +13763,46 @@ int main(int argc, const char * argv[])
     insertCircularList(l1, 3);
     insertCircularList(l4, 10);
     insertCircularList(l4, 7);
+    */
     
+    /*
+    addWord("rat");
+    addWord("cat");
+    addWord("cat");
+    addWord("bat");
+    cout<<searchWord("dat")<<endl;
+    cout<<searchWord("bat")<<endl;
+    cout<<searchWord(".a.")<<endl;
+    cout<<searchWord("r.t")<<endl;
+    cout<<searchWord("t.t")<<endl;
+    cout<<searchWord("...")<<endl;
+    */
+    
+    /*
+    addWordTrie("rat");
+    addWordTrie("cat");
+    addWordTrie("cat");
+    addWordTrie("bat");
+    cout<<searchWordTrie("dat")<<endl;
+    cout<<searchWordTrie("bat")<<endl;
+    cout<<searchWordTrie(".a.")<<endl;
+    cout<<searchWordTrie("c..")<<endl;
+    cout<<searchWordTrie("r.t")<<endl;
+    cout<<searchWordTrie("t.t")<<endl;
+    cout<<searchWordTrie("...")<<endl;
+    */
+    
+    addWordTrie("rat");
+    addWordTrie("cat");
+    addWordTrie("cat");
+    addWordTrie("bat");
+    cout<<searchWordTrieDFS("dat")<<endl;
+    cout<<searchWordTrieDFS("bat")<<endl;
+    cout<<searchWordTrieDFS(".a.")<<endl;
+    cout<<searchWordTrieDFS("c..")<<endl;
+    cout<<searchWordTrieDFS("r.t")<<endl;
+    cout<<searchWordTrieDFS("t.t")<<endl;
+    cout<<searchWordTrieDFS("...")<<endl;
     
     return 0;
 }
