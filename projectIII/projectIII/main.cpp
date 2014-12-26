@@ -11221,6 +11221,889 @@ int printNthWithNumber(TreeNode* root, int n)
     return -1;
 }
 
+/*
+ 打印所有树的path 使得sum为一个给定的数.（假设path是from root 到leaf 的path）
+ */
+void printPath(stack<TreeNode*> input, int target)
+{
+    stack<TreeNode*> s;
+    int sum = 0;
+    while(!input.empty())
+    {
+        sum += input.top()->val;
+        s.push(input.top());
+        input.pop();
+    }
+    
+    if(target == sum)
+    {
+        while(!s.empty())
+        {
+            cout<< s.top()->val<<"->";
+            s.pop();
+        }
+        cout<<endl;
+    }
+    
+}
+
+void FindAllPath(TreeNode* root, int target)
+{
+    if(!root) return;
+    stack<TreeNode*> s;
+    TreeNode* prev = NULL;
+    s.push(root);
+    while(!s.empty())
+    {
+        TreeNode* tmp = s.top();
+        if(tmp->left &&
+           tmp->left != prev &&
+           (tmp->right && tmp->right != prev))
+        {
+            s.push(tmp->left);
+        }
+        else if( tmp->right && tmp->right != prev)
+        {
+            s.push(tmp->right);
+        }
+        else
+        {
+            if(!tmp->left && !tmp->right)
+            {
+                printPath(s, target);
+            }
+            s.pop();
+            prev = tmp;
+        }
+    }
+}
+
+/*
+ roman number to integer
+ */
+
+int ConvertRomanToInteger(string roman)
+{
+    unordered_map<char, int> tracker;
+    tracker['I'] = 1;
+    tracker['V'] = 5;
+    tracker['X'] = 10;
+    tracker['L'] = 50;
+    tracker['C'] = 100;
+    tracker['D'] = 500;
+    tracker['M'] = 1000;
+    
+    int res = 0;
+    for(int i = 0;i< roman.length();i++)
+    {
+        if(i>0 && tracker[roman[i-1]] < tracker[roman[i]])
+        {
+            res += (tracker[roman[i]] - 2 * tracker[roman[i-1]]);
+        }
+        else
+        {
+            res += tracker[roman[i]];
+        }
+    }
+    return res;
+}
+
+/*
+ integer to roman
+ */
+void convert(int k, char romanchars[], string& res)
+{
+    if(k<=0)
+        return;
+    else if(k<=3)
+        res.append(k, romanchars[0]);
+    else if(k==4)
+    {
+        res.append(1, romanchars[0]);
+        res.append(1, romanchars[1]);
+    }
+    else if(k<=8)
+    {
+        res.append(1, romanchars[1]);
+        res.append(k-5, romanchars[0]);
+    }
+    else if(k==9)
+    {
+        res.append(1, romanchars[0]);
+        res.append(1, romanchars[2]);
+    }
+    
+}
+
+string ConvertIntToRoman(int n)
+{
+    char roman[] = {'I', 'V', 'X', 'L', 'C', 'D', 'M'};
+    string res;
+    int factor = 1000;
+    int i = 6;
+    while(n!= 0)
+    {
+        convert(n/factor, roman+i, res );
+        i -= 2;
+        n %= factor;
+        factor /=10;
+    }
+    return res;
+}
+
+/*
+ 就是给你一个string判断是否是palindrome，忽略大小写，忽略非字母符号
+ */
+bool isNumAlpha(char c)
+{
+    if(( c>='0' && c <='0') ||
+       (c >= 'a' && c<='z'))
+    {
+        return true;
+    }
+    return false;
+}
+
+bool isPalindromeX(string s)
+{
+    int left = 0;
+    int right = (int)s.length()-1;
+    while(left <= right)
+    {
+        while(!isNumAlph(tolower(s[left]))) left++;
+        while(!isNumAlph(tolower(s[right]))) right --;
+        if(tolower(s[left]) == tolower(s[right]))
+        {
+            left++;
+            right--;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+int strStr4(string haystack, string needle)
+{
+    int l1 = (int)haystack.length();
+    int l2 = (int)needle.length();
+    if(l2>l1) return -1;
+    int next[l2];
+    next[0] =-1;
+    int j = -1;
+    for(int i = 1;i<l2;i++)
+    {
+        while(j != -1 && needle[j+1] != needle[i])
+            j = next[j];
+        if(needle[j+1]== needle[i])
+            j++;
+        next[i] = j;
+    }
+    j = -1;
+    for(int i = 0;i<l1;i++)
+    {
+        while(j != -1 && haystack[i] != needle[j+1])
+            j = next[j];
+        if(haystack[i] == needle[j+1])
+            j++;
+        if(j == l2-1)
+            return i - j;
+    }
+    return -1;
+}
+
+bool threeSum(vector<int> input, int target)
+{
+    sort(input.begin(), input.end());
+    for(int i = 0;i< input.size()-2;i++)
+    {
+        int left = i+1;
+        int right = (int)input.size() -1;
+        while(left<right)
+        {
+            int sum = input[left] + input[right] + input[i];
+            if(sum == target)
+            {
+                return true;
+            }
+            if(sum < target)
+            {
+                left++;
+            }
+            else
+            {
+                right--;
+            }
+        }
+    }
+    return false;
+    
+}
+
+bool threeSumWithHasTable(vector<int> input,  int target)
+{
+    unordered_map<int, vector<pair<int, int>>> tracker;
+    int n = (int)input.size();
+    for(int i = 0;i<n;i++)
+    {
+        for(int j = i+1;j<n;i++)
+        {
+            tracker[input[i]+input[j]].push_back(make_pair(i, j));
+        }
+    }
+    
+    for(int i = 0;i<n;i++)
+    {
+        if(tracker.find(target-input[i]) != tracker.end())
+        {
+            for(auto item : tracker[target-input[i]])
+            {
+                if(i != item.first && i!= item.second)
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+    
+}
+
+/*
+ Letter Combinations of a Phone Number，
+ */
+void letterCombinationWorkeri( string digits, string& tmp, vector<string>& res, unordered_map<char, string> map)
+{
+    if(tmp.length() == digits.length())
+    {
+        res.push_back(tmp);
+    }
+    else
+    {
+        string x = map[digits[tmp.length()]];
+        for(int i = 0;i<(int)x.length();i++)
+        {
+            tmp.push_back(x[i]);
+            letterCombinationWorkeri(digits, tmp, res, map);
+            tmp.pop_back();
+        }
+    }
+}
+
+vector<string> letterCombinationsi(string digits) {
+    vector<string> res;
+    
+    unordered_map<char, string> map;
+    map['2']= "abc";
+    map['3'] = "def";
+    map['4'] = "ghi";
+    map['5'] = "jkl";
+    map['6'] = "mno";
+    map['7'] = "pqrs";
+    map['8'] = "tuv";
+    map['9'] = "wxyz";
+    string tmp = "";
+    letterCombinationWorkeri(digits, tmp, res, map);
+    
+    return res;
+}
+
+/*
+ Anagram groups
+ */
+unordered_map<string, vector<string>> AnagramGroups(vector<string> input)
+{
+    unordered_map<string, vector<string>> res;
+    for(auto item: input)
+    {
+        string s = item;
+        sort(s.begin(), s.end());
+        res[s].push_back(item);
+    }
+    return res;
+    
+}
+
+/*
+ 2. Decode ways
+ */
+int DecodeWays(string s)
+{
+    int prev = 0;
+    int cur = 1;
+    for(int i = 0;i<s.length();i++)
+    {
+        if(s[i] == '0') cur = 0;
+        if(i == 0 || !(s[i-1] == '1' ||(s[i-1]=='2' && s[i] <= '6'))) prev = 0;
+        int tmp = cur;
+        cur = cur + prev;
+        prev = tmp;
+    }
+    return cur;
+}
+
+/*
+2.Find minimum number in a rotated sorted array (当时这个题还没在
+leetcode里，所以写得代码有些繁琐，估计因为这个要再电面一轮）
+*/
+int findMinX(vector<int> num)
+{
+    int size = (int)num.size();
+    if(size == 0) return 0;
+    int left = 0;
+    int right =  size-1;
+    while(left <=right)
+    {
+        int mid = left + (right-left)/2;
+        
+        if((num[mid] < num[mid-1] || mid == 0) &&
+           (num[mid] < num[mid+1] || mid == size -1))
+        {
+            return num[mid];
+        }
+        else if(num[left] < num[mid] && num[mid] < num[right])
+        {
+            return num[left];
+        }
+        else if(num[left] > num[mid])
+        {
+            right = mid - 1;
+        }
+        else if(num[mid] > num[right])
+        {
+            left = mid + 1;
+        }
+    }
+    return num[left-1];
+}
+
+/*
+ 
+ 1.    Insert a node into a sorted circular linked list ( all next element is
+ larger except for the last one), the given head can point to any node
+ 
+ 1 -> 3 -> 5 ->7
+ ^             |
+ |             |
+ |  _  _  _  _ |
+ 
+ 如果node的值是2，则插入1和3之间；如果node的值是8或者0，插入7和1之间。
+ 
+ 要考虑node值重复的情况，虽然结果一样，但要和面试官讨论新的节点插入的位置，可
+ 能插入在最开始或最后，我不记得了。
+ 
+ 例如插入3, 结果是1->3->3'->5->7或者1->3'->3->5->7
+*/
+void insertCircularList(ListNode* head, int target)
+{
+    if(!head) return;
+    while(head)
+    {
+        if(head->val == target)
+        {
+            ListNode* tmp = new ListNode(target);
+            tmp->next = head->next;
+            head->next = tmp;
+            return;
+        }
+        else if(head->val < target)
+        {
+            if(head->next->val >=target)
+            {
+                ListNode* tmp = new ListNode(target);
+                tmp->next = head->next;
+                head->next = tmp;
+                return;
+            }
+            else
+            {
+                if(head->next->val >= head->val)
+                {
+                    head = head->next;
+                }
+                else
+                {
+                    ListNode* tmp = new ListNode(target);
+                    tmp->next = head->next;
+                    head->next = tmp;
+                    return;
+                }
+            }
+        }
+        else
+        {
+            head = head->next;
+        }
+    }
+}
+
+/*
+ 2.    Clone graph(leetcode)
+ */
+
+vector<GraphNode*> clone(vector<GraphNode*> input)
+{
+    unordered_map<GraphNode*, GraphNode*> tracker;
+    for(auto item: input)
+    {
+        tracker[item] = new GraphNode(item->val);
+    }
+    
+    for(auto item: input)
+    {
+        for(auto nei: item->neighbors)
+        {
+            tracker[item]->neighbors.push_back(tracker[nei]);
+        }
+    }
+    
+    vector<GraphNode*> res;
+    for(auto item: input)
+    {
+        res.push_back(tracker[item]);
+    }
+    return res;
+    
+}
+
+/*
+ regular expression DP
+ */
+bool canMatch(char a, char b)
+{
+    return (a == b || b == '.');
+}
+
+bool isMatchDP(const char *s, const char *p) {
+    int lS = (int)strlen(s);
+    int lP = (int)strlen(p);
+    vector<vector<bool> > F(lS + 1, vector<bool>(lP + 1));
+    F[0][0] = true;
+    for (int i = 0; i <= lS; i++)
+    {
+        for (int j = 1; j <= lP; j++)
+        {
+            if(i>0)
+                // matches one character, index of both string and pattern move forward by 1
+                if (F[i-1][j-1] && canMatch(s[i-1], p[j-1]))
+                {
+                    F[i][j] = true;
+                    continue;
+                }
+            if (i > 0 && j > 1)
+                // matches the situation when the next char in the string is the same as the char before the '*' in the pattern
+                // pre-match: string xxxCyyy, pattern mmmC*nnn, xxx matches mmmC*
+                // current match: xxxC matches mmmC*
+                if (F[i-1][j] && canMatch(s[i-1], p[j-2]) && p[j-1] == '*')
+                {
+                    F[i][j] = true;
+                    continue;
+                }
+            if (j > 1)
+                // matches the situation when the next two chars in the pattern is in the form of C*
+                // pre-match: string xxxyyy, pattern mmmC*nnn, xxx matches mmm
+                // current match: xxx matches mmmC*
+                if (F[i][j-2] && p[j-1] == '*')
+                {
+                    F[i][j] = true;
+                    continue;
+                }
+        }
+    }
+    return F[lS][lP];
+}
+
+/*
+ 告诉面试官有DP 解法, 告知我写递归. 我也写出个递归解法, 并且用hashmap 保存出
+ 现过的子串来优化
+ */
+bool wordBreak(string s, unordered_set<string> dict)
+{
+    int n = (int)s.length();
+    vector<bool> tracker(n);
+    for(int i=0;i<n;i++)
+    {
+        for(int j =-1;j<i;j++)
+        {
+            bool prev = j<0? true: tracker[j];
+            if(dict.find(s.substr(j+1, i-j)) != dict.end() && prev)
+            {
+                tracker[i] = true;
+                break;
+            }
+        }
+    }
+    return tracker[n-1];
+}
+
+
+bool wordBreakRecursive(string s, unordered_set<string> dict)
+{
+    int n = (int)s.length();
+    for(int i = 1;i<=n;i++)
+    {
+        bool prev = dict.find(s.substr(0, i)) != dict.end();
+        if(prev && wordBreakRecursive(s.substr(i, n-i), dict))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+/*// Reverse a Singly Linked List
+ // Example Input: A -> B -> C
+ // Example Output: C -> B -> A
+ 他先让说思路，然后问时间和空间复杂度，然后写代码。说思路说了半天，这种list的
+ 题，就是画图，英语不好说起来真费劲。。。这道题应该是Leetcode上一道的一个小部
+ 分，所以很快就写完了。
+ */
+
+ListNode* reversex(ListNode* head)
+{
+    ListNode* newHead = NULL;
+    ListNode* tmp;
+    while(head)
+    {
+        tmp = head;
+        head = head->next;
+        tmp->next = newHead;
+        newHead = tmp;
+    }
+    return newHead;
+}
+
+/*
+ 2.第二题直接copy 题目，感觉跟leetcode上面的interval那题很相似，简单一点点。
+ // Given a array of pairs where each pair contains the start and end time of a meeting (as in int),
+ // Determine if a single person can attend all the meetings
+ // Input array(pair(1,4), pair(4, 5), pair(3,4), pair(2,3))
+ // Output: False
+ 同样的思路+复杂度。 同样是变种题，还变简单了，很快写完。（主要是考比较器的
+ override吧）
+ */
+
+bool compareX(EndPoint ep1, EndPoint ep2)
+{
+    if(ep1.val < ep2.val) return true;
+    if(ep1.val == ep2.val && ep1.count < ep2.count) return true;
+    return false;
+}
+
+bool canAttendAllmeeting(vector<Interval> input)
+{
+    vector<EndPoint> tracker;
+    for(auto item: input)
+    {
+        EndPoint ep1(item.start, 1);
+        EndPoint ep2(item.end, 1);
+        tracker.push_back(ep1);
+        tracker.push_back(ep2);
+    }
+    
+    sort(tracker.begin(), tracker.end(), compareX);
+    int maxCount = 0;
+    int cur = 0;
+    for(auto ep: tracker)
+    {
+        cur+=ep.count;
+        maxCount = max(cur, maxCount);
+    }
+    return maxCount <=1;
+    
+}
+
+/*
+ 3. follow up第二题
+ // determine the minimum number of meeting rooms needed to hold all the meetings.
+ // Input array(pair(1, 4), pair(2,3), pair(3,4), pair(4,5))
+ // Output: 2
+ */
+int FindHowMayMeetingRoomNeeded(vector<Interval> input)
+{
+    vector<EndPoint> tracker;
+    for(auto item: input)
+    {
+        EndPoint ep1(item.start, 1);
+        EndPoint ep2(item.end, 1);
+        tracker.push_back(ep1);
+        tracker.push_back(ep2);
+    }
+    
+    sort(tracker.begin(), tracker.end(), compareX);
+    int maxCount = 0;
+    int cur = 0;
+    for(auto ep: tracker)
+    {
+        cur+=ep.count;
+        maxCount = max(cur, maxCount);
+    }
+    return maxCount ;
+    
+}
+
+/*
+ Given an integer array, adjust each integers so that the difference of every adjcent integers are not greater than a given number target.If the array before adjustment is A, the array after adjustment is B, you should minimize the sum of |A[i]-B[i]|
+ 注意
+ You can assume each number in the array is a positive integer and not greater than 100
+ 样例
+ Given [1,4,2,3] and target=1, one of the solutions is [2,3,2,3], the adjustment cost is 2 and it's minimal. Return 2.
+ */
+int findMinAdjust(vector<int> input, int target)
+{
+    int n = (int)input.size();
+    vector<vector<int>> tracker(n, vector<int>(101, INT_MIN));
+    for(int i = 0;i< n;i++)
+    {
+        for(int j = 1;j<100;j++)
+        {
+            int minPrevadjust = INT_MAX;
+            if(i >0)
+            {
+                for(int k = 0;k<=target;k++)
+                {
+                    if(j-k>=0) minPrevadjust = min(minPrevadjust, tracker[i-1][j-k]);
+                    if(j+k<=100) minPrevadjust = min(minPrevadjust, tracker[i-1][j+k]);
+                }
+            }
+            else
+            {
+                minPrevadjust = 0;
+            }
+            tracker[i][j] = abs(j-input[i]) + minPrevadjust;
+        }
+    }
+    
+    int res = INT_MAX;
+    for(int i = 0;i< 101;i++)
+    {
+        res = min(tracker[n-1][i], res);
+    }
+    return res;
+}
+
+/*
+ 题目是：Given a set of n jobs with [start time, end time, cost] find a
+ subset so that no 2 jobs overlap and the cost is maximum.
+ 
+ brute force 肯定是不行的了。我知道一个O(N^2)的解答，请问有更好的答案吗？谢谢
+ 了！
+ */
+bool sortInterval(workItem t1, workItem t2)
+{
+    if(t1.start < t2.start)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+int findMaxCost(vector<workItem> input)
+{
+    sort(input.begin(), input.end(), sortInterval);
+    vector<int> cost;
+    
+    int n = (int)input.size();
+    for(int i = 0;i< n;i++)
+    {
+        int maxCost = INT_MIN;
+        for(int j= -1;j<i;j++)
+        {
+            if(j < 0) maxCost = input[i].val;
+            else
+            {
+                if(input[i].start > input[j].end)
+                {
+                    maxCost = max(maxCost, cost[j]+ input[i].val);
+                }
+            }
+        }
+        cost.push_back(maxCost);
+    }
+    return cost[n-1];
+    
+}
+
+// the difference between this method and prev method
+// is that in this method I use one more item in the cost
+// vector, so j's start indext can be 1.
+// but I have to shift the cost index. it seem like
+// there is no easy way to handle this.
+int findMaxCostII(vector<workItem> input)
+{
+    sort(input.begin(), input.end(), sortInterval);
+    
+    int n = (int)input.size();
+    vector<int> cost(n+1, 0);
+    for(int i = 0;i< n;i++)
+    {
+        int maxCost = INT_MIN;
+        for(int j= 0;j<=i;j++)
+        {
+            if(j < 0) maxCost = input[i].val;
+            maxCost = max(maxCost, cost[j]+ input[i].val);
+        }
+        cost[i+1] = maxCost;
+    }
+    return cost[n];
+    
+}
+
+
+
+/*
+ minimum window substring
+ */
+/*
+bool isEqual(unordered_map<char, int> p, unordered_map<char, int> s)
+{
+    for(auto item: p)
+    {
+        if(s.find(item.first) != s.end() &&
+           s[item.first] == p[item.first])
+        {
+            continue;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
+string FindMinwindowsSubStr(string s, string p)
+{
+    unordered_map<char,int> ptracker;
+    unordered_map<char,int> stracker;
+    
+    for(int i = 0;i<p.length();i++)
+    {
+        ptracker[p[i]]++;
+    }
+    int minLeft;
+    int minLength = INT_MAX;
+    
+    int currentLeft=-1;
+    int countofChar= 0;
+
+    for(int i = 0;i< s.length();i++)
+    {
+        if(ptracker.find(s[i]) != ptracker.end())
+        {
+            if(currentLeft ==-1)
+            {
+                currentLeft = i;
+            }
+            stracker[p[i]]++;
+            countofChar++;
+            
+        }
+        
+
+        
+    }
+}
+*/
+
+/*{ "face", "ball", "apple", "art", "ah" }
+ "htarfbp..."
+ 根据下面的string去给上面list words排序。
+ 就是平常我们按abcd。。。排，这次按string里的letter顺序排
+ */
+unordered_map<char, int> trackerx;
+bool sortString(string s1, string s2)
+{
+    int l1 = (int)s1.length();
+    int l2 = (int)s2.length();
+    for(int i =0;i<l1 && i<l2;i++)
+    {
+        if(s1[i] == s2[i])
+        {
+            continue;
+        }
+        else
+        {
+            if(trackerx[s1[i]]<trackerx[s2[i]])
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+    if( l1<l2) return true;
+    else return false;
+}
+
+vector<string> mySort(string sequence, vector<string> strings)
+{
+
+    for(int i = 0;i< sequence.length();i++)
+    {
+        trackerx[sequence[i]] = i;
+    }
+    sort(strings.begin(), strings.end(), sortString);
+    return strings;
+}
+
+/*
+ 第二题，将1->2->3->4->5->6->7 变成 1->7->2->6->3->5->4，不能用额外空间
+ */
+ListNode* shuffleList(ListNode* head)
+{
+    ListNode* fast = head;
+    ListNode* slow = head;
+    while(fast &&
+          fast->next)
+    {
+        fast = fast->next->next;
+        slow = slow->next;
+    }
+    
+    ListNode* secondHead = slow->next;
+    slow->next = NULL;
+    
+    ListNode* newSecondHead = NULL;
+    ListNode* tmp= NULL;
+    while(secondHead)
+    {
+        tmp = secondHead;
+        secondHead = secondHead->next;
+        tmp->next = newSecondHead;
+        newSecondHead = tmp;
+    }
+    
+    ListNode* dummyHead = new ListNode(-1);
+    ListNode* tail = dummyHead;
+    while(head && newSecondHead)
+    {
+        ListNode* tmp;
+        tmp = head;
+        head = head->next;
+        
+        tail->next = tmp;
+        tail = tmp;
+        
+        tmp = newSecondHead;
+        newSecondHead->next = newSecondHead;
+        
+        tail->next = tmp;
+        tail = tmp;
+    }
+    
+    if(head) tail->next = head;
+    if(secondHead) tail->next = head;
+    return dummyHead->next;
+    
+}
+
 int main(int argc, const char * argv[])
 {
     /*
@@ -12585,7 +13468,7 @@ int main(int argc, const char * argv[])
     cout<<res<<endl;
     */
     
-    
+    /*
     TreeNode* n1 = new TreeNode(9);
     TreeNode* n2 = new TreeNode(5);
     TreeNode* n3 = new TreeNode(3);
@@ -12626,10 +13509,72 @@ int main(int argc, const char * argv[])
     cout<<res<<endl;
     res = printNthWithNumber(n1, 10);
     cout<<res<<endl;
+    */
     
+    /*
+     
+    TreeNode* n1 = new TreeNode(9);
+    TreeNode* n2 = new TreeNode(5);
+    TreeNode* n3 = new TreeNode(3);
+    TreeNode* n4 = new TreeNode(3);
+    TreeNode* n8 = new TreeNode(1);
+    TreeNode* n5 = new TreeNode(1);
+    TreeNode* n9 = new TreeNode(1);
+    TreeNode* n6 = new TreeNode(1);
+    TreeNode* n7 = new TreeNode(1);
     
+    n1->left = n2;
+    n1->right = n3;
+    n2->left = n4;
+    n2->right = n5;
+    n3->left = n6;
+    n3->right = n7;
+    n4->left = n8;
+    n4->right = n9;
     
+    cout<<"sum = 18 :"<<endl;
+    FindAllPath(n1,18);
+    cout<<"sum = 15 :"<<endl;
+    FindAllPath(n1,15);
+    cout<<"sum = 13 :"<<endl;
+    FindAllPath(n1,13);
+    */
     
+    /*
+    bool res;
+    res = isPalindromeX("abcba");
+    cout<<res<<endl;
+    res = isPalindromeX("aB   Cb   A  ");
+    cout<<res<<endl;
+    res = isPalindromeX("a&b&c#b!a");
+    cout<<res<<endl;
+    res = isPalindromeX("axbcba");
+    cout<<res<<endl;
+     */
+    
+    /*
+    vector<int> input = {2,1};
+    int res = findMinX(input);
+    cout<<res<<endl;
+    */
+    
+    ListNode* l1 = new ListNode(1);
+    ListNode* l2 = new ListNode(2);
+    ListNode* l3 = new ListNode(3);
+    ListNode* l4 = new ListNode(4);
+    ListNode* l5 = new ListNode(5);
+    ListNode* l6 = new ListNode(6);
+    
+    l1->next = l2;
+    l2->next = l3;
+    l3->next = l4;
+    l4->next = l5;
+    l5->next = l6;
+    l6->next = l1;
+    
+    insertCircularList(l1, 3);
+    insertCircularList(l4, 10);
+    insertCircularList(l4, 7);
     
     
     return 0;
