@@ -17,6 +17,8 @@
 #include <queue>
 #include <math.h>
 #include <stdlib.h>
+#include <chrono>
+#include <thread>
 //#incldue <sstream>
 
 using namespace::std;
@@ -11959,56 +11961,57 @@ int findMaxCostII(vector<workItem> input)
 /*
  minimum window substring
  */
-/*
-bool isEqual(unordered_map<char, int> p, unordered_map<char, int> s)
-{
-    for(auto item: p)
-    {
-        if(s.find(item.first) != s.end() &&
-           s[item.first] == p[item.first])
-        {
-            continue;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    return true;
-}
+
+
 string FindMinwindowsSubStr(string s, string p)
 {
-    unordered_map<char,int> ptracker;
-    unordered_map<char,int> stracker;
+    int ptracker[256];
+    int stracker[256];
+    
+    fill_n(&ptracker[0], 256, 0);
+    fill_n(&stracker[0], 256, 0);
     
     for(int i = 0;i<p.length();i++)
     {
         ptracker[p[i]]++;
     }
-    int minLeft;
-    int minLength = INT_MAX;
     
-    int currentLeft=-1;
-    int countofChar= 0;
-
+    int head = 0;
+    int start = -1;
+    int length = INT_MAX;
+    int currentNum = 0;
+    
     for(int i = 0;i< s.length();i++)
     {
-        if(ptracker.find(s[i]) != ptracker.end())
+        if(ptracker[s[i]] >0)
         {
-            if(currentLeft ==-1)
+            if(stracker[s[i]] < ptracker[s[i]])
             {
-                currentLeft = i;
+                currentNum++;
             }
-            stracker[p[i]]++;
-            countofChar++;
-            
+            stracker[s[i]]++;
         }
         
-
+        if(currentNum == p.length())
+        {
+            while(head < i && (stracker[s[head]] > ptracker[s[head]] ||
+                               ptracker[s[head]] == 0))
+            {
+                stracker[s[head]]--;
+                head++;
+            }
+            if((i-head+1) < length)
+            {
+                start = head;
+                length = i-head+1;
+            }
+        }
         
     }
+    
+    return start ==-1? "": s.substr(start, length);
 }
-*/
+
 
 /*{ "face", "ball", "apple", "art", "ah" }
  "htarfbp..."
@@ -12288,6 +12291,581 @@ bool searchWordTrieDFS(string s)
 {
     
     return searchWordTrieDFSWorker(0, s, host);
+}
+
+/*
+ phone keyboard letter combination iterative
+ */
+vector<string> letterCombinationsx (const string &digits) {
+    const vector<string> keyboard { " ", "", "abc", "def", // '0','1','2',...
+        "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz" };
+    vector<string> res = {""};
+
+    for(auto d : digits)
+    {
+        int n = (int)res.size();
+        int m = (int)keyboard[d-'0'].length();
+        if(m>0)
+        {
+            res.resize(n*m);
+        }
+        
+        for(int i = 1;i< m;i++)
+        {
+            copy(res.begin(), res.begin()+n, res.begin()+n*i);
+        }
+        
+        for(int i=0;i<m;i++)
+        {
+            for(int j = i*n;j<i*n+n;j++)
+            {
+                res[j] += keyboard[d-'0'][i];
+            }
+        }
+    }
+    return res;
+}
+
+/*
+ 1， 美国人， 给一个词，判断是不是Palindrome, 然后扩展问，给一个字典，找出所有对 单词，
+ 这两个单词可以组成一个palindom, 然后有问，可以组合任意个单词，怎么找到最长的可能的palindom
+ */
+bool isPalindrome(string s, int offset)
+{
+    if( offset >= s.length()-1) return true;
+    int left = offset;
+    int right = (int)s.length()-1;
+    while(left<=right)
+    {
+        if(s[left]== s[right])
+        {
+            left--;right++;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
+vector<pair<string, string>> FindAllPalindromePairs(vector<string> dict)
+{
+    for(auto s : dict)
+    {
+        addWordTrie(s);
+    }
+    vector<pair<string, string>> res;
+    for(auto s: dict)
+    {
+        TrieNode* tmp = host;
+        reverse(s.begin(), s.end());
+        int index = 0;
+        while(tmp &&
+              tmp->val[s[index]] &&
+              index < s.length())
+        {
+            if(tmp->end[s[index]])
+            {
+                if(isPalindrome(s, index+1))
+                {
+                    string tmp = s.substr(0, index+1);
+                    string tmp2 = s;
+                    reverse(tmp2.begin(), tmp2.end());
+                    res.push_back(make_pair(tmp, tmp2));
+                }
+            }
+            tmp = tmp->val[s[index]];
+            index++;
+        }
+    }
+    
+    delete host;
+    host = new TrieNode();
+    for(auto s : dict)
+    {
+        reverse(s.begin(), s.end());
+        addWordTrie(s);
+    }
+    
+    for(auto s: dict)
+    {
+        TrieNode* tmp = host;
+        int index = 0;
+        while(tmp &&
+              tmp->val[s[index]] &&
+              index < s.length())
+        {
+            if(tmp->end[s[index]])
+            {
+                if(isPalindrome(s, index+1))
+                {
+                    string tmp1 = s.substr(0, index+1);
+                    reverse(tmp1.begin(), tmp1.end());
+                    res.push_back(make_pair(tmp1, s));
+                }
+            }
+            tmp = tmp->val[s[index]];
+            index++;
+        }
+    }
+    return res;
+}
+
+/*
+ 第一题，给一个字符数组，要求将其中的'a'加倍，'b'删除，其他字符保持不变。要求
+ inplace，线性复杂度。这一题做的很顺利。面试官说good enough
+ */
+vector<char> modify(vector<char> input)
+{
+    int a = 0;
+    int b = 0;
+    for(int i = 0;i<input.size();i++)
+    {
+        if(input[i] == 'a') a++;
+        else if(input[i] == 'b') b++;
+    }
+    int originalsize = (int)input.size();
+    int n = (int)input.size() + a -b;
+
+    int left = 0;
+    int runner = 0;
+    while(runner < originalsize)
+    {
+        if(input[runner] != 'b')
+        {
+            input[left++] = input[runner];
+        }
+        runner++;
+    }
+    
+    input.resize(n);
+    int right = n-1;
+    runner = left-1;
+    while(runner>=0)
+    {
+        if(input[runner] == 'a')
+        {
+            input[right--] = 'a';
+            input[right--] = 'a';
+        }
+        else if(input[runner] != 'b')
+        {
+            input[right--] = input[runner];
+        }
+        runner --;
+    }
+    return input;
+}
+
+/*
+ 1.几个数字array，像这样的：
+ 1
+ 11
+ 21
+ 1211
+ 111221
+ 给n，返回第n行的结果。第二行返回前面一行每个number的count。我用的recursive方
+ 法。不知道是不是最优的。
+ */
+string countAndSayII(int n)
+{
+    string s = "1";
+    if(n == 1) return s;
+    for(int i = 2;i<=n;i++)
+    {
+        string tmp = "";
+        int count=0;
+        char c = 'a';
+        for(int j = 0;j<s.length();j++)
+        {
+            if(s[j] != c)
+            {
+                if(count >0)
+                {
+                    tmp+=to_string(count);
+                    tmp+=c;
+                }
+                count = 1;
+                c = s[j];
+            }
+            else
+            {
+                count++;
+            }
+        }
+        tmp+=to_string(count);
+        tmp+=c;
+        s= tmp;
+    }
+    return s;
+}
+
+queue<int> thequeue;
+mutex mt;
+int size = 0;
+int maxSize = 10;
+condition_variable fullCondition;
+condition_variable emptyCondition;
+
+void producer(int n)
+{
+    unique_lock<mutex> locker(mt);
+    while(size >= maxSize)
+    {
+        fullCondition.wait(locker);
+    }
+    
+    thequeue.push(n);
+    cout<<"produced "<<n<<endl;
+    size++;
+    emptyCondition.notify_all();
+    locker.unlock();
+    this_thread::sleep_for(chrono::milliseconds(100));
+
+    
+}
+
+void consume()
+{
+    
+    unique_lock<mutex> locker(mt);
+    while(size<=0)
+    {
+        emptyCondition.wait(locker);
+    }
+    int tmp = thequeue.front();
+    thequeue.pop();
+    size--;
+    fullCondition.notify_all();
+    cout<<"consume "<<tmp<<endl;
+    locker.unlock();
+    this_thread::sleep_for(chrono::milliseconds(105));
+
+}
+
+void func1()
+{
+    for(int i = 0;i<100;i++)
+    {
+        producer(i);
+    }
+}
+
+void func2()
+{
+    for(int i = 0;i<100;i++)
+    {
+        consume();
+    }
+}
+
+/*
+fabanacci，期待o(lgn)解法,但O(n)也行
+*/
+
+vector<vector<int>> multi(vector<vector<int>> m1, vector<vector<int>> m2)
+{
+    vector<vector<int>> res(2, vector<int>(2,0));
+
+    res[0][0] = m1[0][0]* m2[0][0] + m1[0][1]*m2[1][0];
+    res[0][1] = m1[0][0]* m2[0][1] + m1[0][1]*m2[1][1];
+    res[1][0] = m1[1][0]* m2[0][0] + m1[1][1]*m2[1][0];
+    res[1][1] = m1[1][0]* m2[0][1] + m1[1][1]*m2[1][1];
+    
+    return res;
+}
+
+vector<int> multi(vector<vector<int>> m1, vector<int> m2)
+{
+    vector<int> res(2);
+    res[0] = m1[0][0] * m2[0] + m1[0][1] * m2[1];
+    res[1] = m1[1][0] * m2[0] * m1[1][1] * m2[1];
+    return res;
+}
+
+vector<vector<int>> power(vector<vector<int>> matrix, int n)
+{
+    if(n ==1) return matrix;
+    vector<vector<int>> res = power(matrix, n/2);
+    res = multi(res, res);
+    if((n%2) ==1)
+    {
+        res = multi(res, matrix);
+    }
+    return res;
+}
+
+int findFibnacci(int n)
+{
+    if(n<0) return -1;
+    if(n<2) return 1;
+    vector<int> fn ={1, 1};
+    vector<vector<int>> matrix(2, vector<int>(2, 1));
+    matrix[1][1] = 0;
+    
+    vector<vector<int>> res = power(matrix, n-1);
+    vector<int> fb = multi(res, fn);
+    return fb[0];
+}
+/*
+ generate all possible paretheses,
+ */
+//assum n mean pair.
+void parenthesesPair(vector<string>& res, string tmp, int left, int right, int n )
+{
+    if(left == n && right ==n)
+    {
+        res.push_back(tmp);
+    }
+    else
+    {
+        if(left>right)
+        {
+            parenthesesPair(res, tmp+')', left, right+1, n);
+        }
+        if(left < n)
+        {
+            parenthesesPair(res, tmp+'(', left+1, right, n);
+        }
+    }
+}
+
+
+
+vector<string> generateAllParentheses(int n)
+{
+    vector<string> res;
+    parenthesesPair(res, "", 0, 0, n);
+    return res;
+}
+
+/*
+ 3）divide and mod，但不能用/或者%，基本也是leetcode原题了
+ */
+
+int divideIIII(int n1, int n2)
+{
+    long long a = abs((long long)n1);
+    long long b = abs((long long)n2);
+    int res = 0;
+    while(a>=b)
+    {
+        long long c = b;
+        for(int i = 0;a>=c;i++, c<<=1)
+        {
+            a -= c;
+            res += 1<<i;
+        }
+    }
+    return (n1^n2)>>31? -res: res;
+}
+
+/*
+ Given a sequence of distinct integers, your program must remove as few
+ elements as possible in order for the elements which are not removed to
+ appear in ascending order.  If there is more than one way to do this, your
+ program must print one solution, then print the number of all solutions.
+ 
+ Example.
+ 
+ Given   1 2 3 8 10 5 6 7 12 9 11 4 0
+ Remove        8 10       12      4 0
+ Remain  1 2 3      5 6 7    9 11       (ascending)
+ */
+
+int MakeAscending(vector<int> input)
+{
+    int n = (int)input.size();
+    vector<int> tracker(n, 0);
+    tracker[0] = 1;
+    
+    for(int i= 1;i<n;i++)
+    {
+        int maxCount = 0;
+        
+        for(int j = i-1;j>=0;j--)
+        {
+            if(input[j] < input[i])
+            {
+                maxCount = max(maxCount, tracker[j]+1);
+            }
+        }
+        tracker[i] = maxCount;
+
+    }
+    return n-tracker[n-1];
+    
+}
+
+/*
+ 跳河问题。给一个0/1数组R代表一条河，0代表水，1代表石头。起始位置R[0]等于1，
+ 初速度为1. 每一步可以选择以当前速度移动，或者当前速度加1再移动。只能停留在石
+ 头上。问最少几步可以跳完整条河流。
+ 
+ 给定数组为R=[1,1,1,0,1,1,0,0]，最少3步能过河：
+ 第一步先提速到2，再跳到R[2]；
+ 第二步先提速到3，再跳到R[5]；
+ 第三步保持速度3，跳出数组范围，成功过河。
+ */
+int FrogCrossRiver(string river) {
+    if (river.empty()) {
+        return 0;
+    }
+    
+    vector<vector<pair<size_t, int>>> vp(river.size());
+    vp[0].emplace_back(1, 1);
+    int res = INT_MAX;
+    for (size_t i = 0; i < vp.size(); ++i) {
+        if (river[i] == '0')
+        {
+            continue;
+        }
+        for (auto pr : vp[i])
+        {
+            if (i + pr.first >= vp.size())
+            {
+                res = min(pr.second, res);
+            } else if (river[i + pr.first] == '1')
+            {
+                vp[i + pr.first].emplace_back(pr.first, pr.second + 1);
+            }
+            if (i + pr.first + 1 >= vp.size())
+            {
+                res = min(pr.second, res);
+            } else if (river[i + pr.first + 1] == '1')
+            {
+                vp[i + pr.first + 1].emplace_back(pr.first + 1, pr.second + 1);
+            }
+        }
+    }
+    return res;
+}
+/*
+ 给A，B 2个array，里面都是integer，已经排好序了，由大到小，他们的长度都是N
+ 现在从A和B里各选出一个数，总成一个sum，请返回前N个最大的sum
+ */
+/*
+struct Item
+{
+    int val;
+    int index1;
+    int index2;
+    Item(int v, int i1, int i2) : val(v), index1(i1), index2(i2) {}
+};
+
+bool compareItem(Item item1, Item item2)
+{
+    return item1.val < item2.val;
+}
+
+class mycomparison
+{
+public:
+    bool operator() (const Item& lhs, const Item&rhs) const
+    {
+        return (lhs.val<rhs.val);
+    }
+};
+
+vector<int> FindMaxSum(vector<int> v1, vector<int> v2, int k)
+{
+    int n = (int)v1.size();
+    int n1 = n-1;
+    int n2 = n-1;
+    priority_queue<Item, mycomparison> heapx;
+    heapx.push(Item(v1[n1]+v2[n2], n1, n2));
+    vector<int> res;
+    while(res.size() < k)
+    {
+        Item tmp = heapx.pop();
+        int l1 = tmp.index1;
+        int l2 = tmp.index2;
+        if(l1>0 && l2>0)
+        {
+            heapx.push(Item(v1[l1-1]+v2[l2], l1-1, l2));
+            heapx.push(Item(v1[l1]+v2[l2-1], l1, l2-1));
+        }
+        res.push_back(tmp.val);
+    }
+    return res;
+}
+*/
+
+/*
+Longest consecutive sequence
+*/
+
+/*
+ a.    Flattern this multilevel data structure
+ b.    Restore the original structure from the flatterned structure
+ 
+ e.g.
+ 
+ L1 --> L2 --> L3 --> L7 --> L8
+                 |
+                 v
+                 L4 --> L5-->L6
+ 
+ 
+ WIll be flattened to
+ L1 --> L2 --> L3 -->L4 -->L5-->L6-->L7-->L8
+ */
+
+struct ListNodeWithChild
+{
+    int val;
+    ListNodeWithChild* next;
+    ListNodeWithChild* child;
+    ListNodeWithChild(int a): val(a) {}
+};
+
+ListNodeWithChild* flatten(ListNodeWithChild* head)
+{
+    ListNodeWithChild* tmp = head;
+    while(tmp)
+    {
+        if(tmp->child)
+        {
+            ListNodeWithChild* nextPoint = tmp->next;
+            tmp->next = tmp->child;
+            while(tmp->next)
+            {
+                tmp = tmp->next;
+            }
+            tmp->next= nextPoint;
+            tmp->child = nextPoint;
+        }
+        tmp = tmp->next;
+    }
+    return head;
+}
+
+ListNodeWithChild* unflatten(ListNodeWithChild* head)
+{
+    ListNodeWithChild* tmp = head;
+    ListNodeWithChild* prev = NULL;
+    while(tmp)
+    {
+        if(tmp->next && tmp->child)
+        {
+            prev = tmp;
+            tmp->next = NULL;
+            tmp = tmp->child;
+            while(!(tmp->next && tmp->child)&& tmp->next)
+            {
+                tmp = tmp->next;
+            }
+            prev->next = tmp->next;
+            tmp->next = NULL;
+            tmp->child = NULL;
+            tmp = prev->next;
+        }
+        else
+        {
+            tmp = tmp->next;
+        }
+    }
+    return head;
 }
 
 
@@ -13792,6 +14370,7 @@ int main(int argc, const char * argv[])
     cout<<searchWordTrie("...")<<endl;
     */
     
+    /*
     addWordTrie("rat");
     addWordTrie("cat");
     addWordTrie("cat");
@@ -13803,6 +14382,116 @@ int main(int argc, const char * argv[])
     cout<<searchWordTrieDFS("r.t")<<endl;
     cout<<searchWordTrieDFS("t.t")<<endl;
     cout<<searchWordTrieDFS("...")<<endl;
+    */
+    
+    /*
+    vector<string> res;
+    res = letterCombinationsx("2");
+    for(auto s: res)
+    {
+        cout<<s<<endl;
+    }
+    */
+    
+    /*
+    vector<string> input = {"abc", "ba","cb", "aaaa", "cba"};
+    vector<pair<string, string>> res;
+    res = FindAllPalindromePairs(input);
+    for(auto item: res)
+    {
+        cout<<item.first<<":  "<<item.second<<endl;
+    }
+    */
+    
+    /*
+    vector<char> input= {'a', 's', 'b', 'b', 'b', 'b', 'a', 'a'};
+    vector<char> res;
+    res = modify(input);
+    for(auto c: res)
+    {
+        cout<<c<<" ";
+    }
+    cout<<endl;
+    */
+    
+    /*
+    thread t1(func1);
+    thread t2(func2);
+    t1.join();
+    t2.join();
+     */
+    
+    /*
+    vector<string> res;
+    res = generateAllParentheses(3);
+    for(auto s: res)
+    {
+        cout<<s<<endl;
+    }
+     */
+    /*
+    cout<<divideIIII(2147483647,1)<<endl;
+     */
+    
+    /*
+    string res;
+    res = FindMinwindowsSubStr("a", "aa");
+    cout<<res;
+    */
+    /*
+    //vector<int> input = {1, 2, 3, 8, 10, 5, 6, 7, 12, 9, 11, 4, 0};
+    vector<int> input = {1,2,3,8,10,4,5,6,7,12,9};
+    int res;
+    res = MakeAscending(input);
+    cout<<res<<endl;
+    */
+    
+    /*
+    vector<int> input1 = {2, 3, 5, 8, 13};
+    vector<int> input2 = {4, 8, 12, 16};
+    
+    vector<int> res;
+    res = FindMaxSum(input1, input2, 5);
+    for(auto i: res)
+    {
+        cout<<i<<" ";
+    }
+    cout<<endl;
+     */
+    
+    ListNodeWithChild* n1 = new ListNodeWithChild(1);
+    ListNodeWithChild* n2 = new ListNodeWithChild(2);
+    ListNodeWithChild* n3 = new ListNodeWithChild(3);
+    ListNodeWithChild* n4 = new ListNodeWithChild(4);
+    ListNodeWithChild* n5 = new ListNodeWithChild(5);
+    ListNodeWithChild* n6 = new ListNodeWithChild(6);
+    ListNodeWithChild* n7 = new ListNodeWithChild(7);
+    ListNodeWithChild* n8 = new ListNodeWithChild(8);
+
+    n1->next = n2;
+    n2->next = n3;
+    n3->next = n7;
+    n7->next = n8;
+    n4->next = n5;
+    n5->next = n6;
+    n3->child = n4;
+    
+    ListNodeWithChild* res;
+    res = flatten(n1);
+    while(res)
+    {
+        cout<<res->val<<" ";
+        res= res->next;
+    }
+    cout<<endl;
+    
+    res = unflatten(n1);
+    while(res)
+    {
+        cout<<res->val<<" ";
+                res= res->next;
+    }
+    cout<<endl;
     
     return 0;
 }
