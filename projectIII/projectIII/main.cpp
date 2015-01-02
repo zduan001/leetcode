@@ -720,7 +720,7 @@ vector<vector<int>> permuteUnique(vector<int> &num) {
 //
 //
 ////////////////////////////////////////////////
-void workerx(vector<int> &S, int level, vector<int>& tmp, vector<vector<int>>& res)
+void worker(vector<int> &S, int level, vector<int>& tmp, vector<vector<int>>& res)
 {
     res.push_back(tmp);
     for(int i = level;i< S.size();i++)
@@ -728,7 +728,7 @@ void workerx(vector<int> &S, int level, vector<int>& tmp, vector<vector<int>>& r
         if(i == level || S[i] != S[i-1])
         {
             tmp.push_back(S[i]);
-            workerx(S, level+1, tmp, res);
+            worker(S, i+1, tmp, res);
             tmp.pop_back();
         }
     }
@@ -739,7 +739,7 @@ vector<vector<int> > subsetsWithDup(vector<int> &S) {
     
     sort(S.begin(), S.end());
     vector<int> tmp;
-    workerx(S, 0, tmp, res);
+    worker(S, 0, tmp, res);
     return res;
 }
 
@@ -4108,7 +4108,7 @@ vector<vector<int>> subsets(vector<int> &S) {
 }
 
 //8.2
-void worker(vector<int> &S, int level, vector<int>& tmp, vector<vector<int>>& res)
+void workerx(vector<int> &S, int level, vector<int>& tmp, vector<vector<int>>& res)
 {
     res.push_back(tmp);
     
@@ -4117,7 +4117,7 @@ void worker(vector<int> &S, int level, vector<int>& tmp, vector<vector<int>>& re
         if(i == level || S[i] != S[i-1])
         {
             tmp.push_back(S[i]);
-            worker(S, i+1, tmp, res);
+            workerx(S, i+1, tmp, res);
             tmp.pop_back();
         }
     }
@@ -5064,7 +5064,10 @@ bool canJump(int A[], int n) {
     int lastIndex = 0;
     for(int i = 0;i<n;i++)
     {
-        lastIndex = max(lastIndex, i+ A[i]);
+        if(lastIndex >= i)
+        {
+            lastIndex = max(lastIndex, i+ A[i]);
+        }
     }
     return lastIndex>= n-1;
 }
@@ -12868,6 +12871,214 @@ ListNodeWithChild* unflatten(ListNodeWithChild* head)
     return head;
 }
 
+bool isMatchDP2(const char *s, const char *p) {
+    int l1 = (int)strlen(s);
+    int l2 = (int)strlen(p);
+    vector<vector<bool>> tracker(l1+1, vector<bool>(l2+1, false));
+    tracker[0][0] = true;
+    for(int i = 0;i< l1+1;i++)
+    {
+        for(int j = 1;j<l2+1;j++)
+        {
+            if(i>0)
+            {
+                if(tracker[i-1][j-1] && canMatch(s[i-1], p[j-1]))
+                {
+                    tracker[i][j] = true;
+                    continue;
+                }
+            }
+            if(i>0 && j>1)
+            {
+                if(tracker[i-1][j] && canMatch(s[i-1], p[j-2]) && p[j-1] == '*')
+                {
+                    tracker[i][j] = true;
+                    continue;
+                }
+            }
+            if(j>1)
+            {
+                if(tracker[i-1][j-2] && p[j-1] == '*')
+                {
+                    tracker[i][j] = true;
+                    continue;
+                }
+            }
+        }
+    }
+    return tracker[l1][l2];
+}
+
+void workerx_1(vector<int> &S, int level, vector<int>& tmp, vector<vector<int>>& res)
+{
+    res.push_back(tmp);
+    
+    for(int i = level;i< S.size();i++)
+    {
+        if(i == level || S[i] != S[i-1])
+        {
+            tmp.push_back(S[i]);
+            workerx(S, i+1, tmp, res);
+            tmp.pop_back();
+        }
+    }
+}
+
+vector<vector<int> > subsetsWithDupx(vector<int> &S) {
+    vector<vector<int>> res;
+    if(S.size() == 0) return res;
+    
+    sort(S.begin(), S.end());
+    vector<int> tmp;
+    workerx_1(S, 0, tmp, res);
+    return res;
+}
+
+/*
+ 1.anagram, 输出一个句子, 里面的单词是空格隔开, 输出list of anagram in this sentence. 就是List<List<String>>.
+ */
+vector<vector<string>> groupStr(vector<string> input)
+{
+    unordered_map<string, vector<string>> map;
+    for(auto item : input)
+    {
+        string s = item;
+        sort(s.begin(), s.end());
+        map[s].push_back(item);
+    }
+    
+    vector<vector<string>> res;
+    for(auto item: map)
+    {
+        res.push_back(item.second);
+    }
+    return res;
+}
+
+/*
+ 2.sort colors, 三色旗问题, 用swap, O(n)时间, O(1)空间.
+ */
+void sortColor(vector<int>& input)
+{
+    int right = (int)input.size()-1;
+    int left = 0;
+    int runner = 0;
+    while(runner<=right)
+    {
+        if(input[runner] == 2) swap(input, runner, right);
+        else if(input[runner] == 0) swap(input, left++, runner++);
+        else runner ++;
+    }
+}
+
+
+/*
+ print tree in vertical order
+ 后面这个要先遍历, 边遍历边给每个节点一个index, 比如root为0, 做left减1, right加1.
+ 然后建立一个HashMap, key是index, value是list<TreeNode>
+ */
+
+
+void findVerticalOrder(TreeNode* root, unordered_map<int, vector<int>>& map, int index, int& minIndex, int& maxIndex)
+{
+    if(!root) return;
+    
+    map[index].push_back(root->val);
+    minIndex = min(index, minIndex);
+    maxIndex = max(index, maxIndex);
+    findVerticalOrder(root->left, map, index-1, minIndex, maxIndex);
+    findVerticalOrder(root->right, map, index+1, minIndex, maxIndex);
+    
+}
+
+void printVertical(TreeNode* root)
+{
+    unordered_map<int, vector<int>> map;
+    int minIndex = INT_MAX;
+    int maxIndex = INT_MAX;
+    findVerticalOrder(root, map, 0, minIndex, maxIndex);
+    for(int i = minIndex;i<=maxIndex;i++)
+    {
+        for(auto item : map[i])
+        {
+            cout<<item<<" ";
+        }
+        cout<<endl;
+    }
+}
+
+/*
+ 14.jump river的题目, 给一个数组[1,0,1,0,1], 1代表可以站, 0不可以站. 从速度为1开始往前跳, 每次跳的时候, 
+ 可以跳当前速度那么多格, 也可以跳当前速度+1那么多格. 问最少跳几次可以跳过河(即跳出数组), 或者跳不过河. 
+ 解法直接递归+cache就可以. 上面的例子跳2次就能跳过河了, 第一次从index=0, 速度为1跳到2, 然后速度为2刚好跳出去
+ */
+bool canJump(vector<int> input)
+{
+    int n = (int) input.size();
+    vector<unordered_set<int>> tracker(n);
+    tracker[0].insert(1);
+    for(int i = 0;i< n;i++)
+    {
+        for(auto item: tracker[i])
+        {
+            int index = i + item; // current location + speed;
+            if(index >=n) return true;
+            if(input[index] != 0)
+            {
+                if(tracker[index].find(item) == tracker[index].end()) tracker[index].insert(item);
+            }
+            if(input[index+1]!=0)
+            {
+                if(tracker[index+1].find(item+1) == tracker[index+1].end()) tracker[index+1].insert(item+1);
+            }
+        }
+    }
+    return false;
+}
+
+/*
+ There are a row of houses, each house can be painted with three colors red, blue and green. 
+ The cost of painting each house with a certain color is different. You have to paint all 
+ the houses such that no two adjacent houses have the same color. You have to paint the houses 
+ with minimum cost. How would you do it?
+ */
+
+int paintHouse(vector<vector<int>> input)
+{
+    int n = (int)input.size();
+    int m = (int)input[0].size();
+    
+    vector<vector<int>> tracker(n, vector<int>(m, INT_MAX));
+    for(int j = 0;j<m;j++)
+    {
+        tracker[0][j] = input[0][j];
+    }
+    for(int i = 1;i<n;i++)
+    {
+        for(int j = 0;j<m;j++)
+        {
+            int minVal = INT_MAX;
+            for(int k = 0;k<m;k++)
+            {
+                if(j != k)
+                {
+                    minVal = min(input[i][j] + tracker[i-1][k], minVal);
+                }
+            }
+            tracker[i][j] = minVal;
+        }
+    }
+    int res = INT_MAX;
+    for(int j = 0;j<m;j++)
+    {
+        res = min(res, tracker[n-1][m]);
+    }
+    return res;
+}
+ 
+
+
+
 
 int main(int argc, const char * argv[])
 {
@@ -14459,6 +14670,7 @@ int main(int argc, const char * argv[])
     cout<<endl;
      */
     
+    /*
     ListNodeWithChild* n1 = new ListNodeWithChild(1);
     ListNodeWithChild* n2 = new ListNodeWithChild(2);
     ListNodeWithChild* n3 = new ListNodeWithChild(3);
@@ -14492,6 +14704,35 @@ int main(int argc, const char * argv[])
                 res= res->next;
     }
     cout<<endl;
+    */
+    
+    /*
+    vector<vector<int>> res ;
+    vector<int> input = {1,2,2};
+    res = subsetsWithDupx(input);
+    res = subsetsWithDup(input);
+    res = subsetsWithDupII(input);
+    */
+    /*
+    string str1 = "notnecessary to go to";
+    string str2 = "kind of you not a";
+    string res;
+    res = longestCommonSubStr(str1, str2);
+    cout<<res<<endl;
+    
+     
+    int commonLength;
+    commonLength = longestCommonSubString(str1, str2);
+    cout<<commonLength<<endl;
+    */
+    bool res;
+    vector<int> input = {1,0,1,0,1};
+    res = canJump(input);
+    cout<<res<<endl;
+    
+    int a[] = {1,1,0,0,0,0,0,100};
+    res = canJump(a, 8);
+    cout<<res<<endl;
     
     return 0;
 }
