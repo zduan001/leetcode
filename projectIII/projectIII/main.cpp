@@ -1284,23 +1284,23 @@ int longestConsecutive(vector<int> &num) {
     int maxLength =0;
     for(int i = 0;i< num.size();i++)
     {
-        if(!(tracker.find(num[i])->second))
+        if(!(tracker[num[i]]))
         {
             tracker.find(num[i])->second = true;
             int tmp = 1;
             
             int runner = num[i]+1;
-            while(tracker.find(runner) != tracker.end())
+            while(tracker.find(runner) != tracker.end() && !tracker[runner])
             {
                 tmp ++;
-                tracker.find(runner)->second = true;
+                tracker[runner]= true;
                 runner++;
             }
             runner = num[i] - 1;
-            while(tracker.find(runner) != tracker.end())
+            while(tracker.find(runner) != tracker.end() && !tracker[runner])
             {
                 tmp ++;
-                tracker.find(runner)->second = true;
+                tracker[runner] = true;
                 runner --;
             }
             maxLength = max(maxLength, tmp);
@@ -3277,9 +3277,8 @@ vector<int> postorderTraversal(TreeNode *root) {
     while(!tracker.empty())
     {
         cur = tracker.top();
-        if(cur->left &&
-           cur->left != prev &&
-           (!(cur->right) || cur->right != prev))
+        if((cur->left && cur->left != prev) &&
+           (!cur->right || cur->right != prev))
         {
             cur = cur->left;
             tracker.push(cur);
@@ -13075,9 +13074,179 @@ int paintHouse(vector<vector<int>> input)
     }
     return res;
 }
- 
+
+/*
+ 2. a) 给你棵二叉树，节点上有权值，问从一个叶子走到另外一个叶子的路里面权值最大的那条是什么
+ */
+int findMaxA(TreeNode* root, TreeNode* n1, TreeNode* n2, int& count)
+{
+    if(!root) return INT_MIN;
+    if(n1 == n2) return n1->val;
+    int left = findMaxA(root->left, n1, n2, count);
+    int right = findMaxA(root->right, n1, n2, count);
+    int res;
+    
+    if((left > INT_MIN && right > INT_MIN) ||
+       (root == n1 || root == n2))
+    {
+        res = max(left, right);
+        res = max(res, root->val);
+    }
+    else
+    {
+        res = max(left, right);
+        if(count == 1)
+            res = max(res, root->val);
+    }
+    if(root == n1 || root== n2) count++;
+    
+    return res;
+}
+
+void findMaxB(TreeNode* root, TreeNode* n1, TreeNode* n2, int& maxVal)
+{
+    if(!root)
+    {
+        maxVal = INT_MIN;
+        return;
+    }
+    int leftMax;
+    int rightMax;
+    findMaxB(root->left, n1, n2, leftMax);
+    findMaxB(root->right, n1, n2, rightMax);
+    if(leftMax > INT_MIN && rightMax> INT_MIN)
+    {
+        maxVal = max(max(leftMax, rightMax), root->val);
+    }
+    else if( leftMax != INT_MIN)
+    {
+        maxVal = max(leftMax, root->val);
+    }else if(rightMax != INT_MIN)
+    {
+        maxVal = max(rightMax, root->val);
+    }
+    else if(root != n1 && root != n2)
+    {
+        maxVal = INT_MIN;
+    }
+    else
+    {
+        maxVal = root->val;
+    }
+    return;
+    
+}
+
+int findMaxC(TreeNode* root, TreeNode* n1, TreeNode* n2, int & maxVal)
+{
+    if(!root)
+    {
+        maxVal = INT_MIN;
+        return 0;
+    }
+    int leftMax;
+    int rightMax;
+    int leftCount;
+    int rightCount;
+    leftCount = findMaxC(root->left, n1, n2, leftMax);
+    rightCount = findMaxC(root->right, n1, n2, rightMax);
+    
+    if(leftCount == 2 || rightCount == 2)
+    {
+        maxVal = max(leftMax, rightMax);
+        return 2;
+    }
+    else if(root == n1 || root == n2)
+    {
+        maxVal = max(max(leftMax, rightMax), root->val);
+        return 1 + leftCount + rightCount;
+    }
+    else if(leftCount == 0 && rightCount == 0)
+    {
+        maxVal = INT_MIN;
+        return 0;
+    }
+    else
+    {
+        maxVal = max(max(leftMax, rightMax), root->val);
+        return leftCount + rightCount;
+    }
+}
 
 
+TreeNode *LCA(TreeNode *root, TreeNode *p, TreeNode *q) {
+    if (!root) return NULL;
+    if (root == p || root == q) return root;
+    TreeNode *L = LCA(root->left, p, q);
+    TreeNode *R = LCA(root->right, p, q);
+    if (L && R) return root;  // if p and q are on both sides
+    return L ? L : R;  // either one of p,q is on one side OR p,q is not in L&R subtrees
+}
+
+/*
+ 2.给出一个无重复数字的array,输出其subset。 例如[1, 2]，输出[] [1] [2] [1, 2]
+ 我一开始用了dfs，面试官check过无误后让我写成iterative. 稍微想了一下，就用位运算做了，
+ 每个独立subset都可以用长度为array大小的二进制串表示，0代表不存在，1代表存在，只要从0 枚举到2^n-1就 ok了。
+ */
+void PushVector(string s, vector<vector<int>>& res)
+{
+    vector<int> tmp;
+    for(int i = 0;i< s.length();i++)
+    {
+        if(s[i] == '1')
+        {
+            tmp.push_back(i+1);
+        }
+    }
+    res.push_back(tmp);
+}
+
+vector<vector<int>> allSubset(int n)
+{
+    string s1;
+    for(int i = 0;i<n;i++)
+    {
+        s1 += '0';
+    }
+    string s2 = "1";
+    int base = 2;
+    vector<vector<int>> res;
+    for(int i = 0;i < pow((double)base,n);i++)
+    {
+        PushVector(s1, res);
+        s1 = addBinary(s1, s2);
+    }
+    return res;
+}
+
+/*
+ 给二叉树增加next节点。我开始用了递归，时间复杂度o(n)空间O(h)。
+ */
+void AddNext(TreeLinkNode* root)
+{
+    if(!root ||(!root->left && !root->right)) return;
+    TreeLinkNode* tmp;
+    tmp = root->next;
+    while(tmp && !tmp->left && !tmp->right)
+    {
+        tmp = tmp->next;
+    }
+
+    TreeLinkNode* next;
+    if(root->left && root->right)
+    {
+        root->left->next = root->right;
+    }
+    next = root->right? root->right : root->left;
+    
+    if(tmp)
+    {
+        next->next = tmp->left? tmp->left: tmp->right;
+    }
+    AddNext(root->right);
+    AddNext(root->left);
+    
+}
 
 
 int main(int argc, const char * argv[])
@@ -14725,6 +14894,8 @@ int main(int argc, const char * argv[])
     commonLength = longestCommonSubString(str1, str2);
     cout<<commonLength<<endl;
     */
+    
+    /*
     bool res;
     vector<int> input = {1,0,1,0,1};
     res = canJump(input);
@@ -14733,6 +14904,49 @@ int main(int argc, const char * argv[])
     int a[] = {1,1,0,0,0,0,0,100};
     res = canJump(a, 8);
     cout<<res<<endl;
+    */
     
+    
+    TreeNode* n1 = new TreeNode(100);
+    TreeNode* n2 = new TreeNode(2);
+    TreeNode* n3 = new TreeNode(300);
+    TreeNode* n4 = new TreeNode(64);
+    TreeNode* n5 = new TreeNode(5);
+    TreeNode* n6 = new TreeNode(60);
+    TreeNode* n7 = new TreeNode(7);
+    TreeNode* n8 = new TreeNode(8);
+    TreeNode* n9 = new TreeNode(9);
+    TreeNode* n10 = new TreeNode(10);
+    
+    n1->left = n2;
+    n1->right = n3;
+    n3->left = n10;
+    n2->left = n4;
+    n2->right = n5;
+    n4->left = n6;
+    n4->right = n7;
+    n6->left = n8;
+    n6->right = n9;
+    int res = INT_MIN;
+    TreeNode* root = LCA(n1, n9, n10);
+    findMaxB(root, n9, n10,res);
+    cout<<res<<endl;
+    res = 0;
+    findMaxC(n1, n9, n10, res);
+    cout<<res<<endl;
+    
+    
+    root = LCA(n1, n9, n5);
+    findMaxB(root, n9, n5,res);
+    cout<<res<<endl;
+    res = 0;
+    findMaxC(n1, n9, n5, res);
+    cout<<res<<endl;
+    
+    /*
+    vector<vector<int>> res;
+    res = allSubset(3);
+    cout<<res.size()<<endl;
+     */
     return 0;
 }
