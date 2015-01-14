@@ -3298,6 +3298,30 @@ vector<int> postorderTraversal(TreeNode *root) {
     return res;
 }
 
+void inorderTraversalTreeNode(TreeNode* root)
+{
+    stack<TreeNode*> s;
+    bool backTrack = false;
+    s.push(root);
+    while(!s.empty())
+    {
+        TreeNode* tmp = s.top();
+        if(tmp->left && !backTrack)
+        {
+            s.push(tmp->left);
+            continue;
+        }
+        cout<<tmp->val<<endl;
+        s.pop();
+        backTrack = true;
+        if(tmp->right)
+        {
+            s.push(tmp->right);
+            backTrack = false;
+        }
+    }
+}
+
 //5.1.4
 vector<vector<int> > levelOrder(TreeNode *root) {
     vector<vector<int>> res;
@@ -10967,29 +10991,6 @@ TreeNode* getNextNode()
     return NULL;
 }
 
-void inorderTraversalTreeNode(TreeNode* root)
-{
-    stack<TreeNode*> s;
-    bool backTrack = false;
-    s.push(root);
-    while(!s.empty())
-    {
-        TreeNode* tmp = s.top();
-        if(tmp->left && !backTrack)
-        {
-            s.push(tmp->left);
-            continue;
-        }
-        cout<<tmp->val<<endl;
-        s.pop();
-        backTrack = true;
-        if(tmp->right)
-        {
-            s.push(tmp->right);
-            backTrack = false;
-        }
-    }
-}
 
 string longestCommonSubStr(string s1, string s2)
 {
@@ -13248,6 +13249,144 @@ void AddNext(TreeLinkNode* root)
     
 }
 
+/*
+4. (1) 一维度向量相乘。每个向量很长，billion个数字。
+*/
+int dotMulti(vector<pair<int, int>> v1, vector<pair<int,int>> v2)
+{
+    int n = (int)v1.size();
+    int m = (int)v2.size();
+    int res = 0;
+    int first = 0;
+    int second = 0;
+    while(first<n && second < m)
+    {
+        if(v1[first].first == v2[second].first)
+        {
+            res += v1[first].second * v2[second].second;
+            first++;
+            second++;
+        }
+        else if(v1[first].first < v2[second].first)
+        {
+            first++;
+        }
+        else
+        {
+            second++;
+        }
+    }
+    return res;
+}
+
+/*
+ 店面，第一轮。上来先问了很多简历的东西。然后就做题，minimum window substring
+ , 但字典没有重复。直接给出了最优解，太紧张有两个bug，很快改正。跑了一个test
+ case, 通过了。然后就问了一下想去什么样的组？然后又随便聊了一下就挂了。
+*/
+int minSubStrNoDup(string s1, string p)
+{
+    bool tracker[256];
+    fill_n(&tracker[0], 256, false);
+    for(int i = 0;i< p.length();i++)
+    {
+        tracker[p[i]] = true;
+    }
+    bool stracker[256];
+    fill_n(&stracker[256], 256, false);
+    int left = 0;
+    while(!tracker[s1[left]]) left++;
+    int count = 0;
+    int minLength = INT_MAX;
+    for(int i = left;i< s1.length();i++)
+    {
+        if(tracker[p[i]])
+        {
+            if(!stracker[p[i]])
+            {
+                stracker[p[i]] = true;
+                count++;
+            }
+            else
+            {
+                while(left <i)
+                {
+                    if(s1[left] != s1[i]) break;
+                    
+                    if(tracker[s1[left]])
+                    {
+                        count--;
+                        stracker[s1[left]] = false;
+                    }
+                }
+            }
+        }
+        if(count == p.length())
+        {
+            if(i-left+1 < minLength) minLength = i-left+1;
+        }
+    }
+    return minLength;
+}
+
+/*
+ 1) 给个数组seq， 和一个total，找 if there is a contiguous sequence in seq which sums to total.
+ 都是正数， 第一次没注意contiguous，给了个back tracking的解法。然后说是contiguous， 给了
+ 个维护窗口的解法，不过犯了个小错误。时间过去了半小时。。。
+ */
+bool findTarget(vector<int> input, int target)
+{
+    int n = (int)input.size();
+    unordered_map<int, vector<int>> tracker;
+    int sum = 0;
+    for(int i = 0;i< n;i++)
+    {
+        sum += input[i];
+        tracker[sum].push_back(i);
+    }
+    
+    for(auto item: tracker)
+    {
+        if(tracker.find(item.first+target) != tracker.end())
+        {
+            int minLeft = item.second[0];
+            int maxRight = tracker[item.first + target][tracker[item.first + target].size()-1];
+            if(maxRight>=minLeft)
+                return true;
+        }
+    }
+    return false;
+}
+
+int findMinXI(vector<int> input)
+{
+    int n = (int)input.size();
+    int l = 0;
+    int r = n-1;
+    int minVal = INT_MAX;
+    while(l<n-1)
+    {
+        int mid = l + (r-l)/2;
+        if(input[l] < input[mid])
+        {
+            minVal = min(input[l], minVal);
+            l = mid+1;
+        }
+        else if(input[r] < input[mid])
+        {
+            minVal = min(input[r], minVal);
+            r = mid -1;
+        }
+        else
+        {
+            l++;
+        }
+    }
+    minVal = min(input[l], minVal);
+    minVal = min(input[r], minVal);
+    return minVal;
+}
+
 
 int main(int argc, const char * argv[])
 {
@@ -14357,7 +14496,7 @@ int main(int argc, const char * argv[])
     //printx(" char* a = read(5); char* b = read(7); for(int i = 0;i< 5;i++){ cout<<*(a++);} cout<<endl; /*for(int i = 0;i< 7;i++){ */
     //cout<<*(b++); /*}cout<</*e*/*/ndl;*/");
     
-    /*
+    
     TreeNode* n1 = new TreeNode(1);
     TreeNode* n2 = new TreeNode(2);
     TreeNode* n3 = new TreeNode(3);
@@ -14378,7 +14517,7 @@ int main(int argc, const char * argv[])
     n6->right = n9;
     
     conertBSTtoDoubleLinkedList(n1);
-    */
+    
     /*
     string res = serialize2str("abc", "defg");
     deserialize(res);
@@ -14906,7 +15045,7 @@ int main(int argc, const char * argv[])
     cout<<res<<endl;
     */
     
-    
+    /*
     TreeNode* n1 = new TreeNode(100);
     TreeNode* n2 = new TreeNode(2);
     TreeNode* n3 = new TreeNode(300);
@@ -14942,7 +15081,7 @@ int main(int argc, const char * argv[])
     res = 0;
     findMaxC(n1, n9, n5, res);
     cout<<res<<endl;
-    
+    */
     /*
     vector<vector<int>> res;
     res = allSubset(3);
